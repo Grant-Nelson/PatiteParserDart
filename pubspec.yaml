@@ -1,0 +1,8 @@
+name: PatiteParserDart
+version: 0.0.1
+description: A simple customizable parsing tool.
+environment:
+  sdk: '>=2.0.0'
+
+dependencies:
+  build_runner: ^0.10.0
