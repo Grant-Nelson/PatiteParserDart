@@ -6,3 +6,8 @@ environment:
 
 dependencies:
   build_runner: ^0.10.0
+  build_web_compilers: ^0.4.0
+  
+dev_dependencies:
+  webdev: ^1.0.0
+  
