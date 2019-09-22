@@ -64,23 +64,21 @@ class Tokenizer {
   /// Tokenizes the given input string with the current configured
   /// tokenizer and returns the list of tokens for the input.
   /// This will throw an exception if the input is not tokenizable.
-  List<Token> tokenize(String input) {
+  List<Token> tokenize(String input) => this.tokenizeChars(input.codeUnits.iterator);
+  
+  /// Tokenizes the given iterator of characters with the current configured
+  /// tokenizer and returns the list of tokens for the input.
+  /// This will throw an exception if the input is not tokenizable.
+  List<Token> tokenizeChars(Iterator<int> iterator) {
     List<Token> tokens = new List<Token>();
-    List<int> chars = input.codeUnits;
     Token lastToken = null;
     State state = this._start;
     int index = 0;
     List<int> prevText = [];
-    while(true) {
-
-      // Check for the end condition and add any left over tokens.
-      if (index >= chars.length) {
-        if (lastToken != null) tokens.add(lastToken);
-        return tokens;
-      }
+    while(iterator.moveNext()) {
 
       // Transition to the next state with the current character.
-      int c = chars[index];
+      int c = iterator.current;
       Transition trans = state.findTansition(c);
       if (trans == null) {
         // No transition found.
@@ -99,6 +97,7 @@ class Tokenizer {
         prevText = [];
         state = this._start;
       } else {
+
         // Transition to the next state and check if it is an acceptance state.
         // Store acceptance state to return to if needed.
         if (!trans.consume) prevText.add(c);
@@ -110,5 +109,8 @@ class Tokenizer {
         index++;
       }
     }
+
+    if (lastToken != null) tokens.add(lastToken);
+    return tokens;
   }
 }
