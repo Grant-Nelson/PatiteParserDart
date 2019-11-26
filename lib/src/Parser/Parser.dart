@@ -13,7 +13,9 @@ class Parser {
     Builder builder = new Builder();
     builder.setGrammar(grammar);
     builder.determineFirstsAndFollows();
+    builder.determineStates();
 
+    print(builder);
 
     return new Parser._();
   }

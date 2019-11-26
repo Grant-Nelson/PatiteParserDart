@@ -68,4 +68,5 @@ class Term {
     }
   }
 
+  String toString() => this._name;
 }

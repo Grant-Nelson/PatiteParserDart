@@ -17,7 +17,8 @@ class Grammar {
   /// Creates a copy of this grammar.
   Grammar copy() {
     Grammar grammar = new Grammar();
-    this._terms.map((Term term) => grammar._add(term.name));
+    for (Term term in this._terms)
+      grammar._add(term.name);
 
     if (this._start != null)
       this._start = grammar._findTerm(this._start.name);

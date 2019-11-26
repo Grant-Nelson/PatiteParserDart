@@ -7,5 +7,6 @@ part 'parser.dart';
 
 /// Tests for Patite Parser Dart.
 void main() {
-  parser00();
+  //parser00();
+  parser01();
 }
