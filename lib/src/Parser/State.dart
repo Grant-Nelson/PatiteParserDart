@@ -1,24 +1,24 @@
-part of PatiteParserDart.Builder;
+part of PatiteParserDart.Parser;
 
-class State {
+class _State {
   int _number;
   List<int> _indices;
   List<Rule> _rules;
   List<Object> _onItems;
-  List<State> _gotos;
+  List<_State> _gotos;
 
-  State(int this._number) {
-    this._indices  = new List<int>();
-    this._rules    = new List<Rule>();
+  _State(int this._number) {
+    this._indices = new List<int>();
+    this._rules   = new List<Rule>();
     this._onItems = new List<Object>();
-    this._gotos    = new List<State>();
+    this._gotos   = new List<_State>();
   }
   
   int get number => this._number;
   List<int> get indices => this._indices;
   List<Rule> get rules => this._rules;
   List<Object> get onItems => this._onItems;
-  List<State> get gotos => this._gotos;
+  List<_State> get gotos => this._gotos;
 
   bool hasRule(int index, Rule rule) {
     for (int i = this._indices.length - 1; i >= 0; i--) {
@@ -43,21 +43,21 @@ class State {
     return true;
   }
 
-  State findGoto(Object item) {
+  _State findGoto(Object item) {
     for (int i = this._onItems.length - 1; i >= 0; i--) {
       if (this._onItems[i] == item) return this._gotos[i];
     }
     return null;
   }
 
-  bool addGoto(Object item, State state) {
+  bool addGoto(Object item, _State state) {
     if (this.findGoto(item) == state) return false;
     this._onItems.add(item);
     this._gotos.add(state);
     return true;
   }
 
-  bool equals(State other) {
+  bool equals(_State other) {
     if (other._number != this._number) return false;
     if (other._indices.length != this._indices.length) return false;
     if (other._onItems.length != this._onItems.length) return false;
