@@ -6,12 +6,14 @@ class _State {
   List<Rule> _rules;
   List<Object> _onItems;
   List<_State> _gotos;
+  bool _accept;
 
   _State(int this._number) {
     this._indices = new List<int>();
     this._rules   = new List<Rule>();
     this._onItems = new List<Object>();
     this._gotos   = new List<_State>();
+    this._accept  = false;
   }
   
   int get number => this._number;
@@ -19,6 +21,9 @@ class _State {
   List<Rule> get rules => this._rules;
   List<Object> get onItems => this._onItems;
   List<_State> get gotos => this._gotos;
+  bool get hasAccept => this._accept;
+
+  void setAccept() => this._accept = true;
 
   bool hasRule(int index, Rule rule) {
     for (int i = this._indices.length - 1; i >= 0; i--) {

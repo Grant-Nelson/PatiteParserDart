@@ -9,4 +9,5 @@ part 'parser.dart';
 void main() {
   //parser00();
   parser01();
+  parser02();
 }
