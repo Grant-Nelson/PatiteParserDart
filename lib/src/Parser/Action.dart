@@ -1,40 +1,75 @@
 part of PatiteParserDart.Parser;
 
-enum _ActionType {
-  Shift,
-  Goto,
-  Reduce,
-  Accept,
-  Error
+/// An action indicates what to perform for a cell of the parse table.
+abstract class _Action {}
+
+/// A shift indicates to put the token into the parse set and move to the next state.
+class _Shift implements _Action {
+
+  /// The state number to move to.
+  final int state;
+  
+  /// Creates a new shift action.
+  _Shift(this.state);
+
+  /// Gets the debug string for this action.
+  String toString() => "shift ${this.state}";
 }
 
-class _Action {
-  final _ActionType _type;
-  final String _error;
-  final int _state;
-  final Rule _rule;
+/// A goto indicicates that the current token will be
+/// handled by another action and simply move to the next state.
+class _Goto implements _Action {
 
-  _Action._(this._type, this._error, this._state, Rule this._rule);
-  
-  factory _Action.shift(int state) => new _Action._(_ActionType.Shift, null, state, null);
-  factory _Action.goto(int state) => new _Action._(_ActionType.Goto, null, state, null);
-  factory _Action.reduce(Rule rule) => new _Action._(_ActionType.Reduce, null, -1, rule);
-  factory _Action.accept() => new _Action._(_ActionType.Accept, null, -1, null);
-  factory _Action.error(String error) => new _Action._(_ActionType.Error, error, -1, null);
-  
-  _ActionType get type => this._type;
-  String get error => this._error;
-  int get state => this._state;
-  Rule get rule => this._rule;
+  /// The state number to goto.
+  final int state;
 
-  String toString() {
-    switch (this._type) {
-      case _ActionType.Shift:  return "shift ${this._state}";
-      case _ActionType.Goto:   return "goto ${this._state}";
-      case _ActionType.Reduce: return "reduce ${this._rule}";
-      case _ActionType.Accept: return "accept";
-      case _ActionType.Error:  return "error ${this._error}";
-    }
-    return "unknown";
-  }
+  /// Creates a new goto action.
+  _Goto(this.state);
+
+  /// Gets the debug string for this action.
+  String toString() => "goto ${this.state}";
+}
+
+/// A reduce indicates that the current token will be
+/// handled by another action and the current rule
+/// is used to reduce the parse set down to a term.
+class _Reduce implements _Action {
+
+  /// The term to reduce the items into.
+  final String term;
+  
+  /// The items (tokens and terms) to reduce from the parse set.
+  final List<String> items;
+
+  /// Creates a new reduce action.
+  _Reduce(this.term, this.items);
+
+  /// Gets the debug string for this action.
+  String toString() => "reduce ${this.term} -> ${this.items.join(" ")}";
+}
+
+/// An accept indicates that the full input has been
+/// checked by the grammar and fits to the grammar.
+class _Accept implements _Action {
+
+  /// Creates a new accept action.
+  _Accept();
+
+  /// Gets the debug string for this action.
+  String toString() => "accept";
+}
+
+/// An error indates that the given token can not
+/// be processed from the current state.
+/// A null action is a generic error, this one gives specific information.
+class _Error implements _Action {
+
+  /// The error message to return for this action.
+  final String error;
+
+  /// Creates a new error action.
+  _Error(this.error);
+
+  /// Gets the debug string for this action.
+  String toString() => "error ${this.error}";
 }

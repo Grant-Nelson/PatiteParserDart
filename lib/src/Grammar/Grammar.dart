@@ -4,6 +4,8 @@ part 'Rule.dart';
 part 'Term.dart';
 
 /// A grammar is a definition of a language.
+/// It is made up of a set of terms and the rules
+/// for how each term is used.
 class Grammar {
   List<Term> _terms;
   Term _start;

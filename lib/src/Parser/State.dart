@@ -1,14 +1,20 @@
 part of PatiteParserDart.Parser;
 
+/// This is a state in the parser builder.
+/// The state is a collection of rules with offset indices.
+/// These states are used for generating the parser table.
 class _State {
-  int _number;
   List<int> _indices;
   List<Rule> _rules;
   List<Object> _onItems;
   List<_State> _gotos;
   bool _accept;
 
-  _State(int this._number) {
+  /// This is the index of the state in the builder.
+  final int number;
+
+  /// Creates a new state for the parser builder.
+  _State(this.number) {
     this._indices = new List<int>();
     this._rules   = new List<Rule>();
     this._onItems = new List<Object>();
@@ -16,15 +22,27 @@ class _State {
     this._accept  = false;
   }
   
-  int get number => this._number;
+  /// The indices which indicated the offset into the matching rule.
   List<int> get indices => this._indices;
+  
+  /// The rules for this state which meatch up with the indices.
   List<Rule> get rules => this._rules;
+
+  /// This is the items which connect two states together.
+  /// This matches with the goto values to create a connection.
   List<Object> get onItems => this._onItems;
+
+  /// This is the goto which indicates which state to go to for the matched items. 
+  /// This matches with the `onItems` to create a connection.
   List<_State> get gotos => this._gotos;
+
+  /// Indicates if this state can acceptance for this grammar.
   bool get hasAccept => this._accept;
 
+  /// Sets this state as an accept state for the grammar.
   void setAccept() => this._accept = true;
 
+  /// Checks if the given index and rule exist in this state.
   bool hasRule(int index, Rule rule) {
     for (int i = this._indices.length - 1; i >= 0; i--) {
       if ((this._indices[i] == index) && (this._rules[i] == rule))
@@ -33,6 +51,8 @@ class _State {
     return false;
   }
 
+  /// Adds the given index and rule to this state.
+  /// Returns false if it already exists, true if added.
   bool addRule(int index, Rule rule) {
     if (this.hasRule(index, rule)) return false;
     this._indices.add(index);
@@ -48,6 +68,8 @@ class _State {
     return true;
   }
 
+  /// Finds the go to state from the given item,
+  /// null is returned if none is found.
   _State findGoto(Object item) {
     for (int i = this._onItems.length - 1; i >= 0; i--) {
       if (this._onItems[i] == item) return this._gotos[i];
@@ -55,6 +77,7 @@ class _State {
     return null;
   }
 
+  /// Adds a goto connection on the given item to the given state.
   bool addGoto(Object item, _State state) {
     if (this.findGoto(item) == state) return false;
     this._onItems.add(item);
@@ -62,8 +85,9 @@ class _State {
     return true;
   }
 
+  /// Determines if this state is equal to the given state.
   bool equals(_State other) {
-    if (other._number != this._number) return false;
+    if (other.number != this.number) return false;
     if (other._indices.length != this._indices.length) return false;
     if (other._onItems.length != this._onItems.length) return false;
     for (int i = this._indices.length - 1; i >= 0; i--) {
@@ -75,9 +99,10 @@ class _State {
     return true;
   }
 
+  /// Gets a string for this state for debugging the builder.
   String toString([String indent = ""]) {
     StringBuffer buf = new StringBuffer();
-    buf.writeln("state ${this._number}:");
+    buf.writeln("state ${this.number}:");
     for (int i = 0; i < this._rules.length; i++)
       buf.writeln(indent+"  "+this._rules[i].toString(this._indices[i]));
     for (int i = 0; i < this._onItems.length; i++)

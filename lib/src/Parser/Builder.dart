@@ -19,6 +19,7 @@ class _Builder {
     }
   }
   
+  /// Finds a state with the given offset index for the given rule.
   _State find(int index, Rule rule) {
     for (_State state in this._states) {
       for (int i = 0; i < state.indices.length; i++) {
@@ -29,6 +30,7 @@ class _Builder {
     return null;
   }
 
+  /// Determines all the parser states for the grammar.
   void determineStates() {
     _State startState = new _State(0);
     for (Rule rule in this._grammar.startTerm.rules)
@@ -43,6 +45,7 @@ class _Builder {
     }
   }
 
+  /// Determines the next states following the given state.
   List<_State> nextStates(_State state) {
     List<_State> changed = new List<_State>();
     for (int i = 0; i < state.indices.length; i++) {
@@ -72,34 +75,45 @@ class _Builder {
     return changed;
   }
 
+  /// Fills the parse table with the information from the states.
   void fillTable() {
     for (_State state in this._states) {
       if (state.hasAccept)
-        this._table.write(state.number, this._grammar.acceptToken, new _Action.accept());
+        this._table.write(state.number, this._grammar.acceptToken, new _Accept());
       
       for (int i = 0; i < state.rules.length; i++) {
         Rule rule = state.rules[i];
         int index = state.indices[i];
         if (rule.items.length <= index) {
-          // TODO: use follows
-          _Action action = new _Action.reduce(rule);
-          for (Object item in this._items)
-            this._table.write(state.number, item, action);
+          List<Object> items = rule.term.determineFollows();
+          if (items.length > 0) {
+            List<String> ruleItems = new List<String>();
+            for (Object item in rule.items) {
+              if (item is Term) ruleItems.add(item.name);
+              else ruleItems.add(item as String);
+            }
+            _Reduce action = new _Reduce(rule.term.name, ruleItems);
+            for (Object item in items)
+              this._table.write(state.number, item, action);
+          }
         }
       }
 
       for (int i = 0; i < state.gotos.length; i++) {
         Object onItem = state.onItems[i];
         int goto = state.gotos[i].number;
-        _Action action;
-        if (onItem is Term) action = new _Action.goto(goto);
-        else                action = new _Action.shift(goto);
+        Object action;
+        if (onItem is Term) action = new _Goto(goto);
+        else                action = new _Shift(goto);
         this._table.write(state.number, onItem, action);
       }
     }
   }
+  
+  /// The table from the builder.
+  _Table get table => this._table;
 
-  // Returns a human readable string for debugging of the parser being built.
+  /// Returns a human readable string for debugging of the parser being built.
   String toString() {
     StringBuffer buf = new StringBuffer();
     for (_State state in this._states) {

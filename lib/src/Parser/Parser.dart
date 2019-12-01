@@ -10,8 +10,9 @@ part 'State.dart';
 part 'Table.dart';
 
 class Parser {
+  _Table _table;
 
-  Parser._(){
+  Parser._(this._table) {
     
   }
 
@@ -19,10 +20,8 @@ class Parser {
     _Builder builder = new _Builder(grammar);
     builder.determineStates();
     builder.fillTable();
-
-    print(builder);
-
-    return new Parser._();
+    //print(builder); // Uncomment to print rules and table.
+    return new Parser._(builder.table);
   }
 
   // TODO: Parser.fromFile
