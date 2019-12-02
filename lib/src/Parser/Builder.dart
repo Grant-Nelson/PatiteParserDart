@@ -8,7 +8,12 @@ class _Builder {
   _Table _table;
 
   /// Constructs of a new parser builder.
-  _Builder(this._grammar) {
+  _Builder(Grammar grammar) {
+    this._grammar = grammar.copy();
+    Term oldStart = this._grammar.startTerm;
+    this._grammar.start(_startTerm);
+    this._grammar.newRule(_startTerm).addTerm(oldStart.name).addToken(_eofTokenName);
+
     this._states = new List<_State>();
     this._items = new Set<Object>();
     this._table = new _Table();
@@ -53,7 +58,7 @@ class _Builder {
       Rule rule = state.rules[i];
       if (index < rule.items.length) {
         Object item = rule.items[index];
-        if (item.toString() == this._grammar.acceptToken) {
+        if (item.toString() == _eofTokenName) {
           state.setAccept();
         } else {
           _State next = state.findGoto(item);
@@ -79,7 +84,7 @@ class _Builder {
   void fillTable() {
     for (_State state in this._states) {
       if (state.hasAccept)
-        this._table.write(state.number, this._grammar.acceptToken, new _Accept());
+        this._table.writeShift(state.number, _eofTokenName, new _Accept());
       
       for (int i = 0; i < state.rules.length; i++) {
         Rule rule = state.rules[i];
@@ -92,9 +97,9 @@ class _Builder {
               if (item is Term) ruleItems.add(item.name);
               else ruleItems.add(item as String);
             }
-            _Reduce action = new _Reduce(rule.term.name, ruleItems);
+            _Reduce action = new _Reduce(rule.term.name, List<String>.unmodifiable(ruleItems));
             for (Object item in items)
-              this._table.write(state.number, item, action);
+              this._table.writeShift(state.number, item, action);
           }
         }
       }
@@ -102,10 +107,9 @@ class _Builder {
       for (int i = 0; i < state.gotos.length; i++) {
         Object onItem = state.onItems[i];
         int goto = state.gotos[i].number;
-        Object action;
-        if (onItem is Term) action = new _Goto(goto);
-        else                action = new _Shift(goto);
-        this._table.write(state.number, onItem, action);
+        if (onItem is Term)
+          this._table.writeGoto(state.number, onItem.name, new _Goto(goto));
+        else this._table.writeShift(state.number, onItem as String, new _Shift(goto));
       }
     }
   }

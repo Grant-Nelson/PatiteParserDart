@@ -9,13 +9,11 @@ part 'Term.dart';
 class Grammar {
   List<Term> _terms;
   Term _start;
-  String _accept;
   
   /// Creates a new empty grammar.
   Grammar() {
     this._terms = new List<Term>();
     this._start = null;
-    this._accept = "\$";
   }
 
   /// Creates a copy of this grammar.
@@ -52,18 +50,12 @@ class Grammar {
     this._start = this.term(termName);
     return this._start;
   }
-
-  /// Sets the accept token for the grammar.
-  void accept(String token) => this._accept = token;
   
   /// Gets the start term for tis grammar.
   Term get startTerm => this._start;
 
   /// Gets the terms for tis grammar.
   List<Term> get terms => this._terms;
-  
-  /// Gets the token to use for the accept condition.
-  String get acceptToken => this._accept;
 
   /// Finds a term in this grammar by the given name.
   /// Returns null if no term by that name if found.
