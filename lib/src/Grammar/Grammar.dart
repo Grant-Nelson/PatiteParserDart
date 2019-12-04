@@ -23,7 +23,7 @@ class Grammar {
       grammar._add(term.name);
 
     if (this._start != null)
-      this._start = grammar._findTerm(this._start.name);
+      grammar._start = grammar._findTerm(this._start.name);
 
     for (Term term in this._terms) {
       Term termCopy = grammar._findTerm(term.name);

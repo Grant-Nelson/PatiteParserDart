@@ -25,11 +25,11 @@ class Parser {
   Parser._(this._table);
 
   /// Creates a new parser with the given grammar.
-  factory Parser.fromGrammar(Grammar grammar, {bool printDebug = false}) {
+  factory Parser.fromGrammar(Grammar grammar) {
     _Builder builder = new _Builder(grammar);
     builder.determineStates();
     builder.fillTable();
-    if (printDebug) print(builder);
+    print(builder); // Uncomment to help with debugging.
     return new Parser._(builder.table);
   }
 
@@ -39,6 +39,7 @@ class Parser {
 
   /// This parses the given tokens and returns the results.
   Result parse(Iterable<Token> tokens, [int errorCap = 0]) {
+    print("]] tokens: $tokens");
     _Runner runner = new _Runner(this._table, errorCap);
     for (Token token in tokens) {
       if (!runner.add(token)) return runner.result;

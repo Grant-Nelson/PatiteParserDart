@@ -14,7 +14,7 @@ void parser00() {
   grammar.newRule("T").addToken("n");
   grammar.newRule("T").addToken("+").addTerm("T");
   grammar.newRule("T").addTerm("T").addToken("+").addToken("n");
-  Parser parser = new Parser.fromGrammar(grammar, printDebug: true);
+  Parser parser = new Parser.fromGrammar(grammar);
   print(parser);
 }
 
@@ -26,7 +26,7 @@ void parser01() {
   grammar.start("X");
   grammar.newRule("X").addToken("(").addTerm("X").addToken(")");
   grammar.newRule("X").addToken("(").addToken(")");
-  Parser parser = new Parser.fromGrammar(grammar, printDebug: true);
+  Parser parser = new Parser.fromGrammar(grammar);
   print(parser);
 }
 
@@ -38,7 +38,7 @@ void parser02() {
   grammar.start("X");
   grammar.newRule("X").addToken("(").addTerm("X").addToken(")");
   grammar.newRule("X");
-  Parser parser = new Parser.fromGrammar(grammar, printDebug: true);
+  Parser parser = new Parser.fromGrammar(grammar);
   print(parser);
 }
 
@@ -54,7 +54,7 @@ void parser03() {
   grammar.newRule("S");
   grammar.newRule("A").addToken("a").addTerm("A");
   grammar.newRule("A");
-  Parser parser = new Parser.fromGrammar(grammar, printDebug: true);
+  Parser parser = new Parser.fromGrammar(grammar);
   print(parser);
 }
 
@@ -68,7 +68,7 @@ void parser04() {
   tok.join("start", "mul")..addSet("*");
   tok.join("start", "open")..addSet("(");
   tok.join("start", "close")..addSet(")");
-  tok.join("start", "space")..addSet(" ")..consume = true;
+  tok.join("start", "start")..addSet(" ")..consume = true;
   tok.setToken("add", "+");
   tok.setToken("mul", "*");
   tok.setToken("open", "(");
@@ -84,9 +84,11 @@ void parser04() {
   grammar.newRule("E").addTerm("E").addToken("*").addTerm("E");
   grammar.newRule("E").addToken("(").addTerm("E").addToken(")");
   grammar.newRule("E").addToken("id");
-  Parser parser = new Parser.fromGrammar(grammar, printDebug: true);
+  Parser parser = new Parser.fromGrammar(grammar);
 
-  Result result = parser.parse(tok.tokenize("a + b * c"));
+  //Result result = parser.parse(tok.tokenize("a + b * c"));
+  Result result = parser.parse(tok.tokenize("(a + b)"));
+  //Result result = parser.parse(tok.tokenize("a + (b * c) + d"));
 
   print(result);
 }

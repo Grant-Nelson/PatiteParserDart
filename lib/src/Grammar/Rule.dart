@@ -2,7 +2,7 @@ part of PatiteParserDart.Grammar;
 
 /// A rule is a single definition from a grammar.
 /// 
-/// For example `<T> => "(" <E> ")"`. The term for the rule is
+/// For example `<T> → "(" <E> ")"`. The term for the rule is
 /// the left hand side (`T`) while the items are the parts on the right hand size.
 /// The items are made up of tokens (`(`, `)`) and the rule's term or other terms (`E`).
 /// The order of the items defines how this rule in the grammer is to be used.
@@ -48,6 +48,6 @@ class Rule {
       parts.add(item.toString());
     if ((stepIndex >= 0) && (stepIndex <= parts.length))
       parts.insert(stepIndex, "•");
-    return this._term.name + " -> " + parts.join(" ");
+    return this._term.name + " → " + parts.join(" ");
   }
 }

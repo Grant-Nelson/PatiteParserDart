@@ -14,15 +14,33 @@ class TreeNode {
   /// Creates a new tree node.
   TreeNode(this.term, this.items);
 
-  /// Gets a string for the debugging the parser.
-  String toString() {
-    StringBuffer buf = new StringBuffer();
-    buf.write("${this.term}->[");
-    for (int i = 0; i < items.length; i++) {
-      if (i > 0) buf.write(" ");
-      buf.write(items[i]);
+  /// Helps construct the debugging output of the tree.
+  void _toTree(StringBuffer buf, String indent, String first) {
+    buf.write("$first--${this.term}");
+    if (items.length > 0) {
+      for (int i = 0; i < items.length-1; i++) {
+        Object item = items[i];
+        if (item is TreeNode) item._toTree(buf, "$indent  |", "\n$indent  |");
+        else buf.write("\n$indent  |--$item");
+      }
+      Object item = items[items.length-1];
+      if (item is TreeNode) item._toTree(buf, "$indent   ", "\n$indent  '");
+      else buf.write("\n$indent  '--$item");
     }
-    buf.write("]");
+  }
+
+  /// Gets a string for the debugging the parser.
+  String toString([bool verbose = false]) {
+    StringBuffer buf = new StringBuffer();
+    if (verbose) this._toTree(buf, "", "");
+    else {
+      buf.write("${this.term}(");
+      for (int i = 0; i < items.length; i++) {
+        if (i > 0) buf.write(", ");
+        buf.write("$items[i]");
+      }
+      buf.write(")");
+    } 
     return buf.toString();
   }
 }

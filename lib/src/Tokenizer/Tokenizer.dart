@@ -62,55 +62,70 @@ class Tokenizer {
     this.state(stateName).setToken(tokenName);
 
   /// Tokenizes the given input string with the current configured
-  /// tokenizer and returns the list of tokens for the input.
+  /// tokenizer and returns the iterator of tokens for the input.
   /// This will throw an exception if the input is not tokenizable.
-  List<Token> tokenize(String input) => this.tokenizeChars(input.codeUnits.iterator);
+  Iterable<Token> tokenize(String input) => this.tokenizeChars(input.codeUnits.iterator);
   
   /// Tokenizes the given iterator of characters with the current configured
-  /// tokenizer and returns the list of tokens for the input.
+  /// tokenizer and returns the iterator of tokens for the input.
   /// This will throw an exception if the input is not tokenizable.
-  List<Token> tokenizeChars(Iterator<int> iterator) {
-    List<Token> tokens = new List<Token>();
+  Iterable<Token> tokenizeChars(Iterator<int> iterator) sync* {
     Token lastToken = null;
     State state = this._start;
     int index = 0;
-    List<int> prevText = [];
-    while(iterator.moveNext()) {
+    int lastLength = 0;
+    List<int> outText  = [];
+    List<int> allInput = [];
+    List<int> retoken  = [];
+
+    while (true) {
+      int c;
+      if (retoken.isNotEmpty) {
+        c = retoken.removeAt(0);
+      } else {
+        if (!iterator.moveNext()) break;
+        c = iterator.current;
+      }
+      allInput.add(c);
+      index++;
 
       // Transition to the next state with the current character.
-      int c = iterator.current;
       Transition trans = state.findTansition(c);
       if (trans == null) {
         // No transition found.
         if (lastToken == null) {
           // No previous found token state, therefore this part
           // of the input isn't tokenizable with this tokenizer.
-          prevText.add(c);
-          String text = new String.fromCharCodes(prevText);
+          String text = new String.fromCharCodes(allInput);
           throw new Exception("Untokenizable string [state: ${state.name}, index $index]: \"$text\"");
         }
 
         // Reset to previous found token's state.
-        tokens.add(lastToken);
-        index = lastToken.index+1;
+        Token resultToken = lastToken;
+        index = lastLength;
+        allInput.removeRange(0, lastLength);
+        retoken.addAll(allInput);
+        allInput = [];
+        outText = [];
         lastToken = null;
-        prevText = [];
+        lastLength = 0;
         state = this._start;
+
+        yield resultToken;
       } else {
 
         // Transition to the next state and check if it is an acceptance state.
         // Store acceptance state to return to if needed.
-        if (!trans.consume) prevText.add(c);
+        if (!trans.consume) outText.add(c);
         state = trans.target;
         if (state.token != null) {
-          String text = new String.fromCharCodes(prevText);
+          String text = new String.fromCharCodes(outText);
           lastToken = state.token.getToken(text, index);
+          lastLength = allInput.length;
         }
-        index++;
       }
     }
 
-    if (lastToken != null) tokens.add(lastToken);
-    return tokens;
+    if (lastToken != null) yield lastToken;
   }
 }
