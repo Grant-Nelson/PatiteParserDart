@@ -11,13 +11,15 @@ part 'Transition.dart';
 class Tokenizer {
   Map<String, State> _states;
   Map<String, TokenState> _token;
+  Set<String> _consume;
   State _start;
 
   /// Creates a new tokenizer.
   Tokenizer() {
-    this._states = new Map<String, State>();
-    this._token = new Map<String, TokenState>();
-    this._start = null;
+    this._states  = new Map<String, State>();
+    this._token   = new Map<String, TokenState>();
+    this._consume = new Set<String>();
+    this._start   = null;
   }
 
   /// Sets the start state for the tokenizer to a state with the name [stateName].
@@ -61,6 +63,9 @@ class Tokenizer {
   TokenState setToken(String stateName, String tokenName) =>
     this.state(stateName).setToken(tokenName);
 
+  /// Sets which tokens should be consumed and not emitted.
+  void consume(Iterable<String> tokens) => this._consume.addAll(tokens);
+
   /// Tokenizes the given input string with the current configured
   /// tokenizer and returns the iterator of tokens for the input.
   /// This will throw an exception if the input is not tokenizable.
@@ -73,6 +78,7 @@ class Tokenizer {
     Token lastToken = null;
     State state = this._start;
     int index = 0;
+    int lastIndex = 0;
     int lastLength = 0;
     List<int> outText  = [];
     List<int> allInput = [];
@@ -102,7 +108,7 @@ class Tokenizer {
 
         // Reset to previous found token's state.
         Token resultToken = lastToken;
-        index = lastLength;
+        index = lastIndex;
         allInput.removeRange(0, lastLength);
         retoken.addAll(allInput);
         allInput = [];
@@ -111,7 +117,8 @@ class Tokenizer {
         lastLength = 0;
         state = this._start;
 
-        yield resultToken;
+        if (!this._consume.contains(resultToken.name))
+          yield resultToken;
       } else {
 
         // Transition to the next state and check if it is an acceptance state.
@@ -122,10 +129,12 @@ class Tokenizer {
           String text = new String.fromCharCodes(outText);
           lastToken = state.token.getToken(text, index);
           lastLength = allInput.length;
+          lastIndex = index;
         }
       }
     }
 
-    if (lastToken != null) yield lastToken;
+    if ((lastToken != null) && (!this._consume.contains(lastToken.name)))
+      yield lastToken;
   }
 }
