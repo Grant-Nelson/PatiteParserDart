@@ -22,7 +22,7 @@ class Result {
         buf.write(error);
       }
     }
-    if (tree != null) buf.write(tree.toString());
+    if (tree != null) buf.write(tree.toString(true));
     return buf.toString();
   }
 }

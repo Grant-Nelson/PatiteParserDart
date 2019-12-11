@@ -109,17 +109,8 @@ class _Runner {
     }
 
     int curState = this._stateStack.last;
-    
-    print(">> state:  $curState");
-    print("   token:  $token");
-
     _Action action = this._table.readShift(curState, token.name);
-    if (action == null) return this._nullAction(token);
-
-    print("   action: $action");
-    print("   items:  ${this._itemStack}");
-    print("   stack:  ${this._stateStack}");
-
+    if (action == null)    return this._nullAction(token);
     if (action is _Shift)  return this._shiftAction(action, token);
     if (action is _Reduce) return this._reduceAction(action, token);
     if (action is _Accept) return this._acceptAction(action);

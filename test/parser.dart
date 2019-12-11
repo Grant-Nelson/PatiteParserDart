@@ -1,7 +1,29 @@
 part of PatiteParserDart.test;
 
+void checkParser(Tokenizer tok, Parser parser, String input, List<String> expected) {
+  Result result = parser.parse(tok.tokenize(input));
+  String exp = expected.join("\n            ");
+  String results = result.toString().replaceAll("\n", "\n            ");
+  if (exp != results) {
+    print("Error: The input did not result in a tree which matches the expected results");
+    print("  Input:    $input");
+    print("  Expected: $exp");
+    print("  Results:  $results");
+  }
+}
+
 void parser00() {
-  print("parser00");
+  Tokenizer tok = new Tokenizer();
+  tok.start("start");
+  tok.join("start", "(")..addSet("(");
+  tok.join("start", ")")..addSet(")");
+  tok.join("start", "+")..addSet("+");
+  tok.join("start", "num")..addRange("0", "9");
+  tok.join("num", "num")..addRange("0", "9");
+  tok.setToken("(", "(");
+  tok.setToken(")", ")");
+  tok.setToken("+", "+");
+  tok.setToken("num", "n");
   // 1. E → T
   // 2. E → ( E )
   // 3. T → n
@@ -15,11 +37,45 @@ void parser00() {
   grammar.newRule("T").addToken("+").addTerm("T");
   grammar.newRule("T").addTerm("T").addToken("+").addToken("n");
   Parser parser = new Parser.fromGrammar(grammar);
-  print(parser);
+  checkParser(tok, parser, "103",
+    ["--E",
+     "  '--T",
+     "     '--n:3:\"103\""]);
+  checkParser(tok, parser, "+2",
+    ["--E",
+     "  '--T",
+     "     |--+:1:\"+\"",
+     "     '--T",
+     "        '--n:2:\"2\""]);
+  checkParser(tok, parser, "3+4",
+    ["--E",
+     "  '--T",
+     "     |--T",
+     "     |  '--n:1:\"3\"",
+     "     |--+:2:\"+\"",
+     "     '--n:3:\"4\""]);
+  checkParser(tok, parser, "((42+6))",
+    ["--E",
+     "  |--(:1:\"(\"",
+     "  |--E",
+     "  |  |--(:2:\"(\"",
+     "  |  |--E",
+     "  |  |  '--T",
+     "  |  |     |--T",
+     "  |  |     |  '--n:4:\"42\"",
+     "  |  |     |--+:5:\"+\"",
+     "  |  |     '--n:6:\"6\"",
+     "  |  '--):7:\")\"",
+     "  '--):8:\")\""]);
 }
 
 void parser01() {
-  print("parser01");
+  Tokenizer tok = new Tokenizer();
+  tok.start("start");
+  tok.join("start", "(")..addSet("(");
+  tok.join("start", ")")..addSet(")");
+  tok.setToken("(", "(");
+  tok.setToken(")", ")");
   // 1. X → ( X )
   // 2. X → ( )
   Grammar grammar = new Grammar();
@@ -27,11 +83,29 @@ void parser01() {
   grammar.newRule("X").addToken("(").addTerm("X").addToken(")");
   grammar.newRule("X").addToken("(").addToken(")");
   Parser parser = new Parser.fromGrammar(grammar);
-  print(parser);
+  checkParser(tok, parser, "()",
+    ["--X",
+     "  |--(:1:\"(\"",
+     "  '--):2:\")\""]);
+  checkParser(tok, parser, "((()))",
+    ["--X",
+     "  |--(:1:\"(\"",
+     "  |--X",
+     "  |  |--(:2:\"(\"",
+     "  |  |--X",
+     "  |  |  |--(:3:\"(\"",
+     "  |  |  '--):4:\")\"",
+     "  |  '--):5:\")\"",
+     "  '--):6:\")\""]);
 }
 
 void parser02() {
-  print("parser02");
+  Tokenizer tok = new Tokenizer();
+  tok.start("start");
+  tok.join("start", "(")..addSet("(");
+  tok.join("start", ")")..addSet(")");
+  tok.setToken("(", "(");
+  tok.setToken(")", ")");
   // 1. X → ( X )
   // 2. X → 𝜀
   Grammar grammar = new Grammar();
@@ -39,11 +113,35 @@ void parser02() {
   grammar.newRule("X").addToken("(").addTerm("X").addToken(")");
   grammar.newRule("X");
   Parser parser = new Parser.fromGrammar(grammar);
-  print(parser);
+  checkParser(tok, parser, "",
+    ["--X"]);
+  checkParser(tok, parser, "()",
+    ["--X",
+     "  |--(:1:\"(\"",
+     "  |--X",
+     "  '--):2:\")\""]);
+  checkParser(tok, parser, "((()))",
+    ["--X",
+     "  |--(:1:\"(\"",
+     "  |--X",
+     "  |  |--(:2:\"(\"",
+     "  |  |--X",
+     "  |  |  |--(:3:\"(\"",
+     "  |  |  |--X",
+     "  |  |  '--):4:\")\"",
+     "  |  '--):5:\")\"",
+     "  '--):6:\")\""]);
 }
 
 void parser03() {
-  print("parser03");
+  Tokenizer tok = new Tokenizer();
+  tok.start("start");
+  tok.join("start", "a")..addSet("a");
+  tok.join("start", "b")..addSet("b");
+  tok.join("start", "d")..addSet("d");
+  tok.setToken("a", "a");
+  tok.setToken("b", "b");
+  tok.setToken("d", "d");
   // 1. S → b A d S
   // 2. S → 𝜀
   // 3. A → a A
@@ -55,11 +153,39 @@ void parser03() {
   grammar.newRule("A").addToken("a").addTerm("A");
   grammar.newRule("A");
   Parser parser = new Parser.fromGrammar(grammar);
-  print(parser);
+  checkParser(tok, parser, "bd",
+    ["--S",
+     "  |--b:1:\"b\"",
+     "  |--A",
+     "  |--d:2:\"d\"",
+     "  '--S"]);
+  checkParser(tok, parser, "bad",
+    ["--S",
+     "  |--b:1:\"b\"",
+     "  |--A",
+     "  |  |--a:2:\"a\"",
+     "  |  '--A",
+     "  |--d:3:\"d\"",
+     "  '--S"]);
+  checkParser(tok, parser, "bdbadbd",
+    ["--S",
+     "  |--b:1:\"b\"",
+     "  |--A",
+     "  |--d:2:\"d\"",
+     "  '--S",
+     "     |--b:3:\"b\"",
+     "     |--A",
+     "     |  |--a:4:\"a\"",
+     "     |  '--A",
+     "     |--d:5:\"d\"",
+     "     '--S",
+     "        |--b:6:\"b\"",
+     "        |--A",
+     "        |--d:7:\"d\"",
+     "        '--S"]);
 }
 
 void parser04() {
-  print("parser04");
   Tokenizer tok = new Tokenizer();
   tok.start("start");
   tok.join("start", "id")..addRange("a", "z");
@@ -85,10 +211,46 @@ void parser04() {
   grammar.newRule("E").addToken("(").addTerm("E").addToken(")");
   grammar.newRule("E").addToken("id");
   Parser parser = new Parser.fromGrammar(grammar);
-
-  //Result result = parser.parse(tok.tokenize("a + b * c"));
-  Result result = parser.parse(tok.tokenize("(a + b)"));
-  //Result result = parser.parse(tok.tokenize("a + (b * c) + d"));
-
-  print(result);
+  checkParser(tok, parser, "a",
+    ["--E",
+     "  '--id:1:\"a\""]);
+  checkParser(tok, parser, "(a + b)",
+    ["--E",
+     "  |--(:1:\"(\"",
+     "  |--E",
+     "  |  |--E",
+     "  |  |  '--id:2:\"a\"",
+     "  |  |--+:4:\"+\"",
+     "  |  '--E",
+     "  |     '--id:6:\"b\"",
+     "  '--):7:\")\""]);
+  checkParser(tok, parser, "a + b * c",
+    ["--E",
+     "  |--E",
+     "  |  '--id:1:\"a\"",
+     "  |--+:3:\"+\"",
+     "  '--E",
+     "     |--E",
+     "     |  '--id:5:\"b\"",
+     "     |--*:7:\"*\"",
+     "     '--E",
+     "        '--id:9:\"c\""]);
+  checkParser(tok, parser, "a + (b * c) + d",
+    ["--E",
+     "  |--E",
+     "  |  '--id:1:\"a\"",
+     "  |--+:3:\"+\"",
+     "  '--E",
+     "     |--E",
+     "     |  |--(:5:\"(\"",
+     "     |  |--E",
+     "     |  |  |--E",
+     "     |  |  |  '--id:6:\"b\"",
+     "     |  |  |--*:8:\"*\"",
+     "     |  |  '--E",
+     "     |  |     '--id:10:\"c\"",
+     "     |  '--):11:\")\"",
+     "     |--+:13:\"+\"",
+     "     '--E",
+     "        '--id:15:\"d\""]);
 }

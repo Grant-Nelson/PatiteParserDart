@@ -10,9 +10,11 @@ part 'tokenizer.dart';
 /// Tests for Patite Parser Dart.
 void main() {
   tokenizer00();
-  // parser00();
-  // parser01();
-  // parser02();
-  // parser03();
-  // parser04();
+  tokenizer01();
+
+  parser00();
+  parser01();
+  parser02();
+  parser03();
+  parser04();
 }
