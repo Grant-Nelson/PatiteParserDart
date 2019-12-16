@@ -1,6 +1,7 @@
 library PatiteParserDart.Tokenizer;
 
-import '../Matcher/Matcher.dart' as Matcher;
+import 'package:PatiteParserDart/src/Simple/Simple.dart' as Simple;
+import 'package:PatiteParserDart/src/Matcher/Matcher.dart' as Matcher;
 
 part 'State.dart';
 part 'Token.dart';
@@ -20,6 +21,58 @@ class Tokenizer {
     this._token   = new Map<String, TokenState>();
     this._consume = new Set<String>();
     this._start   = null;
+  }
+
+  /// Loads a whole tokenizer from the given deserializer.
+  factory Tokenizer.deserialize(Simple.Deserializer data) {
+    Tokenizer tokenizer = new Tokenizer();
+
+    int tokenCount = data.readInt();
+    for (int i = 0; i < tokenCount; i++) {
+      String key = data.readStr();
+      TokenState token = new TokenState._(tokenizer, key);
+      token._replace = data.readStringStringMap();
+      tokenizer._token[key] = token;
+    }
+
+    int stateCount = data.readInt();
+    List<String> keys = new List<String>();
+    for (int i = 0; i < stateCount; i++) {
+      String key = data.readStr();
+      tokenizer._states[key] = new State._(tokenizer, key);
+      keys.add(key);
+    }
+    for (String key in keys)
+      tokenizer._states[key]._deserialize(data.readSer());
+
+    tokenizer._consume = new Set.from(data.readStrList());
+    if (data.readBool())
+      tokenizer._start = tokenizer._states[data.readStr()];
+    return tokenizer;
+  }
+
+  /// Creates a serializer to represent the whole tokenizer.
+  Simple.Serializer serialize() {
+    Simple.Serializer data = new Simple.Serializer();
+
+    data.writeInt(this._token.length);
+    for (String key in this._token.keys) {
+      data.writeStr(key);
+      data.writeStringStringMap(this._token[key]._replace);
+    }
+
+    data.writeInt(this._states.length);
+    for (String key in this._states.keys)
+      data.writeStr(key);
+    for (String key in this._states.keys)
+      data.writeSer(this._states[key]._serialize());
+
+    data.writeStrList(this._consume.toList());
+    
+    bool hasStart = this._start != null;
+    data.writeBool(hasStart);
+    if (hasStart) data.writeStr(this._start._name);
+    return data;
   }
 
   /// Sets the start state for the tokenizer to a state with the name [stateName].

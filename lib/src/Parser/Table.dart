@@ -16,6 +16,98 @@ class _Table {
     this._gotoTable    = new List<Map<String, _Action>>();
   }
   
+  /// Deserializes the given serialized data into this table.
+  factory _Table.deserialize(Simple.Deserializer data) {
+    _Table table = new _Table();
+    table._shiftColumns = new Set<String>.from(data.readStrList());
+    table._gotoColumns = new Set<String>.from(data.readStrList());
+
+    int shiftCount = data.readInt();
+    for (int i = 0; i < shiftCount; i++) {
+      Map<String, _Action> shiftMap = new Map<String, _Action>();
+      int keysCount = data.readInt();
+      for (int j = 0; j < keysCount; j++) {
+        String key = data.readStr();
+        _Action action = table._deserializeAction(data);
+        shiftMap[key] = action;
+      }
+      table._shiftTable.add(shiftMap);
+    }
+
+    int gotoCount = data.readInt();
+    for (int i = 0; i < gotoCount; i++) {
+      Map<String, _Action> gotoMap = new Map<String, _Action>();
+      int keysCount = data.readInt();
+      for (int j = 0; j < keysCount; j++) {
+        String key = data.readStr();
+        _Action action = table._deserializeAction(data);
+        gotoMap[key] = action;
+      }
+      table._shiftTable.add(gotoMap);
+    }
+
+    return table;
+  }
+
+  /// Creates an action from the given data. 
+  _Action _deserializeAction(Simple.Deserializer data) {
+    switch (data.readInt()) {
+      case 1: return new _Shift(data.readInt());
+      case 2: return new _Goto(data.readInt());
+      case 3: return new _Reduce(data.readStr(), data.readStrList());
+      case 4: return new _Accept();
+      case 5: return new _Error(data.readStr());
+    }
+    return null;
+  }
+
+  /// Serializes the table.
+  Simple.Serializer serialize() {
+    Simple.Serializer data = new Simple.Serializer();
+    data.writeStrList(this._shiftColumns.toList());
+    data.writeStrList(this._gotoColumns.toList());
+
+    data.writeInt(this._shiftTable.length);
+    for (Map<String, _Action> shiftMap in this._shiftTable) {
+      data.writeInt(shiftMap.keys.length);
+      for (String key in shiftMap.keys) {
+        data.writeStr(key);
+        this._serializeAction(data, shiftMap[key]);
+      }
+    }
+    
+    data.writeInt(this._gotoTable.length);
+    for (Map<String, _Action> gotoMap in this._gotoTable) {
+      data.writeInt(gotoMap.keys.length);
+      for (String key in gotoMap.keys) {
+        data.writeStr(key);
+        this._serializeAction(data, gotoMap[key]);
+      }
+    }
+
+    return data;
+  }
+
+  /// Sets up the data for serializing an action. 
+  void _serializeAction(Simple.Serializer data, _Action action) {
+    if (action is _Shift) {
+      data.writeInt(1);
+      data.writeInt(action.state);
+    } else if (action is _Goto) {
+      data.writeInt(2);
+      data.writeInt(action.state);
+    } else if (action is _Reduce) {
+      data.writeInt(3);
+      data.writeStr(action.term);
+      data.writeStrList(action.items);
+    } else if (action is _Accept) {
+      data.writeInt(4);
+    } else if (action is _Error) {
+      data.writeInt(5);
+      data.writeStr(action.error);
+    }
+  }
+
   /// Reads an action from the table,
   /// returns null if no action set.
   _Action _read(int row, String column, List<Map<String, _Action>> table) {

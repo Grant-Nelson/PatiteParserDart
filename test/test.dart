@@ -3,6 +3,7 @@ library PatiteParserDart.test;
 import 'package:PatiteParserDart/Grammar.dart';
 import 'package:PatiteParserDart/Parser.dart';
 import 'package:PatiteParserDart/src/Tokenizer/Tokenizer.dart';
+import 'package:PatiteParserDart/src/Simple/Simple.dart' as Simple;
 
 part 'parser.dart';
 part 'tokenizer.dart';

@@ -9,6 +9,9 @@ class Group implements Matcher {
     this._matchers = new List<Matcher>();
   }
 
+  /// Gets the list of matchers in this group.
+  List<Matcher> get matchers => this._matchers;
+
   /// Determines if this matcher matches the given character, [c].
   /// If any matcher matches the given character true is returned.
   bool match(int c) {
