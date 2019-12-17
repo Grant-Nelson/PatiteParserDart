@@ -1,6 +1,7 @@
 library PatiteParserDart.Tokenizer;
 
-import '../Matcher/Matcher.dart' as Matcher;
+import 'package:PatiteParserDart/src/Simple/Simple.dart' as Simple;
+import 'package:PatiteParserDart/src/Matcher/Matcher.dart' as Matcher;
 
 part 'State.dart';
 part 'Token.dart';
@@ -11,13 +12,67 @@ part 'Transition.dart';
 class Tokenizer {
   Map<String, State> _states;
   Map<String, TokenState> _token;
+  Set<String> _consume;
   State _start;
 
   /// Creates a new tokenizer.
   Tokenizer() {
-    this._states = new Map<String, State>();
-    this._token = new Map<String, TokenState>();
-    this._start = null;
+    this._states  = new Map<String, State>();
+    this._token   = new Map<String, TokenState>();
+    this._consume = new Set<String>();
+    this._start   = null;
+  }
+
+  /// Loads a whole tokenizer from the given deserializer.
+  factory Tokenizer.deserialize(Simple.Deserializer data) {
+    Tokenizer tokenizer = new Tokenizer();
+
+    int tokenCount = data.readInt();
+    for (int i = 0; i < tokenCount; i++) {
+      String key = data.readStr();
+      TokenState token = new TokenState._(tokenizer, key);
+      token._replace = data.readStringStringMap();
+      tokenizer._token[key] = token;
+    }
+
+    int stateCount = data.readInt();
+    List<String> keys = new List<String>();
+    for (int i = 0; i < stateCount; i++) {
+      String key = data.readStr();
+      tokenizer._states[key] = new State._(tokenizer, key);
+      keys.add(key);
+    }
+    for (String key in keys)
+      tokenizer._states[key]._deserialize(data.readSer());
+
+    tokenizer._consume = new Set.from(data.readStrList());
+    if (data.readBool())
+      tokenizer._start = tokenizer._states[data.readStr()];
+    return tokenizer;
+  }
+
+  /// Creates a serializer to represent the whole tokenizer.
+  Simple.Serializer serialize() {
+    Simple.Serializer data = new Simple.Serializer();
+
+    data.writeInt(this._token.length);
+    for (String key in this._token.keys) {
+      data.writeStr(key);
+      data.writeStringStringMap(this._token[key]._replace);
+    }
+
+    data.writeInt(this._states.length);
+    for (String key in this._states.keys)
+      data.writeStr(key);
+    for (String key in this._states.keys)
+      data.writeSer(this._states[key]._serialize());
+
+    data.writeStrList(this._consume.toList());
+    
+    bool hasStart = this._start != null;
+    data.writeBool(hasStart);
+    if (hasStart) data.writeStr(this._start._name);
+    return data;
   }
 
   /// Sets the start state for the tokenizer to a state with the name [stateName].
@@ -61,54 +116,88 @@ class Tokenizer {
   TokenState setToken(String stateName, String tokenName) =>
     this.state(stateName).setToken(tokenName);
 
+  /// Sets which tokens should be consumed and not emitted.
+  void consume(Iterable<String> tokens) => this._consume.addAll(tokens);
+
   /// Tokenizes the given input string with the current configured
-  /// tokenizer and returns the list of tokens for the input.
+  /// tokenizer and returns the iterator of tokens for the input.
   /// This will throw an exception if the input is not tokenizable.
-  List<Token> tokenize(String input) {
-    List<Token> tokens = new List<Token>();
-    List<int> chars = input.codeUnits;
+  Iterable<Token> tokenize(String input) => this.tokenizeChars(input.codeUnits.iterator);
+  
+  /// Tokenizes the given iterator of characters with the current configured
+  /// tokenizer and returns the iterator of tokens for the input.
+  /// This will throw an exception if the input is not tokenizable.
+  Iterable<Token> tokenizeChars(Iterator<int> iterator) sync* {
     Token lastToken = null;
     State state = this._start;
     int index = 0;
-    List<int> prevText = [];
-    while(true) {
+    int lastIndex = 0;
+    int lastLength = 0;
+    List<int> outText  = [];
+    List<int> allInput = [];
+    List<int> retoken  = [];
 
-      // Check for the end condition and add any left over tokens.
-      if (index >= chars.length) {
-        if (lastToken != null) tokens.add(lastToken);
-        return tokens;
+    while (true) {
+      int c;
+      if (retoken.isNotEmpty) {
+        c = retoken.removeAt(0);
+      } else {
+        if (!iterator.moveNext()) break;
+        c = iterator.current;
       }
+      allInput.add(c);
+      index++;
 
       // Transition to the next state with the current character.
-      int c = chars[index];
       Transition trans = state.findTansition(c);
       if (trans == null) {
         // No transition found.
         if (lastToken == null) {
           // No previous found token state, therefore this part
           // of the input isn't tokenizable with this tokenizer.
-          prevText.add(c);
-          String text = new String.fromCharCodes(prevText);
+          String text = new String.fromCharCodes(allInput);
           throw new Exception("Untokenizable string [state: ${state.name}, index $index]: \"$text\"");
         }
 
         // Reset to previous found token's state.
-        tokens.add(lastToken);
-        index = lastToken.index+1;
+        Token resultToken = lastToken;
+        index = lastIndex;
+        allInput.removeRange(0, lastLength);
+        retoken.addAll(allInput);
+        allInput = [];
+        outText = [];
         lastToken = null;
-        prevText = [];
+        lastLength = 0;
         state = this._start;
+
+        if (!this._consume.contains(resultToken.name))
+          yield resultToken;
       } else {
+
         // Transition to the next state and check if it is an acceptance state.
         // Store acceptance state to return to if needed.
-        if (!trans.consume) prevText.add(c);
+        if (!trans.consume) outText.add(c);
         state = trans.target;
         if (state.token != null) {
-          String text = new String.fromCharCodes(prevText);
+          String text = new String.fromCharCodes(outText);
           lastToken = state.token.getToken(text, index);
+          lastLength = allInput.length;
+          lastIndex = index;
         }
-        index++;
       }
     }
+
+    if ((lastToken != null) && (!this._consume.contains(lastToken.name)))
+      yield lastToken;
+  }
+
+  /// Gets the human readable debug string.
+  String toString() {
+    StringBuffer buf = new StringBuffer();
+    buf.writeln(this._start._toDebugString());
+    for (State state in this._states.values) {
+      if (state != this._start) buf.writeln(state._toDebugString());
+    }
+    return buf.toString();
   }
 }

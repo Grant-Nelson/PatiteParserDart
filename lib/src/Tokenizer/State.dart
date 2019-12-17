@@ -14,6 +14,89 @@ class State {
     this._token = null;
   }
 
+  /// Loads a matcher group from the given deserializer.
+  void _deserializeGroup(Matcher.Group group, Simple.Deserializer data) {
+    int matcherCount = data.readInt();
+    for (int i = 0; i < matcherCount; i++) {
+      switch (data.readInt()) {
+        case 0:
+          this._deserializeGroup(group.addNot(), data);
+          break;
+        case 1:
+          Matcher.Group other = new Matcher.Group();
+          this._deserializeGroup(other, data);
+          group.add(other);
+          break;
+        case 2:
+          group.addAll();
+          break;
+        case 3:
+          group.add(new Matcher.Range.fromCodeUnits(data.readInt(), data.readInt()));
+          break;
+        case 4:
+          group.addSet(data.readStr());
+          break;
+      }
+    }
+  }
+
+  /// Loads a state from the given deserializer.
+  void _deserialize(Simple.Deserializer data) {
+    int transCount = data.readInt();
+    for (int i = 0; i < transCount; i++) {
+      String key = data.readStr();
+      State target = this._tokenizer._states[key];
+      Transition trans = new Transition._(target);
+      trans._consume = data.readBool();
+      this._deserializeGroup(trans, data);
+      this._trans.add(trans);
+    }
+
+    if (data.readBool())
+      this._token = this._tokenizer._token[data.readStr()];
+  }
+
+  /// Creates a serializer to represent the matcher group.
+  void _serializeGroup(Simple.Serializer data, Matcher.Group group) {
+    data.writeInt(group.matchers.length);
+    for (Matcher.Matcher matcher in group.matchers) {
+      if (matcher is Matcher.Not) {
+        data.writeInt(0);
+        this._serializeGroup(data, matcher);
+      } else if (matcher is Matcher.Group) {
+        data.writeInt(1);
+        this._serializeGroup(data, matcher);
+      } else if (matcher is Matcher.All) {
+        data.writeInt(2);
+      }  else if (matcher is Matcher.Range) {
+        data.writeInt(3);
+        data.writeInt(matcher.low);
+        data.writeInt(matcher.high);
+      } else if (matcher is Matcher.Set) {
+        data.writeInt(4);
+        data.writeStr(matcher.toString());
+      } else throw new Exception("Unknown matcher: $matcher");
+    }
+  }
+
+  /// Creates a serializer to represent the state.
+  Simple.Serializer _serialize() {
+    Simple.Serializer data = new Simple.Serializer();
+
+    data.writeInt(this._trans.length);
+    for (Transition trans in this._trans) {
+      data.writeStr(trans._target._name);
+      data.writeBool(trans._consume);
+      this._serializeGroup(data, trans);
+    }
+
+    bool hasTokenState = this._token != null;
+    data.writeBool(hasTokenState);
+    if (hasTokenState)
+      data.writeStr(this._token._name);
+    return data;
+  }
+
   /// Gets the name of the state.
   String get name => this._name;
 
@@ -55,4 +138,27 @@ class State {
 
   /// Gets the name for this state.
   String toString() => this._name;
+
+  /// Gets the human readable debug string.
+  String _toDebugString() {
+    StringBuffer buf = new StringBuffer();
+    buf.write("(${this._name})");
+    if (this._token != null) {
+      buf.write(" => [${this._token._name}]");
+      if (this._tokenizer._consume.contains(this._token._name))
+        buf.write(" (consume)");
+      for (String text in this._token._replace.keys) {
+        buf.writeln();
+        String target = this._token._replace[text];
+        buf.write("  -- ${text} => [$target]");
+        if (this._tokenizer._consume.contains(target))
+          buf.write(" (consume)");
+      }
+    }
+    for (Transition trans in this._trans) {
+        buf.writeln();
+        buf.write("  -- ${trans.toString()}");
+    }
+    return buf.toString();
+  }
 }
