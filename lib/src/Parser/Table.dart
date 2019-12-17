@@ -43,7 +43,7 @@ class _Table {
         _Action action = table._deserializeAction(data);
         gotoMap[key] = action;
       }
-      table._shiftTable.add(gotoMap);
+      table._gotoTable.add(gotoMap);
     }
 
     return table;

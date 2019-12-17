@@ -49,6 +49,7 @@ class State {
       Transition trans = new Transition._(target);
       trans._consume = data.readBool();
       this._deserializeGroup(trans, data);
+      this._trans.add(trans);
     }
 
     if (data.readBool())
@@ -137,4 +138,27 @@ class State {
 
   /// Gets the name for this state.
   String toString() => this._name;
+
+  /// Gets the human readable debug string.
+  String _toDebugString() {
+    StringBuffer buf = new StringBuffer();
+    buf.write("(${this._name})");
+    if (this._token != null) {
+      buf.write(" => [${this._token._name}]");
+      if (this._tokenizer._consume.contains(this._token._name))
+        buf.write(" (consume)");
+      for (String text in this._token._replace.keys) {
+        buf.writeln();
+        String target = this._token._replace[text];
+        buf.write("  -- ${text} => [$target]");
+        if (this._tokenizer._consume.contains(target))
+          buf.write(" (consume)");
+      }
+    }
+    for (Transition trans in this._trans) {
+        buf.writeln();
+        buf.write("  -- ${trans.toString()}");
+    }
+    return buf.toString();
+  }
 }

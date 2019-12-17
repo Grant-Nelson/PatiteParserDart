@@ -1,6 +1,5 @@
 library PatiteParserDart.Parser;
 
-import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:PatiteParserDart/src/Grammar/Grammar.dart';
@@ -25,16 +24,13 @@ class Parser {
   Tokenizer _tokenizer;
 
   /// Creates a new grammar.
-  Parser._(this._table, this._tokenizer) {
-    print(this._table);
-  }
+  Parser._(this._table, this._tokenizer);
 
   /// Creates a new parser with the given grammar.
   factory Parser.fromGrammar(Grammar grammar, Tokenizer tokenizer) {
     _Builder builder = new _Builder(grammar);
     builder.determineStates();
     builder.fillTable();
-    // print(builder); // Uncomment to help with debugging.
     return new Parser._(builder.table, tokenizer);
   }
 
