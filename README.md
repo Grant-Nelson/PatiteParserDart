@@ -14,6 +14,5 @@ or even translate a file into another (basic compile).
 
 ## Run unit-tests
 
-** None yet **
-
 - Run `pub run test/test.dart`
+- Currently, on success there is no output

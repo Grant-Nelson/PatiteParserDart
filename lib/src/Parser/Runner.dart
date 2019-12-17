@@ -72,7 +72,7 @@ class _Runner {
 
       String match = action.items[i];
       if (match != itemStr)
-        throw new Exception("the action, $action, couldn't reduce item $i, $itemStr");
+        throw new Exception("The action, $action, couldn't reduce item $i, $itemStr.");
     }
 
     // Create a new item with the items for this rule in it
@@ -115,6 +115,6 @@ class _Runner {
     if (action is _Reduce) return this._reduceAction(action, token);
     if (action is _Accept) return this._acceptAction(action);
     if (action is _Error)  return this._errorAction(action);
-    throw new Exception("unexpected action type: $action");
+    throw new Exception("Unexpected action type: $action");
   }
 }
