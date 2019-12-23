@@ -24,8 +24,8 @@ class TreeNode {
         else buf.write("\n$indent  |--$item");
       }
       Object item = items[items.length-1];
-      if (item is TreeNode) item._toTree(buf, "$indent   ", "\n$indent  '");
-      else buf.write("\n$indent  '--$item");
+      if (item is TreeNode) item._toTree(buf, "$indent   ", "\n$indent  `");
+      else buf.write("\n$indent  `--$item");
     }
   }
 

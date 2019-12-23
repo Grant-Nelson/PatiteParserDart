@@ -2,12 +2,14 @@ library PatiteParserDart.Parser;
 
 import 'dart:math' as math;
 
+import 'package:PatiteParserDart/src/Matcher/Matcher.dart' as Matcher;
 import 'package:PatiteParserDart/src/Grammar/Grammar.dart';
 import 'package:PatiteParserDart/src/Tokenizer/Tokenizer.dart';
 import 'package:PatiteParserDart/src/Simple/Simple.dart' as Simple;
 
 part 'Action.dart';
 part 'Builder.dart';
+part 'Loader.dart';
 part 'Result.dart';
 part 'Runner.dart';
 part 'State.dart';
@@ -28,9 +30,16 @@ class Parser {
 
   /// Creates a new parser with the given grammar.
   factory Parser.fromGrammar(Grammar grammar, Tokenizer tokenizer) {
+    String errors = grammar.validate();
+    if (errors.isNotEmpty)
+      throw new Exception("Error: Parser can not use invalid grammar:\n$errors");
+
     _Builder builder = new _Builder(grammar);
     builder.determineStates();
     builder.fillTable();
+    String errs = builder.buildErrors;
+    if (errs.isNotEmpty)
+      throw new Exception("Errors while building parser:\n$builder");
     return new Parser._(builder.table, tokenizer);
   }
 
@@ -39,6 +48,9 @@ class Parser {
     new Parser._(
       new _Table.deserialize(data.readSer()),
       new Tokenizer.deserialize(data.readSer()));
+
+  factory Parser.fromFile(String name) =>
+    new Loader().load(name);
 
   /// Serializes the parser into a json serialization.
   Simple.Serializer serialize() =>

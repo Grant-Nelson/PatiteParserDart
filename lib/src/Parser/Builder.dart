@@ -6,6 +6,7 @@ class _Builder {
   List<_State> _states;
   Set<Object> _items;
   _Table _table;
+  StringBuffer _errors;
 
   /// Constructs of a new parser builder.
   _Builder(Grammar grammar) {
@@ -17,6 +18,7 @@ class _Builder {
     this._states = new List<_State>();
     this._items = new Set<Object>();
     this._table = new _Table();
+    this._errors = new StringBuffer();
 
     for (Term term in this._grammar.terms) {
       for (Rule rule in term.rules)
@@ -107,12 +109,18 @@ class _Builder {
       for (int i = 0; i < state.gotos.length; i++) {
         Object onItem = state.onItems[i];
         int goto = state.gotos[i].number;
-        if (onItem is Term)
+        if (onItem is Term) {
+          if (state.number == goto)
+            this._errors.writeln('Goto $goto on row ${state.number} and column ${onItem.name} will cause infinate loop.');
           this._table.writeGoto(state.number, onItem.name, new _Goto(goto));
-        else this._table.writeShift(state.number, onItem as String, new _Shift(goto));
+        } else this._table.writeShift(state.number, onItem as String, new _Shift(goto));
       }
     }
   }
+
+  /// Gets all the error which occurred during the build,
+  /// or an empty string if no error occurred.
+  String get buildErrors => this._errors.toString();
   
   /// The table from the builder.
   _Table get table => this._table;
@@ -125,6 +133,10 @@ class _Builder {
     }
     buf.writeln();
     buf.writeln(this._table.toString());
+    if (this._errors.isNotEmpty) {
+      buf.writeln();
+      buf.write(this._errors.toString());
+    }
     return buf.toString();
   }
 }

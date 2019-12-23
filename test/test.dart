@@ -5,6 +5,7 @@ import 'package:PatiteParserDart/Parser.dart';
 import 'package:PatiteParserDart/src/Tokenizer/Tokenizer.dart';
 import 'package:PatiteParserDart/src/Simple/Simple.dart' as Simple;
 
+part 'loader.dart';
 part 'parser.dart';
 part 'tokenizer.dart';
 
@@ -18,4 +19,7 @@ void main() {
   parser02();
   parser03();
   parser04();
+  parser05();
+
+  //loader00();
 }

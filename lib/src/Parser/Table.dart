@@ -160,21 +160,24 @@ class _Table {
 
   /// Gets a string output of the table for debugging.
   String toString() {
-    List<String> shiftColumns = this._shiftColumns.toList();
-    List<String> gotoColumns = this._gotoColumns.toList();
-    shiftColumns.sort();
-    gotoColumns.sort();
-
     List<List<String>> grid = new List<List<String>>();
+
+    // Add Column labels...
     List<String> columnLabels = new List<String>()
       ..add(""); // blank space for row labels
+    List<String> shiftColumns = this._shiftColumns.toList();
+    shiftColumns.sort();
     for (int j = 0; j < shiftColumns.length; j++)
       columnLabels.add(shiftColumns[j].toString());
+    List<String> gotoColumns = this._gotoColumns.toList();
+    gotoColumns.sort();
     for (int j = 0; j < gotoColumns.length; j++)
       columnLabels.add(gotoColumns[j].toString());
     grid.add(columnLabels);
 
-    for (int row = 0; row < shiftColumns.length; row++) {
+    // Add all the data into the table...
+    int maxRowCount = math.max(this._shiftTable.length, this._gotoTable.length);
+    for (int row = 0; row < maxRowCount; row++) {
       List<String> values = new List<String>()..add("$row");
       for (int i = 0; i < shiftColumns.length; i++) {
         _Action action = this.readShift(row, shiftColumns[i]);
@@ -189,6 +192,7 @@ class _Table {
       grid.add(values);
     }
     
+    // Make all the items in a column the same width...
     int colCount = shiftColumns.length + gotoColumns.length + 1;
     int rowCount = grid.length;
     for (int j = 0; j < colCount; j++) {
@@ -199,6 +203,7 @@ class _Table {
         grid[i][j] = grid[i][j].padRight(maxWidth);
     }
 
+    // Write the table...
     StringBuffer buf = new StringBuffer();
     for (int i = 0; i < rowCount; i++) {
       if (i > 0) buf.writeln();

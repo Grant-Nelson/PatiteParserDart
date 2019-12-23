@@ -28,7 +28,8 @@ class Rule {
   /// Adds a token to this rule.
   /// Returns this rule so that rule creation can be chained.
   Rule addToken(String tokenName) {
-    this._items.add(tokenName);
+    String token = this._grammar._findAddToken(tokenName);
+    this._items.add(token);
     return this;
   }
   
@@ -38,6 +39,18 @@ class Rule {
   /// Gets all the term and token for this rule.
   /// The terms and tokens are in the order defined by this rule.
   List<Object> get items => this._items;
+
+  /// Determines if the given rule is equal to this rule.
+  /// This uses pointer comparison for item equivalency.
+  bool equals(Rule other) {
+    if (other == null) return false;
+    if (this._term != other._term) return false;
+    if (this._items.length != other._items.length) return false;
+    for (int i = this._items.length - 1; i >= 0; i--) {
+      if (this._items[i] != other._items[i]) return false;
+    }
+    return true;
+  }
   
   /// Gets the string for this rule.
   /// Has an optional step index for showing the different
