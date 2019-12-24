@@ -144,19 +144,30 @@ class Loader {
 
     Grammar gram = new Grammar();
     gram.start("defSet");
-    gram.newRule("defSet").addTerm("def").addTerm("defSet");
+    gram.newRule("defSet").addTerm("defSet").addTerm("def");
     gram.newRule("defSet");
 
     gram.newRule("stateID").addToken("openParen").addToken("id").addToken("closeParen");
+    gram.newRule("tokenID").addToken("openBracket").addToken("id").addToken("closeBracket");
 
     gram.newRule("def").addToken("closeAngle").addTerm("stateDef");
     gram.newRule("def").addTerm("stateDef");
     gram.newRule("stateDef").addTerm("stateID");
-    gram.newRule("stateDef").addTerm("stateID").addToken("colon").addTerm("matcher").addToken("arrow").addTerm("stateDef");
+    gram.newRule("stateDef").addTerm("tokenID");
+    gram.newRule("stateDef").addTerm("stateID").addToken("colon").addTerm("startMatcher").addToken("arrow").addTerm("stateDef");
+    gram.newRule("stateDef").addTerm("tokenID").addToken("colon").addTerm("startMatcher").addToken("arrow").addTerm("stateDef");
 
-    gram.newRule("matcher").addToken("any");
-    gram.newRule("matcher").addToken("charSet");
-    gram.newRule("matcher").addToken("charSet").addToken("comma").addToken("matcher");
+    gram.newRule("startMatcher").addToken("any");
+    gram.newRule("startMatcher").addTerm("matcher");
+    gram.newRule("startMatcher").addToken("consume").addTerm("matcher");
+
+    gram.newRule("matcher").addTerm("charSetRange");
+    gram.newRule("matcher").addTerm("matcher").addToken("comma").addTerm("charSetRange");
+
+    gram.newRule("charSetRange").addToken("charSet");
+    gram.newRule("charSetRange").addToken("not").addToken("charSet");
+    gram.newRule("charSetRange").addToken("charSet").addToken("range").addToken("charSet");
+    gram.newRule("charSetRange").addToken("not").addToken("charSet").addToken("range").addToken("charSet");
 
     // gram.newRule("def").addTerm("tokenDef");
     // gram.newRule("def").addToken("closeAngle").addTerm("tokenDef");

@@ -1,18 +1,8 @@
 part of PatiteParserDart.test;
 
-void checkParser(Parser parser, List<String> input, List<String> expected) {
-  Result result = parser.parse(input.join("\n"));
-  String exp = expected.join("\n            ");
-  String results = result.toString().replaceAll("\n", "\n            ");
-  if (exp != results) {
-    print("Error: The input did not result in a tree which matches the expected results");
-    print("  Input:    $input");
-    print("  Expected: $exp");
-    print("  Results:  $results");
-  }
-}
+void parser00(TestArgs args) {
+  args.log('parser00');
 
-void parser00() {
   Tokenizer tok = new Tokenizer();
   tok.start("start");
   tok.join("start", "(")..addSet("(");
@@ -37,24 +27,24 @@ void parser00() {
   grammar.newRule("T").addToken("+").addTerm("T");
   grammar.newRule("T").addTerm("T").addToken("+").addToken("n");
   Parser parser = new Parser.fromGrammar(grammar, tok);
-  checkParser(parser, ["103"],
+  args.checkParser(parser, ["103"],
     ['--E',
      '  `--T',
      '     `--n:3:"103"']);
-  checkParser(parser, ["+2"],
+  args.checkParser(parser, ["+2"],
     ['--E',
      '  `--T',
      '     |--+:1:"+"',
      '     `--T',
      '        `--n:2:"2"']);
-  checkParser(parser, ["3+4"],
+  args.checkParser(parser, ["3+4"],
     ['--E',
      '  `--T',
      '     |--T',
      '     |  `--n:1:"3"',
      '     |--+:2:"+"',
      '     `--n:3:"4"']);
-  checkParser(parser, ["((42+6))"],
+  args.checkParser(parser, ["((42+6))"],
     ['--E',
      '  |--(:1:"("',
      '  |--E',
@@ -69,7 +59,9 @@ void parser00() {
      '  `--):8:")"']);
 }
 
-void parser01() {
+void parser01(TestArgs args) {
+  args.log('parser01');
+
   Tokenizer tok = new Tokenizer();
   tok.start("start");
   tok.join("start", "(")..addSet("(");
@@ -83,11 +75,11 @@ void parser01() {
   grammar.newRule("X").addToken("(").addTerm("X").addToken(")");
   grammar.newRule("X").addToken("(").addToken(")");
   Parser parser = new Parser.fromGrammar(grammar, tok);
-  checkParser(parser, ["()"],
+  args.checkParser(parser, ["()"],
     ['--X',
      '  |--(:1:"("',
      '  `--):2:")"']);
-  checkParser(parser, ["((()))"],
+  args.checkParser(parser, ["((()))"],
     ['--X',
      '  |--(:1:"("',
      '  |--X',
@@ -99,7 +91,9 @@ void parser01() {
      '  `--):6:")"']);
 }
 
-void parser02() {
+void parser02(TestArgs args) {
+  args.log('parser02');
+
   Tokenizer tok = new Tokenizer();
   tok.start("start");
   tok.join("start", "(")..addSet("(");
@@ -113,14 +107,14 @@ void parser02() {
   grammar.newRule("X").addToken("(").addTerm("X").addToken(")");
   grammar.newRule("X");
   Parser parser = new Parser.fromGrammar(grammar, tok);
-  checkParser(parser, [""],
+  args.checkParser(parser, [""],
     ['--X']);
-  checkParser(parser, ["()"],
+  args.checkParser(parser, ["()"],
     ['--X',
      '  |--(:1:"("',
      '  |--X',
      '  `--):2:")"']);
-  checkParser(parser, ["((()))"],
+  args.checkParser(parser, ["((()))"],
     ['--X',
      '  |--(:1:"("',
      '  |--X',
@@ -133,7 +127,9 @@ void parser02() {
      '  `--):6:")"']);
 }
 
-void parser03() {
+void parser03(TestArgs args) {
+  args.log('parser03');
+
   Tokenizer tok = new Tokenizer();
   tok.start("start");
   tok.join("start", "a")..addSet("a");
@@ -153,13 +149,13 @@ void parser03() {
   grammar.newRule("A").addToken("a").addTerm("A");
   grammar.newRule("A");
   Parser parser = new Parser.fromGrammar(grammar, tok);
-  checkParser(parser, ["bd"],
+  args.checkParser(parser, ["bd"],
     ['--S',
      '  |--b:1:"b"',
      '  |--A',
      '  |--d:2:"d"',
      '  `--S']);
-  checkParser(parser, ["bad"],
+  args.checkParser(parser, ["bad"],
     ['--S',
      '  |--b:1:"b"',
      '  |--A',
@@ -167,7 +163,7 @@ void parser03() {
      '  |  `--A',
      '  |--d:3:"d"',
      '  `--S']);
-  checkParser(parser, ["bdbadbd"],
+  args.checkParser(parser, ["bdbadbd"],
     ['--S',
      '  |--b:1:"b"',
      '  |--A',
@@ -185,7 +181,9 @@ void parser03() {
      '        `--S']);
 }
 
-void parser04() {
+void parser04(TestArgs args) {
+  args.log('parser04');
+
   Tokenizer tok = new Tokenizer();
   tok.start("start");
   tok.join("start", "id")..addRange("a", "z");
@@ -215,11 +213,10 @@ void parser04() {
   // Test serializing and deserializing too.
   String data = parser.serialize().toString();
   parser = new Parser.deserialize(new Simple.Deserializer(data));
-
-  checkParser(parser, ["a"],
+  args.checkParser(parser, ["a"],
     ['--E',
      '  `--id:1:"a"']);
-  checkParser(parser, ["(a + b)"],
+  args.checkParser(parser, ["(a + b)"],
     ['--E',
      '  |--(:1:"("',
      '  |--E',
@@ -229,7 +226,7 @@ void parser04() {
      '  |  `--E',
      '  |     `--id:6:"b"',
      '  `--):7:")"']);
-  checkParser(parser, ["a + b * c"],
+  args.checkParser(parser, ["a + b * c"],
     ['--E',
      '  |--E',
      '  |  `--id:1:"a"',
@@ -240,7 +237,7 @@ void parser04() {
      '     |--*:7:"*"',
      '     `--E',
      '        `--id:9:"c"']);
-  checkParser(parser, ["a + (b * c) + d"],
+  args.checkParser(parser, ["a + (b * c) + d"],
     ['--E',
      '  |--E',
      '  |  `--id:1:"a"',
@@ -260,7 +257,9 @@ void parser04() {
      '        `--id:15:"d"']);
 }
 
-void parser05() {
+void parser05(TestArgs args) {
+  args.log('parser05');
+
   Tokenizer tok = new Tokenizer();
   tok.start("start");
   tok.join("start", "a").addSet("a");
@@ -273,7 +272,7 @@ void parser05() {
   grammar.newRule("T").addToken("a");
   Parser parser = new Parser.fromGrammar(grammar, tok);
     
-  checkParser(parser, ["aaa"],
+  args.checkParser(parser, ["aaa"],
     ['--E',
      '  |--E',
      '  |  |--E',
