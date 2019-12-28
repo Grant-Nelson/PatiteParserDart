@@ -5,6 +5,7 @@ import 'package:PatiteParserDart/Parser.dart';
 import 'package:PatiteParserDart/Tokenizer.dart';
 import 'package:PatiteParserDart/Simple.dart' as Simple;
 import 'package:PatiteParserDart/Diff.dart' as Diff;
+import 'package:PatiteParserDart/Matcher.dart' as Matcher;
 
 part 'loader.dart';
 part 'parser.dart';
@@ -16,17 +17,17 @@ part 'tokenizer.dart';
 void main() {
   TestTool test = new TestTool();
 
-  test.run(tokenizer00);
-  test.run(tokenizer01);
+  // test.run(tokenizer00);
+  // test.run(tokenizer01);
 
-  test.run(parser00);
-  test.run(parser01);
-  test.run(parser02);
-  test.run(parser03);
-  test.run(parser04);
-  test.run(parser05);
+  // test.run(parser00);
+  // test.run(parser01);
+  // test.run(parser02);
+  // test.run(parser03);
+  // test.run(parser04);
+  // test.run(parser05);
 
-  test.run(loader00);
+  // test.run(loader00);
   test.run(loader01);
 
   test.printResult();

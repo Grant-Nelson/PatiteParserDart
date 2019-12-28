@@ -176,6 +176,9 @@ class Loader {
     return gram;
   }
 
+  static Parser getParser() =>
+    new Parser.fromGrammar(Loader.getGrammar(), Loader.getTokenizer());
+
   Loader() {
     Parser parser = new Parser.fromGrammar(getGrammar(), getTokenizer());
 

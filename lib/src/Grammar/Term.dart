@@ -50,7 +50,7 @@ class Term {
     checked.add(this);
     for (Rule rule in this._rules) {
       if (rule.items.length <= 0) {
-        rule.term._determineFollows(tokens, checked);
+        rule.term._determineFollows(tokens, new Set<Term>());
       } else {
         Object item = rule.items[0];
         if (item is Term) {
@@ -72,7 +72,7 @@ class Term {
           if (rule.items[i] == this) {
             Object item = rule.items[i+1];
             if (item is Term)
-              item._determineFirsts(tokens, checked);
+              item._determineFirsts(tokens, new Set<Term>());
             else tokens.add(item);
           }
         }

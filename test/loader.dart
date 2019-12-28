@@ -2,8 +2,7 @@ part of PatiteParserDart.test;
 
 void loader00(TestArgs args) {
     args.log('loader00');
-
-    Parser parser = new Parser.fromGrammar(Loader.getGrammar(), Loader.getTokenizer());
+    Parser parser = Loader.getParser();
     args.checkParser(parser, ["(Start)"],
       ['--defSet',
        '  |--defSet',
@@ -80,8 +79,35 @@ void loader00(TestArgs args) {
       
 void loader01(TestArgs args) {
     args.log('loader01');
-    
-    //Parser parser = new Parser.fromGrammar(Loader.getGrammar(), Loader.getTokenizer());
-    // checkParser(parser, ["(A)(B)(C)"],
-    //   ['']);
+    Parser parser = Loader.getParser();
+    args.checkParser(parser, ["(A)(B)(C)[D]"],
+      ['--defSet',
+       '  |--defSet',
+       '  |  |--defSet',
+       '  |  |  |--defSet',
+       '  |  |  |  |--defSet',
+       '  |  |  |  `--def',
+       '  |  |  |     `--stateDef',
+       '  |  |  |        `--stateID',
+       '  |  |  |           |--openParen:1:"("',
+       '  |  |  |           |--id:2:"A"',
+       '  |  |  |           `--closeParen:3:")"',
+       '  |  |  `--def',
+       '  |  |     `--stateDef',
+       '  |  |        `--stateID',
+       '  |  |           |--openParen:4:"("',
+       '  |  |           |--id:5:"B"',
+       '  |  |           `--closeParen:6:")"',
+       '  |  `--def',
+       '  |     `--stateDef',
+       '  |        `--stateID',
+       '  |           |--openParen:7:"("',
+       '  |           |--id:8:"C"',
+       '  |           `--closeParen:9:")"',
+       '  `--def',
+       '     `--stateDef',
+       '        `--tokenID',
+       '           |--openBracket:10:"["',
+       '           |--id:11:"D"',
+       '           `--closeBracket:12:"]"']);
 }

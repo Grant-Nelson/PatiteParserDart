@@ -8,6 +8,7 @@ class _Runner {
   List<Object> _itemStack;
   List<int> _stateStack;
   bool _accepted;
+  bool _verbose;
 
   /// Creates a new runner, only the parser may create a runner.
   _Runner(this._table, this._errorCap) {
@@ -15,6 +16,7 @@ class _Runner {
     this._itemStack = [];
     this._stateStack = [0];
     this._accepted = false;
+    this._verbose = false;
   }
 
   /// Gets the results from the runner.
@@ -22,7 +24,7 @@ class _Runner {
     if (this._errors.length > 0)
       return new Result(List.unmodifiable(this._errors), null);
     if (!this._accepted) {
-      this._errors.add("unexpected end of input");
+      this._errors.add('unexpected end of input');
       return new Result(List.unmodifiable(this._errors), null);
     }
     return new Result(null, this._itemStack[0] as TreeNode);
@@ -33,15 +35,17 @@ class _Runner {
     (this._errorCap > 0) && (this._errors.length >= this._errorCap);
 
   /// Handles when a default error action has been reached.
-  bool _nullAction(Token token) {
-    this._errors.add("unexpected item: $token");
+  bool _nullAction(int curState, Token token, String indent) {
+    if (this._verbose) print('${indent}null error');
+    this._errors.add('unexpected item, $token, in state $curState');
     if (this._errorLimitReached) return false;
     // Discard token and continue.
     return true;
   }
 
   /// Handles when a specified error action has been reached.
-  bool _errorAction(_Error action) {
+  bool _errorAction(_Error action, String indent) {
+    if (this._verbose) print('${indent}error');
     this._errors.add(action.error);
     if (this._errorLimitReached) return false;
     // Discard token and continue.
@@ -49,14 +53,15 @@ class _Runner {
   }
 
   /// Handles when a shift action has been reached.
-  bool _shiftAction(_Shift action, Token token) {
+  bool _shiftAction(_Shift action, Token token, String indent) {
+    if (this._verbose) print('${indent}shift ${action.state}');
     this._itemStack.add(token);
     this._stateStack.add(action.state);
     return true;
   }
   
   /// Handles when a reduce action has been reached.
-  bool _reduceAction(_Reduce action, Token token) {
+  bool _reduceAction(_Reduce action, Token token, String indent) {
     // Pop the items off the stack for this action.
     // Also check that the items match the expected rule.
     int count = action.items.length;
@@ -72,13 +77,14 @@ class _Runner {
 
       String match = action.items[i];
       if (match != itemStr)
-        throw new Exception("The action, $action, couldn't reduce item $i, $itemStr.");
+        throw new Exception('The action, $action, couldn\'t reduce item $i, $itemStr.');
     }
 
     // Create a new item with the items for this rule in it
     // and put it onto the stack.
     TreeNode node = new TreeNode(action.term, items);
     this._itemStack.add(node);
+    if (this._verbose) print('${indent}reduce ${action.term}');
 
     // Use the state reduced back to and the new item to seek,
     // via the goto table, the next state to continue from.
@@ -86,35 +92,68 @@ class _Runner {
     while (true) {
       _Action action = this._table.readGoto(curState, node.term);
       if (action == null) break;
-      else if (action is _Goto) curState = action.state;
-      else throw new Exception("unexpected goto type: $action");
+      else if (action is _Goto) {
+        curState = action.state;
+        if (this._verbose) print('${indent}goto ${curState}');
+      }
+      else throw new Exception('unexpected goto type: $action');
     }
     this._stateStack.add(curState);
 
     // Continue with parsing the current token.
-    return this.add(token);
+    return this.add(token, indent+'  ');
   }
 
   /// Handles when an accept has been reached.
-  bool _acceptAction(_Accept action) {
+  bool _acceptAction(_Accept action, String indent) {
+    if (this._verbose) print('${indent}accept');
     this._accepted = true;
     return true;
   }
 
   /// Inserts the next look ahead token into the parser.
-  bool add(Token token) {
+  bool add(Token token, [String indent = '']) {
     if (this._accepted) {
-      this._errors.add("unexpected token after end: $token");
+      this._errors.add('unexpected token after end: $token');
       return false;
     }
+    
+    if (this._verbose) print('$indent$token =>');
+    bool result = this._addToken(token, indent);
+    if (this._verbose) print('$indent=> ${this._stackToString()}');
+    return result;
+  }
 
+  bool _addToken(Token token, String indent) {
     int curState = this._stateStack.last;
     _Action action = this._table.readShift(curState, token.name);
-    if (action == null)    return this._nullAction(token);
-    if (action is _Shift)  return this._shiftAction(action, token);
-    if (action is _Reduce) return this._reduceAction(action, token);
-    if (action is _Accept) return this._acceptAction(action);
-    if (action is _Error)  return this._errorAction(action);
+    if (action == null)    return this._nullAction(curState, token, indent);
+    if (action is _Shift)  return this._shiftAction(action, token, indent);
+    if (action is _Reduce) return this._reduceAction(action, token, indent);
+    if (action is _Accept) return this._acceptAction(action, indent);
+    if (action is _Error)  return this._errorAction(action, indent);
     throw new Exception("Unexpected action type: $action");
+  }
+
+  /// Gets a string for the current parser stack.
+  String _stackToString() {
+    StringBuffer buf = new StringBuffer();
+    int max = math.max(this._itemStack.length, this._stateStack.length);
+    for (int i = 0; i < max; ++i) {
+      if (i != 0) buf.write(', ');
+      bool hasState = false;
+      if (i < this._stateStack.length) {
+        buf.write('${this._stateStack[i]}');
+        hasState = true;
+      }
+      if (i < this._itemStack.length) {
+        if (hasState) buf.write(':');
+        Object item = this._itemStack[i];
+        if (item is Token) buf.write('[${item.name}]');
+        else if (item is TreeNode) buf.write('<${item.term}>');
+        else buf.write('{$item}');
+      }
+    }
+    return buf.toString();
   }
 }

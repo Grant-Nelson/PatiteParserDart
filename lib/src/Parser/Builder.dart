@@ -92,16 +92,20 @@ class _Builder {
         Rule rule = state.rules[i];
         int index = state.indices[i];
         if (rule.items.length <= index) {
+
           List<Object> items = rule.term.determineFollows();
           if (items.length > 0) {
+            // Copy reduce rule and simplify it for the table.
             List<String> ruleItems = new List<String>();
             for (Object item in rule.items) {
               if (item is Term) ruleItems.add(item.name);
               else ruleItems.add(item as String);
             }
-            _Reduce action = new _Reduce(rule.term.name, List<String>.unmodifiable(ruleItems));
+
+            // Add the reduce action to all the follow items.
+            _Reduce reduce = new _Reduce(rule.term.name, List<String>.unmodifiable(ruleItems));
             for (Object item in items)
-              this._table.writeShift(state.number, item, action);
+              this._table.writeShift(state.number, item, reduce);
           }
         }
       }
