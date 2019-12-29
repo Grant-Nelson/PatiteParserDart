@@ -35,7 +35,7 @@ class _Runner {
     (this._errorCap > 0) && (this._errors.length >= this._errorCap);
 
   /// Handles when a default error action has been reached.
-  bool _nullAction(int curState, Token token, String indent) {
+  bool _nullAction(int curState, Grammar.Token token, String indent) {
     if (this._verbose) print('${indent}null error');
     this._errors.add('unexpected item, $token, in state $curState');
     if (this._errorLimitReached) return false;
@@ -53,7 +53,7 @@ class _Runner {
   }
 
   /// Handles when a shift action has been reached.
-  bool _shiftAction(_Shift action, Token token, String indent) {
+  bool _shiftAction(_Shift action, Grammar.Token token, String indent) {
     if (this._verbose) print('${indent}shift ${action.state}');
     this._itemStack.add(token);
     this._stateStack.add(action.state);
@@ -61,7 +61,7 @@ class _Runner {
   }
   
   /// Handles when a reduce action has been reached.
-  bool _reduceAction(_Reduce action, Token token, String indent) {
+  bool _reduceAction(_Reduce action, Grammar.Token token, String indent) {
     // Pop the items off the stack for this action.
     // Also check that the items match the expected rule.
     int count = action.items.length;

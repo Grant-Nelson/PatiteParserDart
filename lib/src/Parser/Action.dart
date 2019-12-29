@@ -38,14 +38,14 @@ class _Reduce implements _Action {
   /// The term to reduce the items into.
   final String term;
   
-  /// The items (tokens and terms) to reduce from the parse set.
-  final List<String> items;
+  /// The rule to reduce from the parse set.
+  final Grammar.Rule rule;
 
   /// Creates a new reduce action.
-  _Reduce(this.term, this.items);
+  _Reduce(this.term, this.rule);
 
   /// Gets the debug string for this action.
-  String toString() => "reduce ${this.term} -> ${this.items.join(" ")}";
+  String toString() => "reduce ${this.term} -> ${rule.toString()}";
 }
 
 /// An accept indicates that the full input has been

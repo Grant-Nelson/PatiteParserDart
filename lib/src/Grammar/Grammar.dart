@@ -1,7 +1,13 @@
 library PatiteParserDart.Grammar;
 
+import 'package:PatiteParserDart/src/Simple/Simple.dart' as Simple;
+import 'package:PatiteParserDart/src/Tokenizer/Tokenizer.dart';
+
+part 'Item.dart';
 part 'Rule.dart';
 part 'Term.dart';
+part 'TokenItem.dart';
+part 'Trigger.dart';
 
 /// A grammar is a definition of a language.
 /// It is made up of a set of terms and the rules for how each term is used.
@@ -33,14 +39,44 @@ part 'Term.dart';
 /// For more information see https://en.wikipedia.org/wiki/Context-free_grammar
 class Grammar {
   Set<Term> _terms;
-  Set<String> _tokens;
+  Set<TokenItem> _tokens;
+  Set<Trigger> _triggers;
   Term _start;
   
   /// Creates a new empty grammar.
   Grammar() {
-    this._terms = new Set<Term>();
-    this._tokens = new Set<String>();
-    this._start = null;
+    this._terms    = new Set<Term>();
+    this._tokens   = new Set<TokenItem>();
+    this._triggers = new Set<Trigger>();
+    this._start    = null;
+  }
+
+  /// Deserializes the given serialized data into a grammar.
+  factory Grammar.deserialize(Simple.Deserializer data) {
+    int version = data.readInt();
+    if (version != 1)
+      throw new Exception('Unknown version, $version, for grammar serialization.');
+    Grammar grammar = new Grammar();
+    grammar.start(data.readStr());
+    int termCount = data.readInt();
+    for (int i = 0; i < termCount; i++) {
+      Term term = new Term._(grammar, data.readStr());
+      int ruleCount = data.readInt();
+      for (int j = 0; j < ruleCount; j++) {
+        Rule rule = term.newRule();
+        int itemCount = data.readInt();
+        for (int k = 0; k < itemCount; k++) {
+          int itemType = data.readInt();
+          String itemName = data.readStr();
+          switch (itemType) {
+            case 1: rule.addTerm(itemName);    break;
+            case 2: rule.addToken(itemName);   break;
+            case 3: rule.addTrigger(itemName); break;
+          }
+        }
+      }
+    }
+    return grammar;
   }
 
   /// Creates a copy of this grammar.
@@ -58,24 +94,47 @@ class Grammar {
       for (Rule rule in term.rules) {
         Rule ruleCopy = new Rule._(grammar, termCopy);
 
-        for (Object obj in rule.items) {
-          Object objCopy;
-          if (obj is Term)
-            objCopy = grammar._findTerm(obj.name);
-          else objCopy = obj as String;
-          ruleCopy._items.add(objCopy);
+        for (Item item in rule.items) {
+          Item itemCopy;
+          if (item is Term)           itemCopy = grammar._findTerm(item.name);
+          else if (item is TokenItem) itemCopy = grammar._findAddToken(item.name);
+          else if (item is Trigger)   itemCopy = grammar._findAddTrigger(item.name);
+          else throw new Exception('Unknown item type: $item');
+          ruleCopy._items.add(itemCopy);
         }
         termCopy.rules.add(ruleCopy);
       }
     }
     return grammar;
   }
+  
+  /// Serializes the grammar.
+  Simple.Serializer serialize() {
+    Simple.Serializer data = new Simple.Serializer();
+    data.writeInt(1); // version 1
+    data.writeStr(this._start.name);
+    data.writeInt(this._terms.length);
+    for (Term term in this._terms) {
+      data.writeStr(term.name);
+      data.writeInt(term.rules.length);
+      for (Rule rule in term.rules) {
+        data.writeInt(rule.items.length);
+        for (Item item in rule.items) {
+          int itemType = (item is Term)? 1:
+            ((item is TokenItem)? 2: 3);
+          data.writeInt(itemType);
+          data.writeStr(item.name);
+        }
+      }
+    }
+    return data;
+  }
 
   /// This will trim the term name and check if the name is empty.
   String _sanitizedTermName(String name) {
     name = name.trim();
     if (name.isEmpty)
-      throw new Exception("May not have an all whitespace or empty term name.");
+      throw new Exception('May not have an all whitespace or empty term name.');
     return name;
   }
 
@@ -93,7 +152,10 @@ class Grammar {
   List<Term> get terms => this._terms.toList();
   
   /// Gets the tokens for this grammar.
-  List<String> get tokens => this._tokens.toList();
+  List<TokenItem> get tokens => this._tokens.toList();
+  
+  /// Gets the triggers for this grammar.
+  List<Trigger> get trigger => this._triggers.toList();
 
   /// Finds a term in this grammar by the given name.
   /// Returns null if no term by that name if found.
@@ -113,18 +175,32 @@ class Grammar {
       return nt;
   }
 
-  /// Find the existing token in this grammar.
-  /// This is done this way to reduce pointer usage and have only
-  /// one duplicate string for any given token.
-  String _findAddToken(String tokenName) {
+  /// Find the existing token in this grammar
+  /// or add it if not found.
+  TokenItem _findAddToken(String tokenName) {
     tokenName = tokenName.trim();
     if (tokenName.isEmpty)
-      throw new Exception("May not have an all whitespace or empty token name.");
-    for (String token in this._tokens) {
-      if (token == tokenName) return token;
+      throw new Exception('May not have an all whitespace or empty token name.');
+    for (TokenItem token in this._tokens) {
+      if (token.name == tokenName) return token;
     }
-    this._tokens.add(tokenName);
-    return tokenName;
+    TokenItem token = new TokenItem(tokenName);
+    this._tokens.add(token);
+    return token;
+  }
+
+  /// Find the existing trigger in this grammar
+  /// or add it if not found.
+  Trigger _findAddTrigger(String triggerName) {
+    triggerName = triggerName.trim();
+    if (triggerName.isEmpty)
+      throw new Exception('May not have an all whitespace or empty trigger name.');
+    for (Trigger trigger in this._triggers) {
+      if (trigger.name == triggerName) return trigger;
+    }
+    Trigger trigger = new Trigger(triggerName);
+    this._triggers.add(trigger);
+    return trigger;
   }
 
   /// Gets or adds a term for a set of rules to this grammar.
@@ -196,29 +272,33 @@ class Grammar {
         else if (rule._term != term)
           buf.writeln('The rule for ${term.name} says it is for ${rule._term.name}.');
 
-        for (Object item in rule._items) {
+        for (Item item in rule._items) {
+          if (item.name.trim().isEmpty)
+            buf.writeln('There exists an item in rule for ${term.name} which is all whitespace or emtpy.');
           if (item is Term) {
             if (!this._terms.contains(item))
-              buf.writeln("The term, ${item.name}, in a rule for ${term.name}, was not found in the set of terms.");
-          } else {
-            if ((item as String).trim().isEmpty)
-              buf.writeln('There exists a token in rule for ${term.name} which is all whitespace or emtpy.');
+              buf.writeln("The term, $item, in a rule for ${term.name}, was not found in the set of terms.");
+          } else if (item is TokenItem) {
             if (!this._tokens.contains(item))
               buf.writeln('The token, $item, in a rule for ${term.name}, was not found in the set of tokens.');
-          }
+          } else if (item is Trigger) {
+            if (!this._triggers.contains(item))
+              buf.writeln('The trigger, $item, in a rule for ${term.name}, was not found in the set of triggers.');
+          } else throw new Exception('Unknown item type in ${term.name}.');
         }
       }
     }
 
+
     Set<String> termUnreached = new Set<String>.from(termList.map<String>((Term t) => t.name));
-    Set<String> tokenUnreached = new Set<String>.from(this._tokens);
-    Function(Object item) touch;
-    touch = (Object item) {
+    Set<String> tokenUnreached = new Set<String>.from(this._tokens); // TODO: Update and add triggers
+    Function(Item item) touch;
+    touch = (Item item) {
       if (item is Term) {
         if (termUnreached.contains(item.name)) {
           termUnreached.remove(item.name);
           for (Rule r in item._rules)
-            for (Object item in r._items)
+            for (Item item in r._items)
               touch(item);
         }
       } else tokenUnreached.remove(item);

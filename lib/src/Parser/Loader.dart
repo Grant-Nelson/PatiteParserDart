@@ -2,8 +2,8 @@ part of PatiteParserDart.Parser;
 
 class Loader {
 
-  static Tokenizer getTokenizer() {
-    Tokenizer tok = new Tokenizer();
+  static Tokenizer.Tokenizer getTokenizer() {
+    Tokenizer.Tokenizer tok = new Tokenizer.Tokenizer();
     tok.start("start");
 
     tok.join("start", "whitespace").addSet(" \n\r\t");
@@ -60,7 +60,7 @@ class Loader {
     tok.setToken("range", "range");
 
     Matcher.Group hexMatcher = new Matcher.Group()..addRange('0', '9')..addRange('A', 'F')..addRange('a', 'f');
-    Matcher.Group idLetter = new Matcher.Group()..addRange('a', 'z')..addRange('A', 'Z')..addRange('0', '9')..addSet("_.-");
+    Matcher.Group idLetter = new Matcher.Group()..addRange('a', 'z')..addRange('A', 'Z')..addRange('0', '9')..addSet("_.-:");
 
     tok.join("start", "id").add(idLetter);
     tok.join("id", "id").add(idLetter);
@@ -117,13 +117,13 @@ class Loader {
     //    equal         =
     //    arrow         =>
     //    range         ..
-    //    id            [0-9a-fA-F_.-]+
+    //    id            [0-9a-fA-F_.-:]+
     //    charSet       'any'
     //    string        "any"
     return tok;
   }
 
-  static Grammar getGrammar() {
+  static Grammar.Grammar getGrammar() {
     // Tokenizer:
     //    > (StartState)
     //    > (StartState): 'a' => (State)
@@ -142,7 +142,7 @@ class Loader {
     //    <Term> := _
     //    <Term> := <Term> | <Term>
 
-    Grammar gram = new Grammar();
+    Grammar.Grammar gram = new Grammar.Grammar();
     gram.start("defSet");
     gram.newRule("defSet").addTerm("defSet").addTerm("def");
     gram.newRule("defSet");

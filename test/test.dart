@@ -5,7 +5,6 @@ import 'package:PatiteParserDart/Parser.dart';
 import 'package:PatiteParserDart/Tokenizer.dart';
 import 'package:PatiteParserDart/Simple.dart' as Simple;
 import 'package:PatiteParserDart/Diff.dart' as Diff;
-import 'package:PatiteParserDart/Matcher.dart' as Matcher;
 
 part 'loader.dart';
 part 'parser.dart';
