@@ -60,7 +60,8 @@ class _Table {
       case 2: return new _Goto(data.readInt());
       case 3:
         Grammar.Term term = grammar.term(data.readStr());
-        return new _Reduce(term.rules[data.readInt()]);
+        Grammar.Rule rule = term.rules[data.readInt()];
+        return new _Reduce(rule);
       case 4: return new _Accept();
       case 5: return new _Error(data.readStr());
     }
@@ -106,8 +107,9 @@ class _Table {
     } else if (action is _Reduce) {
       data.writeInt(3);
       Grammar.Term term = action.rule.term;
+      int ruleNum = term.rules.indexOf(action.rule);
       data.writeStr(term.name);
-      data.writeInt(term.rules.indexOf(action.rule));
+      data.writeInt(ruleNum);
     } else if (action is _Accept) {
       data.writeInt(4);
     } else if (action is _Error) {

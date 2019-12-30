@@ -1,7 +1,6 @@
 library PatiteParserDart.Grammar;
 
 import 'package:PatiteParserDart/src/Simple/Simple.dart' as Simple;
-import 'package:PatiteParserDart/src/Tokenizer/Tokenizer.dart';
 
 part 'Item.dart';
 part 'Rule.dart';
@@ -60,7 +59,7 @@ class Grammar {
     grammar.start(data.readStr());
     int termCount = data.readInt();
     for (int i = 0; i < termCount; i++) {
-      Term term = new Term._(grammar, data.readStr());
+      Term term = grammar.term(data.readStr());
       int ruleCount = data.readInt();
       for (int j = 0; j < ruleCount; j++) {
         Rule rule = term.newRule();

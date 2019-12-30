@@ -46,7 +46,7 @@ void loader00(TestArgs args) {
 }
        
 void loader01(TestArgs args) {
-  args.log('loader00');
+  args.log('loader01');
   Parser parser = Loader.getParser();
   args.checkParser(parser, ["(O): 'ab' => (AB): 'cde' => (CDE)"],
     ['--defSet',
@@ -82,7 +82,7 @@ void loader01(TestArgs args) {
 }
       
 void loader02(TestArgs args) {
-  args.log('loader01');
+  args.log('loader02');
   Parser parser = Loader.getParser();
   args.checkParser(parser, ["(A)(B)(C)[D]"],
     ['--defSet',
