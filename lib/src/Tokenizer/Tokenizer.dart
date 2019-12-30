@@ -25,6 +25,10 @@ class Tokenizer {
 
   /// Loads a whole tokenizer from the given deserializer.
   factory Tokenizer.deserialize(Simple.Deserializer data) {
+    int version = data.readInt();
+    if (version != 1)
+      throw new Exception('Unknown version, $version, for tokenizer serialization.');
+
     Tokenizer tokenizer = new Tokenizer();
 
     int tokenCount = data.readInt();
@@ -54,6 +58,7 @@ class Tokenizer {
   /// Creates a serializer to represent the whole tokenizer.
   Simple.Serializer serialize() {
     Simple.Serializer data = new Simple.Serializer();
+    data.writeInt(1); // Version 1
 
     data.writeInt(this._token.length);
     for (String key in this._token.keys) {

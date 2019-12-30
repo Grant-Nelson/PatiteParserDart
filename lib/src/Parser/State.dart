@@ -59,7 +59,7 @@ class _State {
     this._rules.add(rule);
 
     if (index < rule.items.length) {
-      Object item = rule.items[index];
+      Grammar.Item item = rule.items[index];
       if (item is Grammar.Term) {
         for (Grammar.Rule rule in item.rules)
           this.addRule(0, rule);
@@ -70,7 +70,7 @@ class _State {
 
   /// Finds the go to state from the given item,
   /// null is returned if none is found.
-  _State findGoto(Grammar.Term term) {
+  _State findGoto(Grammar.Item item) {
     for (int i = this._onItems.length - 1; i >= 0; i--) {
       if (this._onItems[i] == item) return this._gotos[i];
     }
@@ -78,7 +78,7 @@ class _State {
   }
 
   /// Adds a goto connection on the given item to the given state.
-  bool addGoto(Object item, _State state) {
+  bool addGoto(Grammar.Item item, _State state) {
     if (this.findGoto(item) == state) return false;
     this._onItems.add(item);
     this._gotos.add(state);

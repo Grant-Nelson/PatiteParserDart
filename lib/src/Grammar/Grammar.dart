@@ -111,7 +111,7 @@ class Grammar {
   /// Serializes the grammar.
   Simple.Serializer serialize() {
     Simple.Serializer data = new Simple.Serializer();
-    data.writeInt(1); // version 1
+    data.writeInt(1); // Version 1
     data.writeStr(this._start.name);
     data.writeInt(this._terms.length);
     for (Term term in this._terms) {
@@ -289,9 +289,9 @@ class Grammar {
       }
     }
 
-
-    Set<String> termUnreached = new Set<String>.from(termList.map<String>((Term t) => t.name));
-    Set<String> tokenUnreached = new Set<String>.from(this._tokens); // TODO: Update and add triggers
+    Set<String> termUnreached    = new Set<String>.from(termList.map<String>((Term t) => t.name));
+    Set<String> tokenUnreached   = new Set<String>.from(this._tokens.map<String>((TokenItem t) => t.name));
+    Set<String> triggerUnreached = new Set<String>.from(this._triggers.map<String>((Trigger t) => t.name));
     Function(Item item) touch;
     touch = (Item item) {
       if (item is Term) {
@@ -301,13 +301,18 @@ class Grammar {
             for (Item item in r._items)
               touch(item);
         }
-      } else tokenUnreached.remove(item);
+      } else if (item is TokenItem) tokenUnreached.remove(item.name);
+      else if (item is Trigger) triggerUnreached.remove(item.name);
+      else buf.writeln('Unknown item type: $item');
     };
     touch(this._start);
+
     if (termUnreached.length > 0)
       buf.writeln('The following terms are unreachable: ${termUnreached.join(", ")}');
     if (tokenUnreached.length > 0)
       buf.writeln('The following tokens are unreachable: ${tokenUnreached.join(", ")}');
+    if (triggerUnreached.length > 0)
+      buf.writeln('The following triggers are unreachable: ${triggerUnreached.join(", ")}');
 
     return buf.toString();
   }

@@ -17,7 +17,11 @@ class _Table {
   }
   
   /// Deserializes the given serialized data into this table.
-  factory _Table.deserialize(Simple.Deserializer data) {
+  factory _Table.deserialize(Simple.Deserializer data, Grammar.Grammar grammar) {
+    int version = data.readInt();
+    if (version != 1)
+      throw new Exception('Unknown version, $version, for parser table serialization.');
+
     _Table table = new _Table();
     table._shiftColumns = new Set<String>.from(data.readStrList());
     table._gotoColumns = new Set<String>.from(data.readStrList());
@@ -28,7 +32,7 @@ class _Table {
       int keysCount = data.readInt();
       for (int j = 0; j < keysCount; j++) {
         String key = data.readStr();
-        _Action action = table._deserializeAction(data);
+        _Action action = table._deserializeAction(data, grammar);
         shiftMap[key] = action;
       }
       table._shiftTable.add(shiftMap);
@@ -40,7 +44,7 @@ class _Table {
       int keysCount = data.readInt();
       for (int j = 0; j < keysCount; j++) {
         String key = data.readStr();
-        _Action action = table._deserializeAction(data);
+        _Action action = table._deserializeAction(data, grammar);
         gotoMap[key] = action;
       }
       table._gotoTable.add(gotoMap);
@@ -50,11 +54,13 @@ class _Table {
   }
 
   /// Creates an action from the given data. 
-  _Action _deserializeAction(Simple.Deserializer data) {
+  _Action _deserializeAction(Simple.Deserializer data, Grammar.Grammar grammar) {
     switch (data.readInt()) {
       case 1: return new _Shift(data.readInt());
       case 2: return new _Goto(data.readInt());
-      case 3: return new _Reduce(data.readStr(), data.readStrList());
+      case 3:
+        Grammar.Term term = grammar.term(data.readStr());
+        return new _Reduce(term.rules[data.readInt()]);
       case 4: return new _Accept();
       case 5: return new _Error(data.readStr());
     }
@@ -64,6 +70,7 @@ class _Table {
   /// Serializes the table.
   Simple.Serializer serialize() {
     Simple.Serializer data = new Simple.Serializer();
+    data.writeInt(1); // Version 1
     data.writeStrList(this._shiftColumns.toList());
     data.writeStrList(this._gotoColumns.toList());
 
@@ -98,8 +105,9 @@ class _Table {
       data.writeInt(action.state);
     } else if (action is _Reduce) {
       data.writeInt(3);
-      data.writeStr(action.term);
-      data.writeStrList(action.items);
+      Grammar.Term term = action.rule.term;
+      data.writeStr(term.name);
+      data.writeInt(term.rules.indexOf(action.rule));
     } else if (action is _Accept) {
       data.writeInt(4);
     } else if (action is _Error) {

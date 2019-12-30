@@ -47,18 +47,24 @@ class Parser {
 
   /// Creates a parser from the given json serialization.
   factory Parser.deserialize(Simple.Deserializer data) {
+    int version = data.readInt();
+    if (version != 1)
+      throw new Exception('Unknown version, $version, for parser serialization.');
+
     Grammar.Grammar grammar = new Grammar.Grammar.deserialize(data.readSer());
     _Table table = new _Table.deserialize(data.readSer(), grammar);
     Tokenizer.Tokenizer tokenizer = new Tokenizer.Tokenizer.deserialize(data.readSer());
     return new Parser._(table, grammar, tokenizer);
   }
 
+  /// Creates a parser from a parser definition folder.
   factory Parser.fromFile(String name) =>
     new Loader().load(name);
 
   /// Serializes the parser into a json serialization.
   Simple.Serializer serialize() =>
     new Simple.Serializer()
+      ..writeInt(1) // Version 1
       ..writeSer(this._grammar.serialize())
       ..writeSer(this._table.serialize())
       ..writeSer(this._tokenizer.serialize());

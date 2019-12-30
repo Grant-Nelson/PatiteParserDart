@@ -63,8 +63,10 @@ class _Builder {
       Grammar.Rule rule = state.rules[i];
       if (index < rule.items.length) {
         Grammar.Item item = rule.items[index];
+
         if ((item is Grammar.TokenItem) && item.name == _eofTokenName) {
           state.setAccept();
+
         } else {
           _State next = state.findGoto(item);
           if (next == null) {
@@ -100,7 +102,7 @@ class _Builder {
           List<Grammar.TokenItem> follows = rule.term.determineFollows();
           if (follows.length > 0) {
             // Add the reduce action to all the follow items.
-            _Reduce reduce = new _Reduce(rule.term.name, rule);
+            _Reduce reduce = new _Reduce(rule);
             for (Grammar.TokenItem follow in follows)
               this._table.writeShift(state.number, follow.name, reduce);
           }
