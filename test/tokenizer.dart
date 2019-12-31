@@ -3,7 +3,7 @@ part of PatiteParserDart.test;
 void tokenizer00(TestArgs args) {
   args.log('tokenizer00');
 
-  Tokenizer tok = new Tokenizer();
+  Tokenizer.Tokenizer tok = new Tokenizer.Tokenizer();
   tok.start("start");
   tok.join("start", "id")..addRange("a", "z");
   tok.join("id", "id")..addRange("a", "z");
@@ -53,7 +53,7 @@ void tokenizer00(TestArgs args) {
 void tokenizer01(TestArgs args) {
   args.log('tokenizer01');
 
-  Tokenizer tok = new Tokenizer();
+  Tokenizer.Tokenizer tok = new Tokenizer.Tokenizer();
   tok.start("start");
   //         .--a--(a1)--b--(b1)[ab]--c--(c2)--d--(d2)--f--(f1)[abcdf]
   // start--{---c--(c1)--d--(d1)[cd]

@@ -27,10 +27,50 @@ class TestArgs {
     this._failed = true;
   }
 
+  /// Checks the grammar results.
+  void checkGrammar(Grammar.Grammar grammar, List<String> expected) {
+    String exp = expected.join('\n');
+    String result = grammar.toString().trim();
+    if (exp != result) {
+      String diff = Diff.plusMinusLines(exp, result);
+      diff = diff.trim().replaceAll('\n', '\n        ');
+      this.error('The grammar string did not match the expected results'+
+        '\n  Diff: $diff');
+    }
+  }
+
+  /// Checks the grammar term's first tokens results.
+  void checkTermFirst(Grammar.Grammar grammar, String token, List<String> expected) {
+    String exp = expected.join('\n');
+    List<Grammar.TokenItem> firsts = grammar.term(token).determineFirsts();
+    String result = firsts.join('\n');
+    if (exp != result) {
+      String diff = Diff.plusMinusLines(exp, result);
+      diff = diff.trim().replaceAll('\n', '\n         ');
+      this.error('The grammar term firsts did not match the expected results'+
+        '\n  Token: $token'
+        '\n  Diff:  $diff');
+    }
+  }
+
+  /// Checks the grammar term's follow tokens results.
+  void checkTermFollow(Grammar.Grammar grammar, String token, List<String> expected) {
+    String exp = expected.join('\n');
+    List<Grammar.TokenItem> firsts = grammar.term(token).determineFollows();
+    String result = firsts.join('\n');
+    if (exp != result) {
+      String diff = Diff.plusMinusLines(exp, result);
+      diff = diff.trim().replaceAll('\n', '\n         ');
+      this.error('The grammar term follows did not match the expected results'+
+        '\n  Token: $token'
+        '\n  Diff:  $diff');
+    }
+  }
+
   /// Checks the tokenizer results.
-  void checkTok(Tokenizer tok, String input, List<String> expected) {
+  void checkTok(Tokenizer.Tokenizer tok, String input, List<String> expected) {
     StringBuffer resultBuf = new StringBuffer();
-    for (Token token in tok.tokenize(input))
+    for (Tokenizer.Token token in tok.tokenize(input))
       resultBuf.writeln(token.toString());
     String exp = expected.join('\n');
     String result = resultBuf.toString().trim();
@@ -44,8 +84,8 @@ class TestArgs {
   }
   
   /// Checks the parser will parse the given input.
-  void checkParser(Parser parser, List<String> input, List<String> expected) {
-    Result parseResult = parser.parse(input.join('\n'));
+  void checkParser(Parser.Parser parser, List<String> input, List<String> expected) {
+    Parser.Result parseResult = parser.parse(input.join('\n'));
     String exp = expected.join('\n');
     String result = parseResult.toString();
     if (exp != result) {

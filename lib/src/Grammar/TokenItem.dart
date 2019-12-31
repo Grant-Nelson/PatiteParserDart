@@ -8,4 +8,7 @@ class TokenItem extends Item {
 
   /// Creates a new token.
   TokenItem(String name): super._(name);
+  
+  /// Gets the string for this token.
+  String toString() => "[${this.name}]";
 }

@@ -60,7 +60,7 @@ class Loader {
     tok.setToken("range", "range");
 
     Matcher.Group hexMatcher = new Matcher.Group()..addRange('0', '9')..addRange('A', 'F')..addRange('a', 'f');
-    Matcher.Group idLetter = new Matcher.Group()..addRange('a', 'z')..addRange('A', 'Z')..addRange('0', '9')..addSet("_.-:");
+    Matcher.Group idLetter = new Matcher.Group()..addRange('a', 'z')..addRange('A', 'Z')..addRange('0', '9')..addSet("_.-");
 
     tok.join("start", "id").add(idLetter);
     tok.join("id", "id").add(idLetter);
@@ -117,49 +117,50 @@ class Loader {
     //    equal         =
     //    arrow         =>
     //    range         ..
-    //    id            [0-9a-fA-F_.-:]+
+    //    id            [0-9a-fA-F_.-]+
     //    charSet       'any'
     //    string        "any"
     return tok;
   }
 
   static Grammar.Grammar getGrammar() {
-    // Tokenizer:
-    //    > (StartState)
-    //    > (StartState): 'a' => (State)
-    //    (State): 'a'..'c' => (State)
-    //    (State): 'abcdef' => (State)
-    //    (State): ! 'abcdef' => (State)
-    //    (State): ^ 'a'..'b', 'c', => (State)
-    //    (State): * => (State)
-    //    (State) => [Token]
-    //    (State) => ^[Token]
-    //    [Token] = "word" => [Token]
-    //    [Token] = "word" => ^[Token]
-    // Parser:
-    //    > <StartTerm>
-    //    > <StartTerm> := [Token] <Term>
-    //    <Term> := _
-    //    <Term> := <Term> | <Term>
+    // Examples:
+    //    Tokenizer:
+    //       > (StartState)
+    //       > (StartState): 'a' => (State)
+    //       (State): 'a'..'c' => (State)
+    //       (State): 'abcdef' => (State)
+    //       (State): ! 'abcdef' => (State)
+    //       (State): ^ 'a'..'b', 'c', => (State)
+    //       (State): * => (State)
+    //       (State) => [Token]
+    //       (State) => ^[Token]
+    //       [Token] = "word" => [Token]
+    //       [Token] = "word" => ^[Token]
+    //    Parser:
+    //       > <StartTerm>
+    //       > <StartTerm> := [Token] <Term>
+    //       <Term> := _
+    //       <Term> := <Term> | <Term>
 
     Grammar.Grammar gram = new Grammar.Grammar();
-    gram.start("defSet");
-    gram.newRule("defSet").addTerm("defSet").addTerm("def");
-    gram.newRule("defSet");
+    gram.start("def.set");
+    gram.newRule("def.set").addTerm("def.set").addTerm("def");
+    gram.newRule("def.set");
+
+    gram.newRule("def").addToken("closeAngle").addTerm("def.body");
+    gram.newRule("def").addTerm("def.body");
+    gram.newRule("def.body").addTerm("stateID");
+    gram.newRule("def.body").addTerm("tokenID");
+    gram.newRule("def.body").addTerm("def.body").addToken("colon").addTerm("matcher.start").addToken("arrow").addTerm("stateID");
+    gram.newRule("def.body").addTerm("def.body").addToken("colon").addTerm("matcher.start").addToken("arrow").addTerm("tokenID");
 
     gram.newRule("stateID").addToken("openParen").addToken("id").addToken("closeParen");
     gram.newRule("tokenID").addToken("openBracket").addToken("id").addToken("closeBracket");
 
-    gram.newRule("def").addToken("closeAngle").addTerm("stateDef");
-    gram.newRule("def").addTerm("stateDef");
-    gram.newRule("stateDef").addTerm("stateID");
-    gram.newRule("stateDef").addTerm("tokenID");
-    gram.newRule("stateDef").addTerm("stateID").addToken("colon").addTerm("startMatcher").addToken("arrow").addTerm("stateDef");
-    gram.newRule("stateDef").addTerm("tokenID").addToken("colon").addTerm("startMatcher").addToken("arrow").addTerm("stateDef");
-
-    gram.newRule("startMatcher").addToken("any");
-    gram.newRule("startMatcher").addTerm("matcher");
-    gram.newRule("startMatcher").addToken("consume").addTerm("matcher");
+    gram.newRule("matcher.start").addToken("any");
+    gram.newRule("matcher.start").addTerm("matcher");
+    gram.newRule("matcher.start").addToken("consume").addTerm("matcher");
 
     gram.newRule("matcher").addTerm("charSetRange");
     gram.newRule("matcher").addTerm("matcher").addToken("comma").addTerm("charSetRange");

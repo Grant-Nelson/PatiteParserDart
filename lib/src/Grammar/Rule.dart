@@ -81,6 +81,6 @@ class Rule {
       if (item is! Trigger) index++;
     }
     if (index == stepIndex) parts.insert(stepIndex, "•");
-    return this._term.name + " → " + parts.join(" ");
+    return this._term.toString() + " → " + parts.join(" ");
   }
 }

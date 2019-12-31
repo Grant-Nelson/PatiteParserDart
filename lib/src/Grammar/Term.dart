@@ -43,26 +43,36 @@ class Term extends Item {
   /// This is the recursive part of the determination of the first token sets which
   /// allows for terms which have already been checked to not be checked again.
   void _determineFirsts(Set<TokenItem> tokens, Set<Term> checked) {
+    if (checked.contains(this)) return;
     checked.add(this);
+    bool needFollows = false;
     for (Rule rule in this._rules) {
-      for (Item item in rule.items) {
-        if (item is Term) {
-          if (!checked.contains(item))
-            item._determineFirsts(tokens, checked);
-            return;
-        } else if (item is TokenItem) {
-          tokens.add(item);
-          return;
-        }
-        // else if Trigger continue.
-      }
-      rule.term._determineFollows(tokens, new Set<Term>());
+      if (this._determineRuleFirsts(rule, tokens, checked)) needFollows = true;
     }
+    if (needFollows) this._determineFollows(tokens, new Set<Term>());
+  }
+  
+  /// This determines the firsts for the given rule.
+  /// If the rule has no tokens or terms this will return true
+  /// indicating that the rule needs follows to be added.
+  bool _determineRuleFirsts(Rule rule, Set<TokenItem> tokens, Set<Term> checked) {
+    for (Item item in rule.items) {
+      if (item is Term) {
+        item._determineFirsts(tokens, checked);
+        return false;
+      } else if (item is TokenItem) {
+        tokens.add(item);
+        return false;
+      }
+      // else if Trigger continue.
+    }
+    return true;
   }
 
   /// This is the recursive part of the determination of the follow token sets which
   /// allows for terms which have already been checked to not be checked again.
   void _determineFollows(Set<TokenItem> tokens, Set<Term> checked) {
+    if (checked.contains(this)) return;
     checked.add(this);
     for (Term term in this._grammar.terms) {
       for (Rule rule in term.rules) {
@@ -78,10 +88,12 @@ class Term extends Item {
         }
 
         if ((rule.items.length > 0) && (rule.items[count-1] == this)) {
-          if (!checked.contains(term))
-            term._determineFollows(tokens, checked);
+          term._determineFollows(tokens, checked);
         }
       }
     }
   }
+  
+  /// Gets the string for this term.
+  String toString() => "<${this.name}>";
 }

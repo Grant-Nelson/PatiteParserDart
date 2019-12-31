@@ -3,7 +3,7 @@ part of PatiteParserDart.test;
 void parser00(TestArgs args) {
   args.log('parser00');
 
-  Tokenizer tok = new Tokenizer();
+  Tokenizer.Tokenizer tok = new Tokenizer.Tokenizer();
   tok.start("start");
   tok.join("start", "(")..addSet("(");
   tok.join("start", ")")..addSet(")");
@@ -19,14 +19,14 @@ void parser00(TestArgs args) {
   // 3. T → n
   // 4. T → + T
   // 5. T → T + n
-  Grammar grammar = new Grammar();
+  Grammar.Grammar grammar = new Grammar.Grammar();
   grammar.start("E");
   grammar.newRule("E").addTerm("T");
   grammar.newRule("E").addToken("(").addTerm("E").addToken(")");
   grammar.newRule("T").addToken("n");
   grammar.newRule("T").addToken("+").addTerm("T");
   grammar.newRule("T").addTerm("T").addToken("+").addToken("n");
-  Parser parser = new Parser.fromGrammar(grammar, tok);
+  Parser.Parser parser = new Parser.Parser.fromGrammar(grammar, tok);
   args.checkParser(parser, ["103"],
     ['--E',
      '  `--T',
@@ -62,7 +62,7 @@ void parser00(TestArgs args) {
 void parser01(TestArgs args) {
   args.log('parser01');
 
-  Tokenizer tok = new Tokenizer();
+  Tokenizer.Tokenizer tok = new Tokenizer.Tokenizer();
   tok.start("start");
   tok.join("start", "(")..addSet("(");
   tok.join("start", ")")..addSet(")");
@@ -70,11 +70,11 @@ void parser01(TestArgs args) {
   tok.setToken(")", ")");
   // 1. X → ( X )
   // 2. X → ( )
-  Grammar grammar = new Grammar();
+  Grammar.Grammar grammar = new Grammar.Grammar();
   grammar.start("X");
   grammar.newRule("X").addToken("(").addTerm("X").addToken(")");
   grammar.newRule("X").addToken("(").addToken(")");
-  Parser parser = new Parser.fromGrammar(grammar, tok);
+  Parser.Parser parser = new Parser.Parser.fromGrammar(grammar, tok);
   args.checkParser(parser, ["()"],
     ['--X',
      '  |--(:1:"("',
@@ -94,7 +94,7 @@ void parser01(TestArgs args) {
 void parser02(TestArgs args) {
   args.log('parser02');
 
-  Tokenizer tok = new Tokenizer();
+  Tokenizer.Tokenizer tok = new Tokenizer.Tokenizer();
   tok.start("start");
   tok.join("start", "(")..addSet("(");
   tok.join("start", ")")..addSet(")");
@@ -102,11 +102,11 @@ void parser02(TestArgs args) {
   tok.setToken(")", ")");
   // 1. X → ( X )
   // 2. X → 𝜀
-  Grammar grammar = new Grammar();
+  Grammar.Grammar grammar = new Grammar.Grammar();
   grammar.start("X");
   grammar.newRule("X").addToken("(").addTerm("X").addToken(")");
   grammar.newRule("X");
-  Parser parser = new Parser.fromGrammar(grammar, tok);
+  Parser.Parser parser = new Parser.Parser.fromGrammar(grammar, tok);
   args.checkParser(parser, [""],
     ['--X']);
   args.checkParser(parser, ["()"],
@@ -130,7 +130,7 @@ void parser02(TestArgs args) {
 void parser03(TestArgs args) {
   args.log('parser03');
 
-  Tokenizer tok = new Tokenizer();
+  Tokenizer.Tokenizer tok = new Tokenizer.Tokenizer();
   tok.start("start");
   tok.join("start", "a")..addSet("a");
   tok.join("start", "b")..addSet("b");
@@ -142,13 +142,13 @@ void parser03(TestArgs args) {
   // 2. S → 𝜀
   // 3. A → a A
   // 4. A → 𝜀
-  Grammar grammar = new Grammar();
+  Grammar.Grammar grammar = new Grammar.Grammar();
   grammar.start("S");
   grammar.newRule("S").addToken("b").addTerm("A").addToken("d").addTerm("S");
   grammar.newRule("S");
   grammar.newRule("A").addToken("a").addTerm("A");
   grammar.newRule("A");
-  Parser parser = new Parser.fromGrammar(grammar, tok);
+  Parser.Parser parser = new Parser.Parser.fromGrammar(grammar, tok);
   args.checkParser(parser, ["bd"],
     ['--S',
      '  |--b:1:"b"',
@@ -184,7 +184,7 @@ void parser03(TestArgs args) {
 void parser04(TestArgs args) {
   args.log('parser04');
 
-  Tokenizer tok = new Tokenizer();
+  Tokenizer.Tokenizer tok = new Tokenizer.Tokenizer();
   tok.start("start");
   tok.join("start", "id")..addRange("a", "z");
   tok.join("id", "id")..addRange("a", "z");
@@ -202,17 +202,17 @@ void parser04(TestArgs args) {
   // 2. E → E * E
   // 3. E → ( E )
   // 4. E → id
-  Grammar grammar = new Grammar();
+  Grammar.Grammar grammar = new Grammar.Grammar();
   grammar.start("E");
   grammar.newRule("E").addTerm("E").addToken("+").addTerm("E");
   grammar.newRule("E").addTerm("E").addToken("*").addTerm("E");
   grammar.newRule("E").addToken("(").addTerm("E").addToken(")");
   grammar.newRule("E").addToken("id");
-  Parser parser = new Parser.fromGrammar(grammar, tok);
+  Parser.Parser parser = new Parser.Parser.fromGrammar(grammar, tok);
   
   // Test serializing and deserializing too.
   String data = parser.serialize().toString();
-  parser = new Parser.deserialize(new Simple.Deserializer(data));
+  parser = new Parser.Parser.deserialize(new Simple.Deserializer(data));
   args.checkParser(parser, ["a"],
     ['--E',
      '  `--id:1:"a"']);
@@ -260,17 +260,17 @@ void parser04(TestArgs args) {
 void parser05(TestArgs args) {
   args.log('parser05');
 
-  Tokenizer tok = new Tokenizer();
+  Tokenizer.Tokenizer tok = new Tokenizer.Tokenizer();
   tok.start("start");
   tok.join("start", "a").addSet("a");
   tok.setToken("a", "a");
 
-  Grammar grammar = new Grammar();
+  Grammar.Grammar grammar = new Grammar.Grammar();
   grammar.start("E");
   grammar.newRule("E");
   grammar.newRule("E").addTerm("E").addTerm("T");
   grammar.newRule("T").addToken("a");
-  Parser parser = new Parser.fromGrammar(grammar, tok);
+  Parser.Parser parser = new Parser.Parser.fromGrammar(grammar, tok);
     
   args.checkParser(parser, ["aaa"],
     ['--E',

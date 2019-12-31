@@ -89,10 +89,8 @@ class Grammar {
 
     for (Term term in this._terms) {
       Term termCopy = grammar._findTerm(term.name);
-      
       for (Rule rule in term.rules) {
         Rule ruleCopy = new Rule._(grammar, termCopy);
-
         for (Item item in rule.items) {
           Item itemCopy;
           if (item is Term)           itemCopy = grammar._findTerm(item.name);
@@ -221,7 +219,7 @@ class Grammar {
   String toString() {
     StringBuffer buf = new StringBuffer();
     if (this._start != null)
-      buf.writeln("> "+this._start.name);
+      buf.writeln("> "+this._start.toString());
     for (Term term in this._terms) {
       for (Rule rule in term.rules)
        buf.writeln(rule);
