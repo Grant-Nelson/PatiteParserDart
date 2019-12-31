@@ -26,6 +26,16 @@ class Parser {
   Grammar.Grammar _grammar;
   Tokenizer.Tokenizer _tokenizer;
 
+  static String getDebugStateString(Grammar.Grammar grammar) {
+    _Builder builder = new _Builder(grammar.copy());
+    builder.determineStates();
+    StringBuffer buf = new StringBuffer();
+    for (_State state in builder._states) {
+       buf.write(state.toString());
+    }
+    return buf.toString();
+  }
+
   /// Creates a new grammar.
   Parser._(this._table, this._grammar, this._tokenizer);
 
@@ -41,7 +51,7 @@ class Parser {
     builder.fillTable();
     String errs = builder.buildErrors;
     if (errs.isNotEmpty)
-      throw new Exception('Errors while building parser:\n$builder');
+      throw new Exception('Errors while building parser:\n$errs');
     return new Parser._(builder.table, grammar, tokenizer);
   }
 

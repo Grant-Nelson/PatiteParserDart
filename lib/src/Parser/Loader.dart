@@ -130,6 +130,9 @@ class Loader {
     //       > (StartState): 'a' => (State)
     //       (State): 'a'..'c' => (State)
     //       (State): 'abcdef' => (State)
+    //       (State): 'a' => (State): 'b' => (State): 'c' => (State)
+    //       (State): 'a' => [Token]
+    //       (State): 'a' => ^[Token]
     //       (State): ! 'abcdef' => (State)
     //       (State): ^ 'a'..'b', 'c', => (State)
     //       (State): * => (State)
@@ -148,27 +151,29 @@ class Loader {
     gram.newRule("def.set").addTerm("def.set").addTerm("def");
     gram.newRule("def.set");
 
-    gram.newRule("def").addToken("closeAngle").addTerm("def.body");
-    gram.newRule("def").addTerm("def.body");
-    gram.newRule("def.body").addTerm("stateID");
-    gram.newRule("def.body").addTerm("tokenID");
-    gram.newRule("def.body").addTerm("def.body").addToken("colon").addTerm("matcher.start").addToken("arrow").addTerm("stateID");
-    gram.newRule("def.body").addTerm("def.body").addToken("colon").addTerm("matcher.start").addToken("arrow").addTerm("tokenID");
+    gram.newRule("def").addToken("closeAngle").addTerm("def.tok");
+    gram.newRule("def").addTerm("def.tok");
+    gram.newRule("def.tok").addTerm("stateID");
+    gram.newRule("def.tok").addTerm("tokenID");
+    gram.newRule("def.tok").addTerm("def.tok").addToken("colon").addTerm("matcher.start").addToken("arrow").addTerm("stateID");
+    gram.newRule("def.tok").addTerm("def.tok").addToken("colon").addTerm("matcher.start").addToken("arrow").addTerm("tokenID");
+    gram.newRule("def.tok").addTerm("def.tok").addToken("arrow").addTerm("tokenID");
 
-    gram.newRule("stateID").addToken("openParen").addToken("id").addToken("closeParen");
-    gram.newRule("tokenID").addToken("openBracket").addToken("id").addToken("closeBracket");
+    gram.newRule("stateID").addToken("openParen").addToken("id").addToken("closeParen").addTrigger("new.state");
+    gram.newRule("tokenID").addToken("openBracket").addToken("id").addToken("closeBracket").addTrigger("new.token");
+    gram.newRule("tokenID").addToken("consume").addToken("openBracket").addToken("id").addToken("closeBracket").addTrigger("new.token.consume");
 
-    gram.newRule("matcher.start").addToken("any");
+    gram.newRule("matcher.start").addToken("any").addTrigger("match.any");
     gram.newRule("matcher.start").addTerm("matcher");
-    gram.newRule("matcher.start").addToken("consume").addTerm("matcher");
+    gram.newRule("matcher.start").addToken("consume").addTrigger("match.consume").addTerm("matcher");
 
     gram.newRule("matcher").addTerm("charSetRange");
     gram.newRule("matcher").addTerm("matcher").addToken("comma").addTerm("charSetRange");
 
-    gram.newRule("charSetRange").addToken("charSet");
-    gram.newRule("charSetRange").addToken("not").addToken("charSet");
-    gram.newRule("charSetRange").addToken("charSet").addToken("range").addToken("charSet");
-    gram.newRule("charSetRange").addToken("not").addToken("charSet").addToken("range").addToken("charSet");
+    gram.newRule("charSetRange").addToken("charSet").addTrigger("match.set");
+    gram.newRule("charSetRange").addToken("not").addToken("charSet").addTrigger("match.set.not");
+    gram.newRule("charSetRange").addToken("charSet").addToken("range").addToken("charSet").addTrigger("match.range");
+    gram.newRule("charSetRange").addToken("not").addToken("charSet").addToken("range").addToken("charSet").addTrigger("match.range.not");
 
     // gram.newRule("def").addTerm("tokenDef");
     // gram.newRule("def").addToken("closeAngle").addTerm("tokenDef");

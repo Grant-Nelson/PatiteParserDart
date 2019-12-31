@@ -5,6 +5,19 @@ import 'dart:math' as math;
 part 'DiffComparable.dart';
 part 'Path.dart';
 
+/// A continuous group of step types.
+class StepGroup {
+
+  /// The type for this group.
+  final StepType type;
+
+  /// The number of the given type in the group.
+  final int count;
+
+  /// Creates a new step group.
+  StepGroup(this.type, this.count);
+}
+
 /// This is the steps of the levenshtein path.
 enum StepType {
   
@@ -19,15 +32,15 @@ enum StepType {
 }
 
 /// Gets the difference path for the sources as defined by the given comparable.
-List<StepType> diffPath(DiffComparable comp) =>
+List<StepGroup> diffPath(DiffComparable comp) =>
   new _Path(comp).createPath();
 
 /// Gets the difference path for the two given string lists.
-List<StepType> stringListPath(List<String> aSource, List<String> bSource) =>
+List<StepGroup> stringListPath(List<String> aSource, List<String> bSource) =>
   diffPath(new _StringListComparable(aSource, bSource));
 
 /// Gets the difference path for the lines in the given strings.
-List<StepType> linesPath(String aSource, String bSource) =>
+List<StepGroup> linesPath(String aSource, String bSource) =>
   stringListPath(aSource.split('\n'), bSource.split('\n'));
 
 /// Gets the labelled difference between the two list of lines.
@@ -38,27 +51,37 @@ String plusMinusLines(String aSource, String bSource) {
 	int aIndex = 0, bIndex = 0;
   List<String> aLines = aSource.split('\n');
   List<String> bLines = bSource.split('\n');
-	List<StepType> path = stringListPath(aLines, bLines);
-	for (StepType step in path) {
-		switch (step) {
+	List<StepGroup> path = stringListPath(aLines, bLines);
+	for (StepGroup step in path) {
+		switch (step.type) {
       case StepType.Equal:
-        result.writeln(' '+aLines[aIndex]);
-        aIndex++;
-        bIndex++;
+        for (int i = step.count-1; i >= 0; i--) {
+          result.write(' ');
+          result.writeln(aLines[aIndex]);
+          aIndex++;
+          bIndex++;
+        }
         break;
       case StepType.Added:
-        result.writeln('+'+bLines[bIndex]);
-        bIndex++;
+        for (int i = step.count-1; i >= 0; i--) {
+          result.write('+');
+          result.writeln(bLines[bIndex]);
+          bIndex++;
+        }
         break;
       case StepType.Removed:
-        result.writeln('-'+aLines[aIndex]);
-        aIndex++;
+        for (int i = step.count-1; i >= 0; i--) {
+          result.write('-');
+          result.writeln(aLines[aIndex]);
+          aIndex++;
+        }
         break;
 		}
 	}
 	return result.toString();
 }
 
+/*
 /// Gets the labelled difference between the two list of lines
 /// using a similar output to the git merge differences output.
 String mergeLines(String aSource, String bSource) {
@@ -66,7 +89,7 @@ String mergeLines(String aSource, String bSource) {
 	int aIndex = 0, bIndex = 0;
   List<String> aLines = aSource.split('\n');
   List<String> bLines = bSource.split('\n');
-	List<StepType> path = stringListPath(aLines, bLines);
+	List<StepGroup> path = stringListPath(aLines, bLines);
 
 	const String startChange = '<<<<<<<<';
 	const String middleChange = '========';
@@ -139,3 +162,4 @@ String mergeLines(String aSource, String bSource) {
   }
 	return result.toString();
 }
+*/

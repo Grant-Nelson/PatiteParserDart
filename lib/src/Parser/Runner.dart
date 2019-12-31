@@ -67,26 +67,24 @@ class _Runner {
     int count = action.rule.items.length;
     List<ParseTree.TreeNode> items = new List<ParseTree.TreeNode>();
     for (int i = count - 1; i >= 0; i--) {
-      this._stateStack.removeLast();
-      ParseTree.TreeNode item = this._itemStack.removeLast();
-      items.insert(0, item);
-    
       Grammar.Item ruleItem = action.rule.items[i];
-      if (ruleItem is Grammar.Term) {
-        if (item is ParseTree.RuleNode) {
-          if (ruleItem.name != item.rule.term.name)
-            throw new Exception('The action, $action, couldn\'t reduce item $i, $item: the term names did not match.');
-        } else throw new Exception('The action, $action, couldn\'t reduce item $i, $item: the item is not a rule node.');
-      } else if (ruleItem is Grammar.TokenItem) {
-        if (item is ParseTree.TokenNode) {
-          if (ruleItem.name != item.token.name)
-            throw new Exception('The action, $action, couldn\'t reduce item $i, $item: the token names did not match.');
-        } else throw new Exception('The action, $action, couldn\'t reduce item $i, $item: the item is not a token node.');
-      } else { // if ruleItem is Grammar.Trigger
-        if (item is ParseTree.TriggerNode) {
-          if (ruleItem.name != item.trigger)
-            throw new Exception('The action, $action, couldn\'t reduce item $i, $item: the trigger names did not match.');
-        } else throw new Exception('The action, $action, couldn\'t reduce item $i, $item: the item is not a trigger node.');
+      if (ruleItem is! Grammar.Trigger) {
+  
+        this._stateStack.removeLast();
+        ParseTree.TreeNode item = this._itemStack.removeLast();
+        items.insert(0, item);
+      
+        if (ruleItem is Grammar.Term) {
+          if (item is ParseTree.RuleNode) {
+            if (ruleItem.name != item.rule.term.name)
+              throw new Exception('The action, $action, couldn\'t reduce item $i, $item: the term names did not match.');
+          } else throw new Exception('The action, $action, couldn\'t reduce item $i, $item: the item is not a rule node.');
+        } else { // if (ruleItem is Grammar.TokenItem) {
+          if (item is ParseTree.TokenNode) {
+            if (ruleItem.name != item.token.name)
+              throw new Exception('The action, $action, couldn\'t reduce item $i, $item: the token names did not match.');
+          } else throw new Exception('The action, $action, couldn\'t reduce item $i, $item: the item is not a token node.');
+        }
       }
     }
 

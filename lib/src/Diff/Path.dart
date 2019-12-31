@@ -28,39 +28,67 @@ class _Path {
   }
 
   /// Path gets the difference path for the two given items.
-  List<StepType> createPath() {
-    List<StepType> result = new List<StepType>();
+  List<StepGroup> createPath() {
+    List<StepGroup> result = new List<StepGroup>();
     final int aLength = this._comp.aLength;
     final int bLength = this._comp.bLength;
     this.levenshteinDistance(aLength, bLength);
     _TraverseResult trav = this.traverseLevenshteinDistance(aLength, bLength);
 
-    // Group additions and removals together.
-    List<StepType> aRun = new List<StepType>();
-    List<StepType> bRun = new List<StepType>();
+    int addRun = 0;
+    Function() insertAdd = () {
+      if (addRun > 0) {
+        print('> added $addRun');
+        result.add(new StepGroup(StepType.Added, addRun));    
+        addRun = 0;
+      }
+    };
+    
+    int removeRun = 0;
+    Function() insertRemove = () {
+      if (removeRun > 0) {
+        print('> removed $removeRun');
+        result.add(new StepGroup(StepType.Removed, removeRun));    
+        removeRun = 0;
+      }
+    };
+    
+    int equalRun = 0;
+    Function() insertEqual = () {
+      if (equalRun > 0) {
+        print('> equal $equalRun');
+        result.add(new StepGroup(StepType.Equal, equalRun));    
+        equalRun = 0;
+      }
+    };
+
     for (StepType step in trav.path) {
       switch (step) {
         case StepType.Equal:
-          result..addAll(aRun)..addAll(bRun)..add(StepType.Equal);
-          aRun.clear();
-          bRun.clear();
+          insertAdd();
+          insertRemove();
+          equalRun++;
           break;
         case StepType.Added:
-          aRun.add(StepType.Added);
+          insertEqual();
+          addRun++;
           break;
         case StepType.Removed:
-          bRun.add(StepType.Removed);
+          insertEqual();
+          removeRun++;
           break;
       }
     }
-    result..addAll(aRun)..addAll(bRun);
+  
+    insertEqual();
+    insertAdd();
+    insertRemove();
     return result;
   }
 
   /// Sets the cost of a path point.
-  void setCost(int aIndex, int bIndex, int cost) {
+  void setCost(int aIndex, int bIndex, int cost) =>
     this._costs[aIndex-1][bIndex-1] = cost;
-  }
 
   /// Gets the cost at a path point.
   int getCost(int aIndex, int bIndex) {
@@ -68,6 +96,23 @@ class _Path {
     if (bIndex <= 0) return aIndex;
     return this._costs[aIndex-1][bIndex-1];
   }
+
+  void setNewCost(int aIndex, int bIndex) {
+    // skips any cost for equal values in the inputs
+    int skipCost = this._comp.equals(aIndex-1, bIndex-1)? 0: 1;
+
+    // get the minimum of entry skip entry from a, skip entry from b, and skip entry from both
+    int costA = this.getCost(aIndex-1, bIndex)   + 1;
+    int costB = this.getCost(aIndex,   bIndex-1) + 1;
+    int costC = this.getCost(aIndex-1, bIndex-1) + skipCost;
+
+    // calculate the minimum path cost and set cost
+    int minCost = this.min(costA, costB, costC);
+    this.setCost(aIndex, bIndex, minCost);
+  }
+
+  /// Determines the minimum of the three values.
+  int min(int a, int b, int c) => math.min(math.min(a, b), c);
 
   /// levenshteinDistance gets cost matrix of levenshtein distances.
   /// This filles out the cost matrix.
@@ -78,18 +123,7 @@ class _Path {
 
     for (int aIndex = 1; aIndex <= aLength; aIndex++) {
       for (int bIndex = 1; bIndex <= bLength; bIndex++) {
-
-        // skips any cost for equal values in the inputs
-        int skipCost = this._comp.equals(aIndex-1, bIndex-1)? 0: 1;
-
-        // get the minimum of entry skip entry from a, skip entry from b, and skip entry from both
-        int costA = this.getCost(aIndex-1, bIndex) + 1;
-        int costB = this.getCost(aIndex, bIndex-1) + 1;
-        int costC = this.getCost(aIndex-1, bIndex-1) + skipCost;
-
-        // calculate the minimum path cost and set cost
-        int minCost = math.min(math.min(costA, costB), costC);
-        this.setCost(aIndex, bIndex, minCost);
+        this.setNewCost(aIndex, bIndex);
       }
     }
   }
@@ -102,9 +136,9 @@ class _Path {
 
 	  // get the minimum of entry skip entry from a, skip entry from b, and skip entry from both
     int costA = this.getCost(aIndex-1, bIndex);
-    int costB = this.getCost(aIndex, bIndex-1);
+    int costB = this.getCost(aIndex,   bIndex-1);
     int costC = this.getCost(aIndex-1, bIndex-1);
-    int minCost = math.min(math.min(costA, costB), costC);
+    int minCost = this.min(costA, costB, costC);
 
     // calculate the minimum path cost and set cost
     int minPathCost = minCost + 2;
