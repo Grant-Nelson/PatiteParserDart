@@ -61,10 +61,11 @@ class _Builder {
     for (int i = 0; i < state.indices.length; i++) {
       int index = state.indices[i];
       Grammar.Rule rule = state.rules[i];
-      if (index < rule.items.length) {
-        Grammar.Item item = rule.items[index];
+      List<Grammar.Item> items = rule.basicItems;
+      if (index < items.length) {
+        Grammar.Item item = items[index];
 
-        if ((item is Grammar.TokenItem) && item.name == _eofTokenName) {
+        if ((item is Grammar.TokenItem) && (item.name == _eofTokenName)) {
           state.setAccept();
 
         } else {

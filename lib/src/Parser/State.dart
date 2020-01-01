@@ -58,8 +58,9 @@ class _State {
     this._indices.add(index);
     this._rules.add(rule);
 
-    if (index < rule.items.length) {
-      Grammar.Item item = rule.items[index];
+    List<Grammar.Item> items = rule.basicItems;
+    if (index < items.length) {
+      Grammar.Item item = items[index];
       if (item is Grammar.Term) {
         for (Grammar.Rule rule in item.rules)
           this.addRule(0, rule);

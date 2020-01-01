@@ -96,30 +96,3 @@ void grammar01(TestArgs args) {
   args.checkRuleString(rule4,  3, '<E> → {add} <E> [+] <E> •');
   args.checkRuleString(rule4,  4, '<E> → {add} <E> [+] <E>');
 }
-
-void grammar02(TestArgs args) {
-  args.log('grammar02');
-
-  Grammar.Grammar gram1 = new Grammar.Grammar();
-  gram1.start("E");
-  gram1.newRule("E").addTerm("E").addToken("+").addTerm("E");
-  gram1.newRule("E").addTerm("E").addToken("*").addTerm("E");
-  gram1.newRule("E").addToken("(").addTerm("E").addToken(")");
-  gram1.newRule("E").addToken("id");
-
-  Grammar.Grammar gram2 = new Grammar.Grammar();
-  gram2.start("E");
-  gram2.newRule("E").addTerm("E").addToken("+").addTerm("E").addTrigger("add");
-  gram2.newRule("E").addTerm("E").addToken("*").addTerm("E").addTrigger("mul");
-  gram2.newRule("E").addToken("(").addTerm("E").addToken(")");
-  gram2.newRule("E").addToken("id").addTrigger("push");
-  
-  String debug1 = Parser.Parser.getDebugStateString(gram1);
-  String debug2 = Parser.Parser.getDebugStateString(gram2);
-  if (debug1 != debug2) {
-    String diff = Diff.plusMinusLines(debug1, debug2);
-    diff = diff.trimRight().replaceAll('\n', '\n        ');
-    args.error('The grammar state strings did not match:'+
-      '\n  Diff: $diff');
-  }
-}
