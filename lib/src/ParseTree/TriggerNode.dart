@@ -11,5 +11,5 @@ class TriggerNode extends TreeNode {
   TriggerNode(String this.trigger): super._();
   
   /// Gets a string for this tree node.
-  String toString() => this.trigger;
+  String toString() => '{${this.trigger}}';
 }

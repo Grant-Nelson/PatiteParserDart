@@ -11,5 +11,5 @@ class TokenNode extends TreeNode {
   TokenNode(Tokenizer.Token this.token): super._();
   
   /// Gets a string for this tree node.
-  String toString() => this.token.toString();
+  String toString() => '[${this.token.toString()}]';
 }

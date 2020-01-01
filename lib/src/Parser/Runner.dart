@@ -68,8 +68,10 @@ class _Runner {
     List<ParseTree.TreeNode> items = new List<ParseTree.TreeNode>();
     for (int i = count - 1; i >= 0; i--) {
       Grammar.Item ruleItem = action.rule.items[i];
-      if (ruleItem is! Grammar.Trigger) {
-  
+      if (ruleItem is Grammar.Trigger) {
+        items.insert(0, new ParseTree.TriggerNode(ruleItem.name));
+
+      } else {
         this._stateStack.removeLast();
         ParseTree.TreeNode item = this._itemStack.removeLast();
         items.insert(0, item);
