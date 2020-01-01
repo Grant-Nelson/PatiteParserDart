@@ -27,6 +27,17 @@ class TestArgs {
     this._failed = true;
   }
 
+  /// Checks if the given rule's string method.
+  void checkRuleString(Grammar.Rule rule, int index, String exp) {
+    String result = rule.toString(index);
+    if (exp != result) {
+      this.error('The rule did not return the expected string:'+
+        '\n  Index:    $index'+
+        '\n  Expected: $exp'+
+        '\n  Result:   $result');
+    }
+  }
+
   /// Checks if the given lines diff as expected.
   void checkDiff(List<String> a, List<String> b, List<String> exp) {
     String result = Diff.plusMinusParts(a, b).join('|');
@@ -46,7 +57,7 @@ class TestArgs {
     String result = grammar.toString().trim();
     if (exp != result) {
       String diff = Diff.plusMinusLines(exp, result);
-      diff = diff.trim().replaceAll('\n', '\n        ');
+      diff = diff.trimRight().replaceAll('\n', '\n        ');
       this.error('The grammar string did not match the expected results:'+
         '\n  Diff: $diff');
     }
@@ -59,7 +70,7 @@ class TestArgs {
     String result = firsts.join('\n');
     if (exp != result) {
       String diff = Diff.plusMinusLines(exp, result);
-      diff = diff.trim().replaceAll('\n', '\n         ');
+      diff = diff.trimRight().replaceAll('\n', '\n         ');
       this.error('The grammar term firsts did not match the expected results:'+
         '\n  Token: $token'
         '\n  Diff:  $diff');
@@ -73,7 +84,7 @@ class TestArgs {
     String result = firsts.join('\n');
     if (exp != result) {
       String diff = Diff.plusMinusLines(exp, result);
-      diff = diff.trim().replaceAll('\n', '\n         ');
+      diff = diff.trimRight().replaceAll('\n', '\n         ');
       this.error('The grammar term follows did not match the expected results:'+
         '\n  Token: $token'
         '\n  Diff:  $diff');
@@ -89,7 +100,7 @@ class TestArgs {
     String result = resultBuf.toString().trim();
     if (exp != result) {
       String diff = Diff.plusMinusLines(exp, result);
-      diff = diff.trim().replaceAll('\n', '\n         ');
+      diff = diff.trimRight().replaceAll('\n', '\n         ');
       this.error('The input did not match the expected results:'+
         '\n  Input: $input'+
         '\n  Diff:  $diff');
@@ -103,7 +114,7 @@ class TestArgs {
     String result = parseResult.toString();
     if (exp != result) {
       String diff = Diff.plusMinusLines(exp, result);
-      diff = diff.trim().replaceAll('\n', '\n        ');
+      diff = diff.trimRight().replaceAll('\n', '\n        ');
       this.error('The parsed input did not result in the expected result tree:'+
         '\n  Diff: $diff');
     }

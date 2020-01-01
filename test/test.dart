@@ -17,9 +17,10 @@ part 'tokenizer.dart';
 /// Tests for Patite Parser Dart.
 void main() {
   TestTool test = new TestTool();
-  test.run(diff00);
+  // test.run(diff00);
   // test.run(grammar00);
   // test.run(grammar01);
+  test.run(grammar02);
   // test.run(tokenizer00);
   // test.run(tokenizer01);
   // test.run(parser00);

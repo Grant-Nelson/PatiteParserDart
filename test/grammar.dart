@@ -57,69 +57,69 @@ void grammar00(TestArgs args) {
 
 void grammar01(TestArgs args) {
   args.log('grammar01');
+  Grammar.Grammar gram = new Grammar.Grammar();
+  Grammar.Rule rule0 = gram.newRule('E');
+  Grammar.Rule rule1 = gram.newRule('E').addTerm("E").addToken("+").addTerm("E");
+  Grammar.Rule rule2 = gram.newRule('E').addTerm("E").addToken("+").addTerm("E").addTrigger('add');
+  Grammar.Rule rule3 = gram.newRule('E').addTerm("E").addToken("+").addTrigger('add').addTerm("E");
+  Grammar.Rule rule4 = gram.newRule('E').addTrigger('add').addTerm("E").addToken("+").addTerm("E");
+
+  args.checkRuleString(rule0, -1, '<E> → ');
+  args.checkRuleString(rule0,  0, '<E> → •');
+  args.checkRuleString(rule0,  1, '<E> → ');
+
+  args.checkRuleString(rule1, -1, '<E> → <E> [+] <E>');
+  args.checkRuleString(rule1,  0, '<E> → • <E> [+] <E>');
+  args.checkRuleString(rule1,  1, '<E> → <E> • [+] <E>');
+  args.checkRuleString(rule1,  2, '<E> → <E> [+] • <E>');
+  args.checkRuleString(rule1,  3, '<E> → <E> [+] <E> •');
+  args.checkRuleString(rule1,  4, '<E> → <E> [+] <E>');
+
+  args.checkRuleString(rule2, -1, '<E> → <E> [+] <E> {add}');
+  args.checkRuleString(rule2,  0, '<E> → • <E> [+] <E> {add}');
+  args.checkRuleString(rule2,  1, '<E> → <E> • [+] <E> {add}');
+  args.checkRuleString(rule2,  2, '<E> → <E> [+] • <E> {add}');
+  args.checkRuleString(rule2,  3, '<E> → <E> [+] <E> • {add}');
+  args.checkRuleString(rule2,  4, '<E> → <E> [+] <E> {add}');
+
+  args.checkRuleString(rule3, -1, '<E> → <E> [+] {add} <E>');
+  args.checkRuleString(rule3,  0, '<E> → • <E> [+] {add} <E>');
+  args.checkRuleString(rule3,  1, '<E> → <E> • [+] {add} <E>');
+  args.checkRuleString(rule3,  2, '<E> → <E> [+] • {add} <E>');
+  args.checkRuleString(rule3,  3, '<E> → <E> [+] {add} <E> •');
+  args.checkRuleString(rule3,  4, '<E> → <E> [+] {add} <E>');
+
+  args.checkRuleString(rule4, -1, '<E> → {add} <E> [+] <E>');
+  args.checkRuleString(rule4,  0, '<E> → • {add} <E> [+] <E>');
+  args.checkRuleString(rule4,  1, '<E> → {add} <E> • [+] <E>');
+  args.checkRuleString(rule4,  2, '<E> → {add} <E> [+] • <E>');
+  args.checkRuleString(rule4,  3, '<E> → {add} <E> [+] <E> •');
+  args.checkRuleString(rule4,  4, '<E> → {add} <E> [+] <E>');
+}
+
+void grammar02(TestArgs args) {
+  args.log('grammar02');
 
   Grammar.Grammar gram1 = new Grammar.Grammar();
-  gram1.start("def.set");
-  gram1.newRule("def.set").addTerm("def.set").addTerm("def");
-  gram1.newRule("def.set");
+  gram1.start("E");
+  gram1.newRule("E").addTerm("E").addToken("+").addTerm("E");
+  gram1.newRule("E").addTerm("E").addToken("*").addTerm("E");
+  gram1.newRule("E").addToken("(").addTerm("E").addToken(")");
+  gram1.newRule("E").addToken("id");
 
-  gram1.newRule("def").addToken("closeAngle").addTerm("def.tok");
-  gram1.newRule("def").addTerm("def.tok");
-  gram1.newRule("def.tok").addTerm("stateID");
-  gram1.newRule("def.tok").addTerm("tokenID");
-  gram1.newRule("def.tok").addTerm("def.tok").addToken("colon").addTerm("matcher.start").addToken("arrow").addTerm("stateID");
-  gram1.newRule("def.tok").addTerm("def.tok").addToken("colon").addTerm("matcher.start").addToken("arrow").addTerm("tokenID");
-  gram1.newRule("def.tok").addTerm("def.tok").addToken("arrow").addTerm("tokenID");
-
-  gram1.newRule("stateID").addToken("openParen").addToken("id").addToken("closeParen").addTrigger("new.state");
-  gram1.newRule("tokenID").addToken("openBracket").addToken("id").addToken("closeBracket").addTrigger("new.token");
-  gram1.newRule("tokenID").addToken("consume").addToken("openBracket").addToken("id").addToken("closeBracket").addTrigger("new.token.consume");
-
-  gram1.newRule("matcher.start").addToken("any").addTrigger("match.any");
-  gram1.newRule("matcher.start").addTerm("matcher");
-  gram1.newRule("matcher.start").addToken("consume").addTrigger("match.consume").addTerm("matcher");
-
-  gram1.newRule("matcher").addTerm("charSetRange");
-  gram1.newRule("matcher").addTerm("matcher").addToken("comma").addTerm("charSetRange");
-
-  gram1.newRule("charSetRange").addToken("charSet").addTrigger("match.set");
-  gram1.newRule("charSetRange").addToken("not").addToken("charSet").addTrigger("match.set.not");
-  gram1.newRule("charSetRange").addToken("charSet").addToken("range").addToken("charSet").addTrigger("match.range");
-  gram1.newRule("charSetRange").addToken("not").addToken("charSet").addToken("range").addToken("charSet").addTrigger("match.range.not");
-  
-Grammar.Grammar gram2 = new Grammar.Grammar();
-  gram2.start("def.set");
-  gram2.newRule("def.set").addTerm("def.set").addTerm("def");
-  gram2.newRule("def.set");
-
-  gram2.newRule("def").addToken("closeAngle").addTerm("def.tok");
-  gram2.newRule("def").addTerm("def.tok");
-  gram2.newRule("def.tok").addTerm("stateID");
-  gram2.newRule("def.tok").addTerm("tokenID");
-  gram2.newRule("def.tok").addTerm("def.tok").addToken("colon").addTerm("matcher.start").addToken("arrow").addTerm("stateID");
-  gram2.newRule("def.tok").addTerm("def.tok").addToken("colon").addTerm("matcher.start").addToken("arrow").addTerm("tokenID");
-  gram2.newRule("def.tok").addTerm("def.tok").addToken("arrow").addTerm("tokenID");
-
-  gram2.newRule("stateID").addToken("openParen").addToken("id").addToken("closeParen");
-  gram2.newRule("tokenID").addToken("openBracket").addToken("id").addToken("closeBracket");
-  gram2.newRule("tokenID").addToken("consume").addToken("openBracket").addToken("id").addToken("closeBracket");
-
-  gram2.newRule("matcher.start").addToken("any");
-  gram2.newRule("matcher.start").addTerm("matcher");
-  gram2.newRule("matcher.start").addToken("consume").addTerm("matcher");
-
-  gram2.newRule("matcher").addTerm("charSetRange");
-  gram2.newRule("matcher").addTerm("matcher").addToken("comma").addTerm("charSetRange");
-
-  gram2.newRule("charSetRange").addToken("charSet");
-  gram2.newRule("charSetRange").addToken("not").addToken("charSet");
-  gram2.newRule("charSetRange").addToken("charSet").addToken("range").addToken("charSet");
-  gram2.newRule("charSetRange").addToken("not").addToken("charSet").addToken("range").addToken("charSet");
+  Grammar.Grammar gram2 = new Grammar.Grammar();
+  gram2.start("E");
+  gram2.newRule("E").addTerm("E").addToken("+").addTerm("E").addTrigger("add");
+  gram2.newRule("E").addTerm("E").addToken("*").addTerm("E").addTrigger("mul");
+  gram2.newRule("E").addToken("(").addTerm("E").addToken(")");
+  gram2.newRule("E").addToken("id").addTrigger("push");
   
   String debug1 = Parser.Parser.getDebugStateString(gram1);
   String debug2 = Parser.Parser.getDebugStateString(gram2);
-  print("Starting Diff");
-  String diff = Diff.plusMinusLines(debug1, debug2);
-  print("Diff Done");
-  args.error(diff);
+  if (debug1 != debug2) {
+    String diff = Diff.plusMinusLines(debug1, debug2);
+    diff = diff.trimRight().replaceAll('\n', '\n        ');
+    args.error('The grammar state strings did not match:'+
+      '\n  Diff: $diff');
+  }
 }

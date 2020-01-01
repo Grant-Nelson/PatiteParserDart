@@ -76,11 +76,14 @@ class Rule {
     List<String> parts = new List<String>();
     int index = 0;
     for (Item item in this._items) {
-      if (index == stepIndex) parts.insert(stepIndex, "•");
+      if (index == stepIndex) {
+        parts.add("•");
+        stepIndex = -1;
+      }
       parts.add(item.toString());
       if (item is! Trigger) index++;
     }
-    if (index == stepIndex) parts.insert(stepIndex, "•");
+    if (index == stepIndex) parts.add("•");
     return this._term.toString() + " → " + parts.join(" ");
   }
 }

@@ -2,10 +2,9 @@ library Diff;
 
 import 'dart:math' as math;
 
-part 'CostCache.dart';
 part 'DiffComparable.dart';
 part 'Path.dart';
-part 'PathCache.dart';
+part 'Table.dart';
 
 /// A continuous group of step types.
 class StepGroup {
@@ -18,6 +17,9 @@ class StepGroup {
 
   /// Creates a new step group.
   StepGroup(this.type, this.count);
+
+  /// Gets the string for this group.
+  String toString() => '$type $count';
 }
 
 /// This is the steps of the levenshtein path.
