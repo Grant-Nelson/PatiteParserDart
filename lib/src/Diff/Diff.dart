@@ -2,8 +2,10 @@ library Diff;
 
 import 'dart:math' as math;
 
+part 'CostCache.dart';
 part 'DiffComparable.dart';
 part 'Path.dart';
+part 'PathCache.dart';
 
 /// A continuous group of step types.
 class StepGroup {
@@ -46,120 +48,38 @@ List<StepGroup> linesPath(String aSource, String bSource) =>
 /// Gets the labelled difference between the two list of lines.
 /// It formats the results by prepending a "+" to new lines in `bSource`,
 /// a "-" for any to removed strings from `aSource`, and space if the strings are the same.
-String plusMinusLines(String aSource, String bSource) {
-	StringBuffer result = new StringBuffer();
+String plusMinusLines(String aSource, String bSource) =>
+	plusMinusParts(aSource.split('\n'), bSource.split('\n')).join('\n');
+
+/// Gets the labelled difference between the two list of lines.
+/// It formats the results by prepending a "+" to new lines in `bSource`,
+/// a "-" for any to removed strings from `aSource`, and space if the strings are the same.
+List<String> plusMinusParts(List<String> aSource, List<String> bSource) {
+	List<String> result = new List<String>();
 	int aIndex = 0, bIndex = 0;
-  List<String> aLines = aSource.split('\n');
-  List<String> bLines = bSource.split('\n');
-	List<StepGroup> path = stringListPath(aLines, bLines);
+	List<StepGroup> path = stringListPath(aSource, bSource);
 	for (StepGroup step in path) {
 		switch (step.type) {
       case StepType.Equal:
         for (int i = step.count-1; i >= 0; i--) {
-          result.write(' ');
-          result.writeln(aLines[aIndex]);
+          result.add(' '+aSource[aIndex]);
           aIndex++;
           bIndex++;
         }
         break;
       case StepType.Added:
         for (int i = step.count-1; i >= 0; i--) {
-          result.write('+');
-          result.writeln(bLines[bIndex]);
+          result.add('+'+bSource[bIndex]);
           bIndex++;
         }
         break;
       case StepType.Removed:
         for (int i = step.count-1; i >= 0; i--) {
-          result.write('-');
-          result.writeln(aLines[aIndex]);
+          result.add('-'+aSource[aIndex]);
           aIndex++;
         }
         break;
 		}
 	}
-	return result.toString();
+	return result;
 }
-
-/*
-/// Gets the labelled difference between the two list of lines
-/// using a similar output to the git merge differences output.
-String mergeLines(String aSource, String bSource) {
-	StringBuffer result = new StringBuffer();
-	int aIndex = 0, bIndex = 0;
-  List<String> aLines = aSource.split('\n');
-  List<String> bLines = bSource.split('\n');
-	List<StepGroup> path = stringListPath(aLines, bLines);
-
-	const String startChange = '<<<<<<<<';
-	const String middleChange = '========';
-	const String endChange = '>>>>>>>>';
-
-	StepType prevState = StepType.Equal;
-	for (StepType step in path) {
-		switch (step) {
-      case StepType.Equal:
-        switch (prevState) {
-          case StepType.Equal:
-            break;
-          case StepType.Added:
-            result.writeln(endChange);
-            break;
-          case StepType.Removed:
-            result.writeln(middleChange);
-            result.writeln(endChange);
-            break;
-        }
-        result.writeln(aLines[aIndex]);
-        aIndex++;
-        bIndex++;
-        break;
-
-      case StepType.Added:
-        switch (prevState) {
-          case StepType.Equal:
-            result.writeln(startChange);
-            result.writeln(middleChange);
-            break;
-          case StepType.Added:
-            break;
-          case StepType.Removed:
-            result.writeln(middleChange);
-            break;
-        }
-        result.writeln(bLines[bIndex]);
-        bIndex++;
-        break;
-
-      case StepType.Removed:
-        switch (prevState) {
-          case StepType.Equal:
-            result.writeln(startChange);
-            break;
-          case StepType.Added:
-            result.writeln(middleChange);
-            break;
-          case StepType.Removed:
-            break;
-        }
-        result.writeln(aLines[aIndex]);
-        aIndex++;
-        break;
-      }
-      prevState = step;
-    }
-
-  switch (prevState) {
-    case StepType.Equal:
-      break;
-    case StepType.Added:
-      result.writeln(endChange);
-      break;
-    case StepType.Removed:
-      result.writeln(middleChange);
-      result.writeln(endChange);
-      break;
-  }
-	return result.toString();
-}
-*/

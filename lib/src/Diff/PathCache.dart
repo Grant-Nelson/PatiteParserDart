@@ -1,86 +1,27 @@
 part of Diff;
 
-/// The results from a traversal through the cost matrix.
-class _TraverseResult {
-  /// The cost to take this path.
-  int cost;
-
-  /// The path through the cost matrix.
-  List<StepType> path;
-
-  /// Creates a new traverse result.
-  _TraverseResult(this.cost, this.path);
-}
-
+/*
 /// The levenshtein path builder used for diffing 
-class _Path {
-  
-  /// The source comparable to create the path for.
-  DiffComparable _comp;
+class _PathCache {
 
-  /// The container for the levenshtein costs.
+  static const int NotSet     = -1;
+  static const int MoveUp     =  1;
+  static const int MoveLeft   =  2;
+  static const int MoveUpLeft =  3;
+
+  /// The source comparable to create the path for.
   _CostCache _costs;
 
+  /// The container for the levenshtein costs.
+  List<List<int>> _moves;
+
   /// Creates a new path builder.
-  _Path(DiffComparable this._comp) {
-    this._costs = new _CostCache(this._comp);
+  _PathCache(DiffComparable comp) {
+    this._costs = new _CostCache(comp);
+    this._moves = new List<List<int>>.generate(comp.aLength, (_) =>
+      new List<int>.filled(comp.bLength, -1));
   }
 
-  /// Path gets the difference path for the two given items.
-  List<StepGroup> createPath() {
-    List<StepGroup> result = new List<StepGroup>();
-    final int aLength = this._comp.aLength;
-    final int bLength = this._comp.bLength;
-    _TraverseResult trav = this.traverseLevenshteinDistance(aLength, bLength);
-
-    int addRun = 0;
-    Function() insertAdd = () {
-      if (addRun > 0) {
-        result.add(new StepGroup(StepType.Added, addRun));    
-        addRun = 0;
-      }
-    };
-    
-    int removeRun = 0;
-    Function() insertRemove = () {
-      if (removeRun > 0) {
-        result.add(new StepGroup(StepType.Removed, removeRun));    
-        removeRun = 0;
-      }
-    };
-    
-    int equalRun = 0;
-    Function() insertEqual = () {
-      if (equalRun > 0) {
-        result.add(new StepGroup(StepType.Equal, equalRun));    
-        equalRun = 0;
-      }
-    };
-
-    for (StepType step in trav.path) {
-      switch (step) {
-        case StepType.Equal:
-          insertRemove();
-          insertAdd();
-          equalRun++;
-          break;
-        case StepType.Added:
-          insertEqual();
-          addRun++;
-          break;
-        case StepType.Removed:
-          insertEqual();
-          removeRun++;
-          break;
-      }
-    }
-  
-    insertEqual();
-    insertRemove();
-    insertAdd();
-    return result;
-  }
-  
   /// Gets the path with the lowest cost.
   /// See https://en.wikipedia.org/wiki/Levenshtein_distance
   _TraverseResult traverseLevenshteinDistance(int aIndex, int bIndex) {
@@ -141,3 +82,4 @@ class _Path {
     return new _TraverseResult(minPathCost, minPath);
   }
 }
+*/

@@ -118,5 +118,8 @@ Grammar.Grammar gram2 = new Grammar.Grammar();
   
   String debug1 = Parser.Parser.getDebugStateString(gram1);
   String debug2 = Parser.Parser.getDebugStateString(gram2);
-  args.error(Diff.plusMinusLines(debug1, debug2));
+  print("Starting Diff");
+  String diff = Diff.plusMinusLines(debug1, debug2);
+  print("Diff Done");
+  args.error(diff);
 }

@@ -152,6 +152,7 @@ void loader03(TestArgs args) {
      '           |--id:34:"D"',
      '           `--closeBracket:35:"]"']);
 }
+
 void loader04(TestArgs args) {
   args.log('loader04');
   Parser.Parser parser = Parser.Loader.getParser();
