@@ -76,18 +76,19 @@ class Term extends Item {
     checked.add(this);
     for (Term term in this._grammar.terms) {
       for (Rule rule in term.rules) {
-        int count = rule.items.length;
+        List<Item> items = rule.basicItems;
+        
+        int count = items.length;
         for (int i = 0; i < count-1; i++) {
-          if (rule.items[i] == this) {
-            Item item = rule.items[i+1];
+          if (items[i] == this) {
+            Item item = items[i+1];
             if (item is Term)
               item._determineFirsts(tokens, new Set<Term>());
-            else if (item is TokenItem) tokens.add(item);
-            // else ignore trigger
+            else tokens.add(item);
           }
         }
 
-        if ((rule.items.length > 0) && (rule.items[count-1] == this)) {
+        if ((items.length > 0) && (items[count-1] == this)) {
           term._determineFollows(tokens, checked);
         }
       }

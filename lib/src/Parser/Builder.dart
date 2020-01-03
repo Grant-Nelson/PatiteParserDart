@@ -114,7 +114,7 @@ class _Builder {
         Grammar.Item onItem = state.onItems[i];
         int goto = state.gotos[i].number;
         if (onItem is Grammar.Term) {
-          if (state.number == goto)
+          if (state.number == goto) // TODO: Need to extend this to be a loop check.
             this._errors.writeln('Goto $goto on row ${state.number} and column ${onItem.name} will cause infinate loop.');
           this._table.writeGoto(state.number, onItem.name, new _Goto(goto));
         } else this._table.writeShift(state.number, onItem.name, new _Shift(goto));

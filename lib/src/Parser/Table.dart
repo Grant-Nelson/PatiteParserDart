@@ -117,6 +117,19 @@ class _Table {
       data.writeStr(action.error);
     }
   }
+  
+  /// Gets all the tokens for the row which are not null or error.
+  List<String> getAllTokens(int row) {
+    List<String> result = new List<String>();
+    if ((row >= 0) && (row < this._shiftTable.length)) {
+      Map<String, _Action> rowData = this._shiftTable[row];
+      for (String key in rowData.keys) {
+        _Action action = rowData[key];
+        if ((action != null) || (action is! _Error)) result.add(key);
+      }
+    }
+    return result;
+  }
 
   /// Reads an action from the table,
   /// returns null if no action set.
@@ -138,8 +151,7 @@ class _Table {
   /// returns null if no action set.
   _Action readGoto(int row, String column) =>
     this._read(row, column, this._gotoTable);
-    
-  
+
   /// Writes a new action to the table.
   void _write(int row, String column, _Action value,
     Set<String> columns, List<Map<String, _Action>> table) {

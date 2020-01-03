@@ -24,7 +24,7 @@ class _Runner {
     if (this._errors.length > 0)
       return new Result(List.unmodifiable(this._errors), null);
     if (!this._accepted) {
-      this._errors.add('unexpected end of input');
+      this._errors.add('Unexpected end of input.');
       return new Result(List.unmodifiable(this._errors), null);
     }
     return new Result(null, this._itemStack[0]);
@@ -37,7 +37,8 @@ class _Runner {
   /// Handles when a default error action has been reached.
   bool _nullAction(int curState, Tokenizer.Token token, String indent) {
     if (this._verbose) print('${indent}null error');
-    this._errors.add('unexpected item, $token, in state $curState');
+    List<String> tokens = this._table.getAllTokens(curState);
+    this._errors.add('Unexpected item, $token, in state $curState. Expected: ${tokens.join(', ')}.');
     if (this._errorLimitReached) return false;
     // Discard token and continue.
     return true;
@@ -79,13 +80,13 @@ class _Runner {
         if (ruleItem is Grammar.Term) {
           if (item is ParseTree.RuleNode) {
             if (ruleItem.name != item.rule.term.name)
-              throw new Exception('The action, $action, couldn\'t reduce item $i, $item: the term names did not match.');
-          } else throw new Exception('The action, $action, couldn\'t reduce item $i, $item: the item is not a rule node.');
+              throw new Exception('The action, $action, could not reduce item $i, $item: the term names did not match.');
+          } else throw new Exception('The action, $action, could not reduce item $i, $item: the item is not a rule node.');
         } else { // if (ruleItem is Grammar.TokenItem) {
           if (item is ParseTree.TokenNode) {
             if (ruleItem.name != item.token.name)
-              throw new Exception('The action, $action, couldn\'t reduce item $i, $item: the token names did not match.');
-          } else throw new Exception('The action, $action, couldn\'t reduce item $i, $item: the item is not a token node.');
+              throw new Exception('The action, $action, could not reduce item $i, $item: the token names did not match.');
+          } else throw new Exception('The action, $action, could not reduce item $i, $item: the item is not a token node.');
         }
       }
     }
@@ -106,7 +107,7 @@ class _Runner {
         curState = action.state;
         if (this._verbose) print('${indent}goto ${curState}');
       }
-      else throw new Exception('unexpected goto type: $action');
+      else throw new Exception('Unexpected goto type: $action');
     }
     this._stateStack.add(curState);
 

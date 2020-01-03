@@ -50,8 +50,6 @@ class Loader {
     tok.setToken("assign", "assign");
     
     tok.join("start", "equal").addSet("=");
-    tok.setToken("equal", "equal");
-
     tok.join("equal", "arrow").addSet(">");
     tok.setToken("arrow", "arrow");
     
@@ -114,7 +112,6 @@ class Loader {
     //    any           *
     //    lambda        _
     //    assign        :=
-    //    equal         =
     //    arrow         =>
     //    range         ..
     //    id            [0-9a-fA-F_.-]+
@@ -132,14 +129,15 @@ class Loader {
     //       (State): 'abcdef' => (State)
     //       (State): 'a' => (State): 'b' => (State): 'c' => (State)
     //       (State): 'a' => [Token]
+    //       (State): 'a' => (State) => [Token]
     //       (State): 'a' => ^[Token]
     //       (State): ! 'abcdef' => (State)
     //       (State): ^ 'a'..'b', 'c', => (State)
     //       (State): * => (State)
     //       (State) => [Token]
     //       (State) => ^[Token]
-    //       [Token] = "word" => [Token]
-    //       [Token] = "word" => ^[Token]
+    //       [Token]: "word" => [Token]
+    //       [Token]: "word" => ^[Token]
     //    Parser:
     //       > <StartTerm>
     //       > <StartTerm> := [Token] <Term>
@@ -151,21 +149,24 @@ class Loader {
     gram.newRule("def.set").addTerm("def.set").addTerm("def");
     gram.newRule("def.set");
 
-    gram.newRule("def").addToken("closeAngle").addTerm("def.tok");
-    gram.newRule("def").addTerm("def.tok");
-    gram.newRule("def.tok").addTerm("stateID");
-    gram.newRule("def.tok").addTerm("tokenID");
-    gram.newRule("def.tok").addTerm("def.tok").addToken("colon").addTerm("matcher.start").addToken("arrow").addTerm("stateID");
-    gram.newRule("def.tok").addTerm("def.tok").addToken("colon").addTerm("matcher.start").addToken("arrow").addTerm("tokenID");
-    gram.newRule("def.tok").addTerm("def.tok").addToken("arrow").addTerm("tokenID");
+    gram.newRule("def").addToken("closeAngle").addTerm("stateID").addTrigger("start.token").addTerm("def.state.optional");
+    gram.newRule("def").addTerm("stateID").addTerm("def.state");
+    gram.newRule("def").addTerm("tokenID").addTerm("def.token");
+
+    gram.newRule("def.state.optional");
+    gram.newRule("def.state.optional").addTerm("def.state");
+
+    gram.newRule("def.state").addToken("colon").addTerm("matcher.start").addToken("arrow").addTerm("stateID").addTrigger("join.state").addTerm("def.state.optional");
+    gram.newRule("def.state").addToken("colon").addTerm("matcher.start").addToken("arrow").addTerm("tokenID").addTrigger("join.token").addTerm("def.token.optional");
+    gram.newRule("def.state").addToken("arrow").addTerm("tokenID").addTrigger("assign.token").addTerm("def.token.optional");
 
     gram.newRule("stateID").addToken("openParen").addToken("id").addToken("closeParen").addTrigger("new.state");
     gram.newRule("tokenID").addToken("openBracket").addToken("id").addToken("closeBracket").addTrigger("new.token");
     gram.newRule("tokenID").addToken("consume").addToken("openBracket").addToken("id").addToken("closeBracket").addTrigger("new.token.consume");
 
     gram.newRule("matcher.start").addToken("any").addTrigger("match.any");
-    gram.newRule("matcher.start").addTerm("matcher");
-    gram.newRule("matcher.start").addToken("consume").addTrigger("match.consume").addTerm("matcher");
+    gram.newRule("matcher.start").addTerm("matcher").addTrigger("match");
+    gram.newRule("matcher.start").addToken("consume").addTerm("matcher").addTrigger("match.consume");
 
     gram.newRule("matcher").addTerm("charSetRange");
     gram.newRule("matcher").addTerm("matcher").addToken("comma").addTerm("charSetRange");
@@ -175,9 +176,12 @@ class Loader {
     gram.newRule("charSetRange").addToken("charSet").addToken("range").addToken("charSet").addTrigger("match.range");
     gram.newRule("charSetRange").addToken("not").addToken("charSet").addToken("range").addToken("charSet").addTrigger("match.range.not");
 
-    // gram.newRule("def").addTerm("tokenDef");
-    // gram.newRule("def").addToken("closeAngle").addTerm("tokenDef");
-    // gram.newRule("def").addTerm("tokenDef");
+    gram.newRule("def.token.optional");
+    gram.newRule("def.token.optional").addTerm("def.token");
+    gram.newRule("def.token").addToken("colon").addToken("string").addToken("arrow").addTerm("tokenID").addTrigger("replace.token");
+
+
+
 
     return gram;
   }
