@@ -116,6 +116,13 @@ class Tokenizer {
   /// already existing transition.
   Transition join(String startStateName, String endStateName) =>
     this.state(startStateName).join(endStateName);
+    
+  /// This is short hand for a join and setToken
+  /// where the state name and token name are the same.
+  Transition joinToToken(String startStateName, String endStateName) {
+    this.state(endStateName).setToken(endStateName);
+    return this.state(startStateName).join(endStateName);
+  }
 
   /// Sets the token for the given state and returns the acceptance token.
   TokenState setToken(String stateName, String tokenName) =>

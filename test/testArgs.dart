@@ -119,4 +119,22 @@ class TestArgs {
         '\n  Diff: $diff');
     }
   }
+
+  /// Checks that an expected error from the parser builder.
+  void checkParserBuildError(Grammar.Grammar grammar, Tokenizer.Tokenizer tokenizer, List<String> expected) { 
+    String exp = expected.join('\n');
+    try {
+      new Parser.Parser.fromGrammar(grammar, tokenizer);
+      this.error('Expected an exception from parser builder but got none:'+
+          '\n  Expected: $exp');
+    } catch (err) {
+      String result = '$err'.trimRight();
+      if (exp != result) {
+        String diff = Diff.plusMinusLines(exp, result);
+        diff = diff.trimRight().replaceAll('\n', '\n        ');
+        this.error('Got a different error from the parser builder than expected:'+
+          '\n  Diff: $diff');
+      }
+    }
+  }
 }

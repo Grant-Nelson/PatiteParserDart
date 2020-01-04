@@ -10,59 +10,35 @@ class Loader {
     tok.join("whitespace", "whitespace").addSet(" \n\r\t");
     tok.setToken("whitespace", "whitespace").consume();
     
-    tok.join("start", "openParen").addSet("(");
-    tok.setToken("openParen", "openParen");
-    
-    tok.join("start", "closeParen").addSet(")");
-    tok.setToken("closeParen", "closeParen");
-
-    tok.join("start", "openBracket").addSet("[");
-    tok.setToken("openBracket", "openBracket");
-    
-    tok.join("start", "closeBracket").addSet("]");
-    tok.setToken("closeBracket", "closeBracket");
-
-    tok.join("start", "openAngle").addSet("<");
-    tok.setToken("openAngle", "openAngle");
-    
-    tok.join("start", "closeAngle").addSet(">");
-    tok.setToken("closeAngle", "closeAngle");
-    
-    tok.join("start", "not").addSet("!");
-    tok.setToken("not", "not");
-    
-    tok.join("start", "consume").addSet("^");
-    tok.setToken("consume", "consume");
-    
-    tok.join("start", "colon").addSet(":");
-    tok.setToken("colon", "colon");
-    
-    tok.join("start", "comma").addSet(",");
-    tok.setToken("comma", "comma");
-    
-    tok.join("start", "any").addSet("*");
-    tok.setToken("any", "any");
-    
-    tok.join("start", "lambda").addSet("_");
-    tok.setToken("lambda", "lambda");
-    
-    tok.join("colon", "assign").addSet("=");
-    tok.setToken("assign", "assign");
+    tok.joinToToken("start", "openParen").addSet("(");
+    tok.joinToToken("start", "closeParen").addSet(")");
+    tok.joinToToken("start", "openBracket").addSet("[");
+    tok.joinToToken("start", "closeBracket").addSet("]");
+    tok.joinToToken("start", "openAngle").addSet("<");
+    tok.joinToToken("start", "closeAngle").addSet(">");
+    tok.joinToToken("start", "openCurly").addSet("{");
+    tok.joinToToken("start", "closeCurly").addSet("}");
+    tok.joinToToken("start", "or").addSet("|");
+    tok.joinToToken("start", "not").addSet("!");
+    tok.joinToToken("start", "consume").addSet("^");
+    tok.joinToToken("start", "colon").addSet(":");
+    tok.joinToToken("colon", "assign").addSet("=");
+    tok.joinToToken("start", "comma").addSet(",");
+    tok.joinToToken("start", "any").addSet("*");
+    tok.joinToToken("start", "lambda").addSet("_");
     
     tok.join("start", "equal").addSet("=");
     tok.join("equal", "arrow").addSet(">");
     tok.setToken("arrow", "arrow");
     
     tok.join("start", "startRange").addSet(".");
-    tok.join("startRange", "range").addSet(".");
-    tok.setToken("range", "range");
+    tok.joinToToken("startRange", "range").addSet(".");
 
     Matcher.Group hexMatcher = new Matcher.Group()..addRange('0', '9')..addRange('A', 'F')..addRange('a', 'f');
     Matcher.Group idLetter = new Matcher.Group()..addRange('a', 'z')..addRange('A', 'Z')..addRange('0', '9')..addSet("_.-");
 
-    tok.join("start", "id").add(idLetter);
+    tok.joinToToken("start", "id").add(idLetter);
     tok.join("id", "id").add(idLetter);
-    tok.setToken("id", "id");
 
     tok.join("start", "charSet.open").addSet("'");
     tok.join("charSet.open", "charSet.escape").addSet("\\");
@@ -97,62 +73,19 @@ class Loader {
     tok.join("string.unicode4", "string.body").add(hexMatcher);
     tok.join("string.body", "string.body").addAll();
     tok.setToken("string", "string");
-    
-    // Tokens:
-    //    openParen     (
-    //    closeParen    )
-    //    openBracket   [
-    //    closeBracket  ]
-    //    openAngle     <
-    //    closeAngle    >
-    //    not           !
-    //    consume       ^
-    //    colon         :
-    //    comma         ,
-    //    any           *
-    //    lambda        _
-    //    assign        :=
-    //    arrow         =>
-    //    range         ..
-    //    id            [0-9a-fA-F_.-]+
-    //    charSet       'any'
-    //    string        "any"
     return tok;
   }
 
   static Grammar.Grammar getGrammar() {
-    // Examples:
-    //    Tokenizer:
-    //       > (StartState)
-    //       > (StartState): 'a' => (State)
-    //       (State): 'a'..'c' => (State)
-    //       (State): 'abcdef' => (State)
-    //       (State): 'a' => (State): 'b' => (State): 'c' => (State)
-    //       (State): 'a' => [Token]
-    //       (State): 'a' => (State) => [Token]
-    //       (State): 'a' => ^[Token]
-    //       (State): ! 'abcdef' => (State)
-    //       (State): ^ 'a'..'b', 'c', => (State)
-    //       (State): * => (State)
-    //       (State) => [Token]
-    //       (State) => ^[Token]
-    //       [Token]: "word" => [Token]
-    //       [Token]: "word" => ^[Token]
-    //    Parser:
-    //       > <StartTerm>
-    //       > <StartTerm> := [Token] <Term>
-    //       <Term> := _
-    //       <Term> := <Term> | <Term>
-
     Grammar.Grammar gram = new Grammar.Grammar();
     gram.start("def.set");
     gram.newRule("def.set").addTerm("def.set").addTerm("def");
     gram.newRule("def.set");
 
-    gram.newRule("def").addToken("closeAngle").addTerm("stateID").addTrigger("start.token").addTerm("def.state.optional");
-    gram.newRule("def").addTerm("stateID").addTerm("def.state");
-    gram.newRule("def").addTerm("tokenID").addTerm("def.token");
-
+    gram.newRule("def").addTrigger("new.def").addToken("closeAngle").addTerm("stateID").addTrigger("start.state").addTerm("def.state.optional");
+    gram.newRule("def").addTrigger("new.def").addTerm("stateID").addTerm("def.state");
+    gram.newRule("def").addTrigger("new.def").addTerm("tokenID").addTerm("def.token");
+    
     gram.newRule("def.state.optional");
     gram.newRule("def.state.optional").addTerm("def.state");
 
@@ -163,7 +96,9 @@ class Loader {
     gram.newRule("stateID").addToken("openParen").addToken("id").addToken("closeParen").addTrigger("new.state");
     gram.newRule("tokenID").addToken("openBracket").addToken("id").addToken("closeBracket").addTrigger("new.token");
     gram.newRule("tokenID").addToken("consume").addToken("openBracket").addToken("id").addToken("closeBracket").addTrigger("new.token.consume");
-
+    gram.newRule("termID").addToken("openAngle").addToken("id").addToken("closeAngle").addTrigger("new.term");
+    gram.newRule("triggerID").addToken("openCurly").addToken("id").addToken("closeCurly").addTrigger("new.trigger");
+    
     gram.newRule("matcher.start").addToken("any").addTrigger("match.any");
     gram.newRule("matcher.start").addTerm("matcher").addTrigger("match");
     gram.newRule("matcher.start").addToken("consume").addTerm("matcher").addTrigger("match.consume");
@@ -180,25 +115,50 @@ class Loader {
     gram.newRule("def.token.optional").addTerm("def.token");
     gram.newRule("def.token").addToken("colon").addToken("string").addToken("arrow").addTerm("tokenID").addTrigger("replace.token");
 
+    gram.newRule("def").addTrigger("new.def").addToken("closeAngle").addTerm("termID").addTrigger("start.term").addTerm("start.rule.optional");
+    gram.newRule("def").addTrigger("new.def").addTerm("termID").addToken("assign").addTerm("start.rule").addTerm("next.rule.optional");
 
+    gram.newRule("start.rule.optional");
+    gram.newRule("start.rule.optional").addToken("assign").addTrigger("start.rule").addTerm("start.rule").addTerm("next.rule.optional");
+    
+    gram.newRule("next.rule.optional");
+    gram.newRule("next.rule.optional").addTerm("next.rule.optional").addToken("or").addTrigger("start.rule").addTerm("start.rule");
 
-
+    gram.newRule("start.rule").addTerm("tokenID").addTrigger("item.token").addTerm("rule.item");
+    gram.newRule("start.rule").addTerm("termID").addTrigger("item.term").addTerm("rule.item");
+    gram.newRule("start.rule").addTerm("triggerID").addTrigger("item.trigger").addTerm("rule.item");
+    gram.newRule("start.rule").addToken("lambda");
+    
+    gram.newRule("rule.item");
+    gram.newRule("rule.item").addTerm("rule.item").addTerm("tokenID").addTrigger("item.token");
+    gram.newRule("rule.item").addTerm("rule.item").addTerm("termID").addTrigger("item.term");
+    gram.newRule("rule.item").addTerm("rule.item").addTerm("triggerID").addTrigger("item.trigger");
     return gram;
   }
 
-  static Parser getParser() =>
-    new Parser.fromGrammar(Loader.getGrammar(), Loader.getTokenizer());
+  static Parser _loadParserSingleton;
 
-  Loader() {
-    Parser parser = new Parser.fromGrammar(getGrammar(), getTokenizer());
-
-    Result result = parser.parse(
-      "> (Start)");
-      
-    print(result);
+  static Parser getParser() {
+    _loadParserSingleton ??= new Parser.fromGrammar(Loader.getGrammar(), Loader.getTokenizer());
+    return _loadParserSingleton;
   }
 
-  Parser load(String name) {
+  Loader();
+
+  Parser load(String input) => this.loadChars(input.codeUnits.iterator);
+
+  Parser loadChars(Iterator<int> iterator) {
+    Result result = getParser().parseChars(iterator);
+    if (result.errors.isNotEmpty)
+      throw new Exception('Error in provided language definition:\n${result.errors}');
+    return this._load(result.tree);
+  }
+
+  Parser _load(ParseTree.TreeNode node) {
+
+
+
+
     return null;
   }
 }

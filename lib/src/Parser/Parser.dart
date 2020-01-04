@@ -43,7 +43,7 @@ class Parser {
   factory Parser.fromGrammar(Grammar.Grammar grammar, Tokenizer.Tokenizer tokenizer) {
     String errors = grammar.validate();
     if (errors.isNotEmpty)
-      throw new Exception('Error: Parser can not use invalid grammar:\n$errors');
+      throw new Exception('Error: Parser can not use invalid grammar:\n' + errors);
 
     grammar = grammar.copy();
     _Builder builder = new _Builder(grammar);
@@ -51,7 +51,7 @@ class Parser {
     builder.fillTable();
     String errs = builder.buildErrors;
     if (errs.isNotEmpty)
-      throw new Exception('Errors while building parser:\n$errs');
+      throw new Exception('Errors while building parser:\n' + builder.toString(showTable: false));
     return new Parser._(builder.table, grammar, tokenizer);
   }
 
@@ -67,9 +67,11 @@ class Parser {
     return new Parser._(table, grammar, tokenizer);
   }
 
-  /// Creates a parser from a parser definition folder.
-  factory Parser.fromFile(String name) =>
-    new Loader().load(name);
+  /// Creates a parser from a parser definition file.
+  factory Parser.fromDefinition(String input) => new Loader().load(input);
+
+  /// Creates a parser from a parser definition string.
+  factory Parser.fromDefinitionChar(Iterator<int> input) => new Loader().loadChars(input);
 
   /// Serializes the parser into a json serialization.
   Simple.Serializer serialize() =>

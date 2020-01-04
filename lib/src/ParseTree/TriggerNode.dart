@@ -10,6 +10,13 @@ class TriggerNode extends TreeNode {
   /// Creates a new token parse tree node.
   TriggerNode(String this.trigger): super._();
   
+  /// Processes this tree node with the given handles for the triggers to call.
+  void process(Map<String, TriggerHandle> handles) {
+    if (!handles.containsKey(this.trigger))
+      throw new Exception('Failed to find the handle for the trigger, ${this.trigger}');
+    handles[this.trigger](new List<Tokenizer.Token>());
+  }
+
   /// Gets a string for this tree node.
   String toString() => '{${this.trigger}}';
 }

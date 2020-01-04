@@ -113,11 +113,32 @@ class _Builder {
       for (int i = 0; i < state.gotos.length; i++) {
         Grammar.Item onItem = state.onItems[i];
         int goto = state.gotos[i].number;
-        if (onItem is Grammar.Term) {
-          if (state.number == goto) // TODO: Need to extend this to be a loop check.
-            this._errors.writeln('Goto $goto on row ${state.number} and column ${onItem.name} will cause infinate loop.');
+        if (onItem is Grammar.Term)
           this._table.writeGoto(state.number, onItem.name, new _Goto(goto));
-        } else this._table.writeShift(state.number, onItem.name, new _Shift(goto));
+        else this._table.writeShift(state.number, onItem.name, new _Shift(goto));
+      }
+    }
+
+    // Check for goto loops.
+    for (Grammar.Term term in this._grammar.terms) {
+      List<int> checked = new List<int>();
+      for (int i = 0; i < this._states.length; i++) {
+        if (checked.contains(i)) continue;
+        checked.add(i);
+
+        _Action action = this._table.readGoto(i, term.name);
+        List<int> reached = new List<int>();
+        while (action is _Goto) {
+          reached.add(i);
+          checked.add(i);
+          i = (action as _Goto).state;
+          if (reached.contains(i)) {
+            List<int> loop = reached.sublist(reached.indexOf(i));
+            this._errors.writeln('Infinite goto loop found in term ${term.name} between the state(s) $loop.');
+            break;
+          }
+          action = this._table.readGoto(i, term.name);
+        }
       }
     }
   }
@@ -130,15 +151,18 @@ class _Builder {
   _Table get table => this._table;
 
   /// Returns a human readable string for debugging of the parser being built.
-  String toString() {
+  String toString({bool showState: true, bool showTable: true, bool showError: true}) {
     StringBuffer buf = new StringBuffer();
-    for (_State state in this._states) {
-       buf.write(state.toString());
+    if (showState) {
+      for (_State state in this._states)
+        buf.write(state.toString());
     }
-    buf.writeln();
-    buf.writeln(this._table.toString());
-    if (this._errors.isNotEmpty) {
-      buf.writeln();
+    if (showTable) {
+      if (buf.isNotEmpty) buf.writeln();
+      buf.writeln(this._table.toString());
+    }
+    if ((showError) && (this._errors.isNotEmpty)) {
+      if (buf.isNotEmpty) buf.writeln();
       buf.write(this._errors.toString());
     }
     return buf.toString();
