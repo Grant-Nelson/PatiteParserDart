@@ -1,18 +1,6 @@
 part of Diff;
 
-/// The results from a traversal through the cost matrix.
-class _TraverseResult {
-  /// The cost to take this path.
-  int cost;
-
-  /// The path through the cost matrix.
-  List<StepType> path;
-
-  /// Creates a new traverse result.
-  _TraverseResult(this.cost, this.path);
-}
-
-/// The levenshtein path builder used for diffing 
+/// The levenshtein path builder used for diffing two compariable sources. 
 class _Path {
   static const int NotSet     = -1;
   static const int MoveUp     =  1;
@@ -26,18 +14,15 @@ class _Path {
   /// The container for the levenshtein costs.
   _Table _costs;
 
-  /// The container for the levenshtein costs.
+  /// The container for the path movements.
   _Table _moves;
-
-  _Table _costSum;
 
   /// Creates a new path builder.
   _Path(DiffComparable this._comp) {
     final int aLen = this._comp.aLength;
     final int bLen = this._comp.bLength;
-    this._costs   = new _Table(aLen, bLen, -1);
-    this._moves   = new _Table(aLen, bLen, NotSet);
-    this._costSum = new _Table(aLen, bLen, 0);
+    this._costs = new _Table(aLen, bLen, -1);
+    this._moves = new _Table(aLen, bLen, NotSet);
   }
 
   /// Path gets the difference path for the two given items.
@@ -128,6 +113,8 @@ class _Path {
     return minCost;
   }
 
+  /// Determines the minimum path starting from this point
+  /// and then sets the movement from this point towards the shorter path.
   int _setMovement(int aIndex, int bIndex) {
     // base case when one of the inputs are empty
     if (aIndex <= 0) return bIndex;
@@ -135,7 +122,7 @@ class _Path {
 
     // Check if this subpath has already been solved.
     if (this._moves.getValue(aIndex, bIndex) != NotSet)
-      return this._costSum.getValue(aIndex, bIndex);
+      return this._costs.getValue(aIndex, bIndex);
 
 	  // get the minimum of entry skip entry from a, skip entry from b, and skip entry from both
     int costA = this.getCost(aIndex-1, bIndex);
@@ -182,10 +169,11 @@ class _Path {
     }
 
     this._moves.setValue(aIndex, bIndex, minMove);
-    this._costSum.setValue(aIndex, bIndex, minPathCost);
     return minPathCost;
   }
   
+  /// This handles traversing the diff path using the defined movements,
+  /// however it traverses backwards.
   Iterable<StepType> traverseBackwards() sync* {
     int aIndex = this._comp.aLength;
     int bIndex = this._comp.bLength;
