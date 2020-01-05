@@ -39,15 +39,15 @@ class RuleNode extends TreeNode {
   void process(Map<String, TriggerHandle> handles) {
     List<TreeNode> stack = new List<TreeNode>();
     stack.add(this);
-    List<Tokenizer.Token> tokens = new List<Tokenizer.Token>();
+    TriggerArgs args = new TriggerArgs();
     while (stack.isNotEmpty) {
       TreeNode node = stack.removeLast();
       if (node is RuleNode) stack.addAll(node.items.reversed);
-      else if (node is TokenNode) tokens.add(node.token);
+      else if (node is TokenNode) args.tokens.add(node.token);
       else if (node is TriggerNode) {
         if (!handles.containsKey(node.trigger))
           throw new Exception('Failed to find the handle for the trigger, ${node.trigger}');
-        handles[node.trigger](tokens);
+        handles[node.trigger](args);
       }
     }
   }

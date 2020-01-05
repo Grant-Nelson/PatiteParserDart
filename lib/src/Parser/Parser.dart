@@ -68,10 +68,10 @@ class Parser {
   }
 
   /// Creates a parser from a parser definition file.
-  factory Parser.fromDefinition(String input) => (new Loader._()..load(input)).parser;
+  factory Parser.fromDefinition(String input) => (new Loader()..load(input)).parser;
 
   /// Creates a parser from a parser definition string.
-  factory Parser.fromDefinitionChar(Iterator<int> input) => (new Loader._()..loadChars(input)).parser;
+  factory Parser.fromDefinitionChar(Iterator<int> input) => (new Loader()..loadChars(input)).parser;
 
   /// Serializes the parser into a json serialization.
   Simple.Serializer serialize() =>
