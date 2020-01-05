@@ -93,9 +93,9 @@ class Grammar {
         Rule ruleCopy = new Rule._(grammar, termCopy);
         for (Item item in rule.items) {
           Item itemCopy;
-          if (item is Term)           itemCopy = grammar._findTerm(item.name);
-          else if (item is TokenItem) itemCopy = grammar._findAddToken(item.name);
-          else if (item is Trigger)   itemCopy = grammar._findAddTrigger(item.name);
+          if (item is Term)           itemCopy = grammar.term(item.name);
+          else if (item is TokenItem) itemCopy = grammar.token(item.name);
+          else if (item is Trigger)   itemCopy = grammar.trigger(item.name);
           else throw new Exception('Unknown item type: $item');
           ruleCopy._items.add(itemCopy);
         }
@@ -152,7 +152,7 @@ class Grammar {
   List<TokenItem> get tokens => this._tokens.toList();
   
   /// Gets the triggers for this grammar.
-  List<Trigger> get trigger => this._triggers.toList();
+  List<Trigger> get triggers => this._triggers.toList();
 
   /// Finds a term in this grammar by the given name.
   /// Returns null if no term by that name if found.
@@ -174,7 +174,7 @@ class Grammar {
 
   /// Find the existing token in this grammar
   /// or add it if not found.
-  TokenItem _findAddToken(String tokenName) {
+  TokenItem token(String tokenName) {
     tokenName = tokenName.trim();
     if (tokenName.isEmpty)
       throw new Exception('May not have an all whitespace or empty token name.');
@@ -188,7 +188,7 @@ class Grammar {
 
   /// Find the existing trigger in this grammar
   /// or add it if not found.
-  Trigger _findAddTrigger(String triggerName) {
+  Trigger trigger(String triggerName) {
     triggerName = triggerName.trim();
     if (triggerName.isEmpty)
       throw new Exception('May not have an all whitespace or empty trigger name.');

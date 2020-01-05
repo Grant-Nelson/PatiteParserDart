@@ -206,7 +206,7 @@ class Tokenizer {
   /// Gets the human readable debug string.
   String toString() {
     StringBuffer buf = new StringBuffer();
-    buf.writeln(this._start._toDebugString());
+    if (this._start != null) buf.writeln(this._start._toDebugString());
     for (State state in this._states.values) {
       if (state != this._start) buf.writeln(state._toDebugString());
     }

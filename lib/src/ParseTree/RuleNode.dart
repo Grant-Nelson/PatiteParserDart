@@ -42,7 +42,7 @@ class RuleNode extends TreeNode {
     List<Tokenizer.Token> tokens = new List<Tokenizer.Token>();
     while (stack.isNotEmpty) {
       TreeNode node = stack.removeLast();
-      if (node is RuleNode) stack.addAll(items);
+      if (node is RuleNode) stack.addAll(node.items.reversed);
       else if (node is TokenNode) tokens.add(node.token);
       else if (node is TriggerNode) {
         if (!handles.containsKey(node.trigger))

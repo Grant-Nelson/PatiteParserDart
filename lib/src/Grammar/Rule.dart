@@ -28,7 +28,7 @@ class Rule {
   /// Adds a token to this rule.
   /// Returns this rule so that rule creation can be chained.
   Rule addToken(String tokenName) {
-    TokenItem token = this._grammar._findAddToken(tokenName);
+    TokenItem token = this._grammar.token(tokenName);
     this._items.add(token);
     return this;
   }
@@ -36,7 +36,7 @@ class Rule {
   /// Adds a trigger to this rule.
   /// Returns this rule so that rule creation can be chained.
   Rule addTrigger(String triggerName) {
-    Trigger trigger = this._grammar._findAddTrigger(triggerName);
+    Trigger trigger = this._grammar.trigger(triggerName);
     this._items.add(trigger);
     return this;
   }

@@ -68,10 +68,10 @@ class Parser {
   }
 
   /// Creates a parser from a parser definition file.
-  factory Parser.fromDefinition(String input) => new Loader().load(input);
+  factory Parser.fromDefinition(String input) => (new Loader._()..load(input)).parser;
 
   /// Creates a parser from a parser definition string.
-  factory Parser.fromDefinitionChar(Iterator<int> input) => new Loader().loadChars(input);
+  factory Parser.fromDefinitionChar(Iterator<int> input) => (new Loader._()..loadChars(input)).parser;
 
   /// Serializes the parser into a json serialization.
   Simple.Serializer serialize() =>
@@ -80,6 +80,14 @@ class Parser {
       ..writeSer(this._grammar.serialize())
       ..writeSer(this._table.serialize())
       ..writeSer(this._tokenizer.serialize());
+
+  /// Gets the grammar for this parser.
+  /// This should be treated as a constant, modifying it could cause the parser to fail.
+  Grammar.Grammar get grammar => this._grammar;
+
+  /// Gets the tokenizer for this parser.
+  /// This should be treated as a constant, modifying it could cause the parser to fail.
+  Tokenizer.Tokenizer get tokenizer => this._tokenizer;
 
   /// This parses the given string and returns the results.
   Result parse(String input) =>
