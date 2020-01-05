@@ -8,7 +8,7 @@ class Result {
 
   /// The tree of the parsed tokens into grammar rules.
   /// This will be null if there are any errors.
-  final TreeNode tree;
+  final ParseTree.TreeNode tree;
 
   /// Creates a new parser result.
   Result(this.errors, this.tree);
@@ -22,7 +22,7 @@ class Result {
         buf.write(error);
       }
     }
-    if (tree != null) buf.write(tree.toString(true));
+    if (tree != null) buf.write(tree.toString());
     return buf.toString();
   }
 }

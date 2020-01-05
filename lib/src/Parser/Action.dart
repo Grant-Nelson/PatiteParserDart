@@ -34,18 +34,15 @@ class _Goto implements _Action {
 /// handled by another action and the current rule
 /// is used to reduce the parse set down to a term.
 class _Reduce implements _Action {
-
-  /// The term to reduce the items into.
-  final String term;
   
-  /// The items (tokens and terms) to reduce from the parse set.
-  final List<String> items;
+  /// The rule to reduce from the parse set.
+  final Grammar.Rule rule;
 
   /// Creates a new reduce action.
-  _Reduce(this.term, this.items);
+  _Reduce(this.rule);
 
   /// Gets the debug string for this action.
-  String toString() => "reduce ${this.term} -> ${this.items.join(" ")}";
+  String toString() => "reduce ${rule.toString()}";
 }
 
 /// An accept indicates that the full input has been

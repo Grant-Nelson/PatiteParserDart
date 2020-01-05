@@ -25,6 +25,10 @@ class Tokenizer {
 
   /// Loads a whole tokenizer from the given deserializer.
   factory Tokenizer.deserialize(Simple.Deserializer data) {
+    int version = data.readInt();
+    if (version != 1)
+      throw new Exception('Unknown version, $version, for tokenizer serialization.');
+
     Tokenizer tokenizer = new Tokenizer();
 
     int tokenCount = data.readInt();
@@ -54,6 +58,7 @@ class Tokenizer {
   /// Creates a serializer to represent the whole tokenizer.
   Simple.Serializer serialize() {
     Simple.Serializer data = new Simple.Serializer();
+    data.writeInt(1); // Version 1
 
     data.writeInt(this._token.length);
     for (String key in this._token.keys) {
@@ -111,6 +116,13 @@ class Tokenizer {
   /// already existing transition.
   Transition join(String startStateName, String endStateName) =>
     this.state(startStateName).join(endStateName);
+    
+  /// This is short hand for a join and setToken
+  /// where the state name and token name are the same.
+  Transition joinToToken(String startStateName, String endStateName) {
+    this.state(endStateName).setToken(endStateName);
+    return this.state(startStateName).join(endStateName);
+  }
 
   /// Sets the token for the given state and returns the acceptance token.
   TokenState setToken(String stateName, String tokenName) =>
@@ -194,7 +206,7 @@ class Tokenizer {
   /// Gets the human readable debug string.
   String toString() {
     StringBuffer buf = new StringBuffer();
-    buf.writeln(this._start._toDebugString());
+    if (this._start != null) buf.writeln(this._start._toDebugString());
     for (State state in this._states.values) {
       if (state != this._start) buf.writeln(state._toDebugString());
     }

@@ -17,7 +17,11 @@ class _Table {
   }
   
   /// Deserializes the given serialized data into this table.
-  factory _Table.deserialize(Simple.Deserializer data) {
+  factory _Table.deserialize(Simple.Deserializer data, Grammar.Grammar grammar) {
+    int version = data.readInt();
+    if (version != 1)
+      throw new Exception('Unknown version, $version, for parser table serialization.');
+
     _Table table = new _Table();
     table._shiftColumns = new Set<String>.from(data.readStrList());
     table._gotoColumns = new Set<String>.from(data.readStrList());
@@ -28,7 +32,7 @@ class _Table {
       int keysCount = data.readInt();
       for (int j = 0; j < keysCount; j++) {
         String key = data.readStr();
-        _Action action = table._deserializeAction(data);
+        _Action action = table._deserializeAction(data, grammar);
         shiftMap[key] = action;
       }
       table._shiftTable.add(shiftMap);
@@ -40,7 +44,7 @@ class _Table {
       int keysCount = data.readInt();
       for (int j = 0; j < keysCount; j++) {
         String key = data.readStr();
-        _Action action = table._deserializeAction(data);
+        _Action action = table._deserializeAction(data, grammar);
         gotoMap[key] = action;
       }
       table._gotoTable.add(gotoMap);
@@ -50,11 +54,14 @@ class _Table {
   }
 
   /// Creates an action from the given data. 
-  _Action _deserializeAction(Simple.Deserializer data) {
+  _Action _deserializeAction(Simple.Deserializer data, Grammar.Grammar grammar) {
     switch (data.readInt()) {
       case 1: return new _Shift(data.readInt());
       case 2: return new _Goto(data.readInt());
-      case 3: return new _Reduce(data.readStr(), data.readStrList());
+      case 3:
+        Grammar.Term term = grammar.term(data.readStr());
+        Grammar.Rule rule = term.rules[data.readInt()];
+        return new _Reduce(rule);
       case 4: return new _Accept();
       case 5: return new _Error(data.readStr());
     }
@@ -64,6 +71,7 @@ class _Table {
   /// Serializes the table.
   Simple.Serializer serialize() {
     Simple.Serializer data = new Simple.Serializer();
+    data.writeInt(1); // Version 1
     data.writeStrList(this._shiftColumns.toList());
     data.writeStrList(this._gotoColumns.toList());
 
@@ -98,14 +106,29 @@ class _Table {
       data.writeInt(action.state);
     } else if (action is _Reduce) {
       data.writeInt(3);
-      data.writeStr(action.term);
-      data.writeStrList(action.items);
+      Grammar.Term term = action.rule.term;
+      int ruleNum = term.rules.indexOf(action.rule);
+      data.writeStr(term.name);
+      data.writeInt(ruleNum);
     } else if (action is _Accept) {
       data.writeInt(4);
     } else if (action is _Error) {
       data.writeInt(5);
       data.writeStr(action.error);
     }
+  }
+  
+  /// Gets all the tokens for the row which are not null or error.
+  List<String> getAllTokens(int row) {
+    List<String> result = new List<String>();
+    if ((row >= 0) && (row < this._shiftTable.length)) {
+      Map<String, _Action> rowData = this._shiftTable[row];
+      for (String key in rowData.keys) {
+        _Action action = rowData[key];
+        if ((action != null) || (action is! _Error)) result.add(key);
+      }
+    }
+    return result;
   }
 
   /// Reads an action from the table,
@@ -128,8 +151,7 @@ class _Table {
   /// returns null if no action set.
   _Action readGoto(int row, String column) =>
     this._read(row, column, this._gotoTable);
-    
-  
+
   /// Writes a new action to the table.
   void _write(int row, String column, _Action value,
     Set<String> columns, List<Map<String, _Action>> table) {
@@ -160,21 +182,24 @@ class _Table {
 
   /// Gets a string output of the table for debugging.
   String toString() {
-    List<String> shiftColumns = this._shiftColumns.toList();
-    List<String> gotoColumns = this._gotoColumns.toList();
-    shiftColumns.sort();
-    gotoColumns.sort();
-
     List<List<String>> grid = new List<List<String>>();
+
+    // Add Column labels...
     List<String> columnLabels = new List<String>()
       ..add(""); // blank space for row labels
+    List<String> shiftColumns = this._shiftColumns.toList();
+    shiftColumns.sort();
     for (int j = 0; j < shiftColumns.length; j++)
       columnLabels.add(shiftColumns[j].toString());
+    List<String> gotoColumns = this._gotoColumns.toList();
+    gotoColumns.sort();
     for (int j = 0; j < gotoColumns.length; j++)
       columnLabels.add(gotoColumns[j].toString());
     grid.add(columnLabels);
 
-    for (int row = 0; row < shiftColumns.length; row++) {
+    // Add all the data into the table...
+    int maxRowCount = math.max(this._shiftTable.length, this._gotoTable.length);
+    for (int row = 0; row < maxRowCount; row++) {
       List<String> values = new List<String>()..add("$row");
       for (int i = 0; i < shiftColumns.length; i++) {
         _Action action = this.readShift(row, shiftColumns[i]);
@@ -189,6 +214,7 @@ class _Table {
       grid.add(values);
     }
     
+    // Make all the items in a column the same width...
     int colCount = shiftColumns.length + gotoColumns.length + 1;
     int rowCount = grid.length;
     for (int j = 0; j < colCount; j++) {
@@ -199,6 +225,7 @@ class _Table {
         grid[i][j] = grid[i][j].padRight(maxWidth);
     }
 
+    // Write the table...
     StringBuffer buf = new StringBuffer();
     for (int i = 0; i < rowCount; i++) {
       if (i > 0) buf.writeln();
