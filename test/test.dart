@@ -43,6 +43,7 @@ void main() {
   test.run(loader06);
   test.run(loader07);
   test.run(loader08);
+  test.run(loader09);
 
   test.printResult();
 }

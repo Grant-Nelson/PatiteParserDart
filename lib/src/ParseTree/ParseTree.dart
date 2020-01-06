@@ -34,5 +34,5 @@ class TriggerArgs {
 
   /// Gets the recent token offset from most recent by the given index.
   Tokenizer.Token recent(int index) =>
-    ((index <= 0) || (index >= tokens.length))? null: this.tokens[this.tokens.length-index];
+    ((index > 0) && (index <= tokens.length))? this.tokens[this.tokens.length-index]: null;
 }
