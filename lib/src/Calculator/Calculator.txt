@@ -63,9 +63,10 @@
 (Start): '*' => [Mul];
 (Start): '/' => [Div];
 (Start): '+' => [Pos];
-(Start): '-' => [Neg];
+(Start): '-' => [Negate];
 (Start): '^' => [Power];
-(Start): '~' => [Not];
+(Start): '~' => [Invert];
+(Start): '!' => [Not];
 (Start): '&' => [And];
 (Start): '|' => [Or];
 (Start): '(' => [Open];
@@ -88,9 +89,10 @@
 <Factor> := <Value>
     | <Factor> [Power] <Value> {Power}
     | [Open] <Expression> [Close]
-    | [Neg] <Value> {Negate}
+    | [Negate] <Value> {Negate}
+    | [Not] <Value> {Not}
     | [Pos] <Value>
-    | [Not] <Value> {Invert}
+    | [Invert] <Value> {Invert}
     | [Id] {StartCall} [Open] <Args> [Close] {Call};
 
 <Value> := [Id] {Id}

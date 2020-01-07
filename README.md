@@ -16,6 +16,7 @@ or even translate a file into another (basic compile).
 
 - Run `pub run test/test.dart`
 
-## Run examples
+## Run the calculator example
 
-- Run `pub run examples/examples.dart`
+- Run `pub run example/example.dart`
+- See [Calculator Documentation](./lib/src/Calculator/Calculator.md)
