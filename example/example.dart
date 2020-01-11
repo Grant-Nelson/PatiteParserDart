@@ -5,8 +5,8 @@ import 'package:PatiteParserDart/Calculator.dart' as Calc;
 import 'dart:io' as io;
 
 void main() async {
+  await Calc.Calculator.loadParser();
   Calc.Calculator calc = new Calc.Calculator();
-  await calc.loadParser();
 
   print('Enter in an equation and press enter to calculate the result.');
   print('Type "exit" to exit. See documentation for more information.');
@@ -18,6 +18,6 @@ void main() async {
 
     calc.clear();
     calc.calculate(input);
-    print(calc.results);
+    print(calc.stackToString);
   }
 }

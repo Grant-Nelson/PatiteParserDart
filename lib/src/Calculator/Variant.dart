@@ -1,86 +1,78 @@
 part of PatiteParserDart.Calculator;
 
-enum VariantType {
-  Str,
-  Int,
-  Real,
-  Bool,
-  Func
-}
-
-String valueTypeToString(VariantType type) {
-  switch (type) {
-    case VariantType.Str:  return "str";
-    case VariantType.Int:  return "int";
-    case VariantType.Real: return "real";
-    case VariantType.Bool: return "bool";
-    case VariantType.Func: return "func";
-    default:               return "unknown";
-  }
-}
-
-typedef void CalcFunc(List<Variant> args);
-
+/// Variant is a wrapper of values off the stack with helper methods
+/// for casting and testing the implicit casting of a value.
 class Variant {
-  final VariantType type;
+  
+  /// This ia the wrapped value.
   final Object value;
 
-  Variant(this.type, this.value);
-  factory Variant.Str(String value)    => new Variant(VariantType.Str,  value);
-  factory Variant.Int(int value)       => new Variant(VariantType.Int,  value);
-  factory Variant.Real(double value)   => new Variant(VariantType.Real, value);
-  factory Variant.Bool(bool value)     => new Variant(VariantType.Bool, value);
-  factory Variant.Func(CalcFunc value) => new Variant(VariantType.Func, value);
+  /// Wraps the given value into a new Variant.
+  Variant(Object this.value);
 
-  bool get isStr  => this.type == VariantType.Str;
-  bool get isInt  => this.type == VariantType.Int;
-  bool get isReal => this.type == VariantType.Real;
-  bool get isBool => this.type == VariantType.Bool;
-  bool get isFunc => this.type == VariantType.Func;
+  /// Gets the string for this value.
+  String toString() => '${value.runtimeType}($value)';
 
-  String get asStr {
-    if (isFunc) throw new Exception('May not cast a function to a string.');
-    if (isStr)  return this.value as String;
-    if (isInt)  return (this.value as int).toString();
-    if (isReal) return (this.value as double).toString();
-    if (isBool) return (this.value as bool).toString();
-    throw new Exception('May not cast unexpected value type to string: $type');
-  }
+  /// Indicates if this value is a boolean value.
+  bool get isBool => value is bool;
 
-  int get asInt {
-    if (isFunc) throw new Exception('May not cast a function to an integer.');
-    if (isStr)  return int.parse(this.value as String);
-    if (isInt)  return this.value as int;
-    if (isReal) return (this.value as double).toInt();
-    if (isBool) return (this.value as bool)? 1: 0;
-    throw new Exception('May not cast unexpected value type to int: $type');
-  }
+  /// Indicates if this value is an integer value.
+  bool get isInt => value is int;
 
+  /// Indicates if this value is a real value.
+  bool get isReal => value is double;
+
+  /// Indicates if this value is a string value.
+  bool get isStr => value is String;
+
+  /// Indicates if the given value can be implicitly cast to a boolean value.
+  bool get implicitBool => isBool;
+
+  /// Indicates if the given value can be implicitly cast to an integer value.
+  bool get implicitInt => isBool || isInt;
+
+  /// Indicates if the given value can be implicitly cast to a real value.
+  bool get implicitReal => isBool || isInt || isReal;
+  
+  /// Indicates if the given value can be implicitly cast to a string value.
+  bool get implicitStr => isStr;
+
+  /// Casts this value to a boolean.
   bool get asBool {
-    if (isFunc) throw new Exception('May not cast a function to a boolean.');
     if (isStr) {
-      String val = (this.value as String).toLowerCase();
+      String val = (value as String).toLowerCase();
       return (val.length > 0) && (val != '0') && (val != 'false');
     }
-    if (isInt)  return (this.value as int) != 0;
-    if (isReal) return (this.value as double) != 0;
-    if (isBool) return this.value as bool;
-    throw new Exception('May not cast unexpected value type to boolean: $type');
+    if (isInt)  return (value as int) != 0;
+    if (isReal) return (value as double) != 0;
+    if (isBool) return value as bool;
+    throw new Exception('May not cast ${value} to boolean.');
   }
 
+  /// Casts this value to an integer.
+  int get asInt {
+    if (isStr)  return int.parse(value as String);
+    if (isInt)  return value as int;
+    if (isReal) return (value as double).toInt();
+    if (isBool) return (value as bool)? 1: 0;
+    throw new Exception('May not cast ${value} to int.');
+  }
+
+  /// Casts this value to a real.
   double get asReal {
-    if (isFunc) throw new Exception('May not cast a function to a double.');
     if (isStr)  return double.parse(value as String);
-    if (isInt)  return (this.value as int).toDouble();
-    if (isReal) return this.value as double;
-    if (isBool) return (this.value as bool)? 1.0: 0.0;
-    throw new Exception('May not cast unexpected value type to double: $type');
-  }
-  
-  CalcFunc get asFunc {
-    if (isFunc) return this.value as CalcFunc;
-    throw new Exception('May not cast type to calculator function: $type');
+    if (isInt)  return (value as int).toDouble();
+    if (isReal) return value as double;
+    if (isBool) return (value as bool)? 1.0: 0.0;
+    throw new Exception('May not cast ${value} to real.');
   }
 
-  String toString() => valueTypeToString(this.type)+"(${this.value})";
+  /// Casts this value to a string.
+  String get asStr {
+    if (isStr)  return value as String;
+    if (isInt)  return (value as int).toString();
+    if (isReal) return (value as double).toString();
+    if (isBool) return (value as bool).toString();
+    throw new Exception('May not cast ${value} to string.');
+  }
 }

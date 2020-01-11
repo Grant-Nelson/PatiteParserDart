@@ -61,34 +61,73 @@
 (Id):    'a'..'z', 'A'..'Z', '0'..'9', '_' => [Id];
 
 (Start): '*' => [Mul];
+(Mul):   '*' => [Power];
 (Start): '/' => [Div];
 (Start): '+' => [Pos];
 (Start): '-' => [Negate];
-(Start): '^' => [Power];
+(Start): '^' => [Xor];
 (Start): '~' => [Invert];
-(Start): '!' => [Not];
 (Start): '&' => [And];
 (Start): '|' => [Or];
+(Start): '!' => [Not];
+(Not):   '=' => [NotEqual];
+(Start):       '>' => [GreaterThan];
+(GreaterThan): '=' => [GreaterEqual];
+(Start):       '<' => [LessThan];
+(LessThan):    '=' => [LessEqual];
+(Start): '=' => (Equal.Start): '=' => [Equal];
 (Start): '(' => [Open];
 (Start): ')' => [Close];
 (Start): ',' => [Comma];
+(Start): ';' => [Separator];
+(Start): ':' => (Colon): '=' => [Assign];
 (Start): ' ' => (Whitespace): ' ' => ^[Whitespace];
 
-> <Expression>;
+(Start): ^'"' => (Str.Open);
+(Str.Open): '\\' => (Str.Escape);
+(Str.Open): * => (Str.Body);
+(Str.Body): ^'"' => [String];
+(Str.Body): '\\' => (Str.Escape);
+(Str.Escape): '\\"nrt' => (Str.Body);
+(Str.Escape): 'x' => (Str.Hex1): '0'..'9', 'a'..'z', 'A'..'Z' => (Str.Hex2): '0'..'9', 'a'..'z', 'A'..'Z' => (Str.Body);
+(Str.Escape): 'u' => (Str.Uni1): '0'..'9', 'a'..'z', 'A'..'Z' => (Str.Uni2): '0'..'9', 'a'..'z', 'A'..'Z' => (Str.Uni3);
+(Str.Uni3): '0'..'9', 'a'..'z', 'A'..'Z' => (Str.Uni4): '0'..'9', 'a'..'z', 'A'..'Z' => (Str.Body);
+(Str.Body): * => (Str.Body);
+
+> <Program>;
+
+<Program> := <Block>
+    | <Program> [Separator] <Block>;
+    
+<Block> := <Expression.Or>
+    | [Id] {PushVar} [Assign] <Expression.Or> {Assign};
+
+<Expression.Or> := <Expression.And>
+    | <Expression.Or> [Or]  <Expression.And> {Or};
+
+<Expression.And> := <Expression.Comp>
+    | <Expression.And> [And] <Expression.Comp> {And};
+
+<Expression.Comp> := <Expression>
+    | <Expression.Comp> [NotEqual]     <Expression> {NotEqual}
+    | <Expression.Comp> [GreaterThan]  <Expression> {GreaterThan}
+    | <Expression.Comp> [GreaterEqual] <Expression> {GreaterEqual}
+    | <Expression.Comp> [LessThan]     <Expression> {LessThan}
+    | <Expression.Comp> [LessEqual]    <Expression> {LessEqual}
+    | <Expression.Comp> [Equal]        <Expression> {Equal};
 
 <Expression> := <Term>
     | <Expression> [Pos] <Term> {Add}
-    | <Expression> [Neg] <Term> {Subtract}
-    | <Expression> [Or]  <Term> {Or};
+    | <Expression> [Negate] <Term> {Subtract};
 
 <Term> := <Factor>
     | <Term> [Mul] <Factor> {Multiply}
-    | <Term> [Div] <Factor> {Divide}
-    | <Term> [And] <Factor> {And};
+    | <Term> [Div] <Factor> {Divide};
 
 <Factor> := <Value>
+    | [Open] <Expression.Or> [Close]
+    | <Factor> [Xor] <Value> {Xor}
     | <Factor> [Power] <Value> {Power}
-    | [Open] <Expression> [Close]
     | [Negate] <Value> {Negate}
     | [Not] <Value> {Not}
     | [Pos] <Value>
@@ -100,8 +139,9 @@
     | [Octal] {Octal}
     | [Decimal] {Decimal}
     | [Hexadecimal] {Hexadecimal}
-    | [Real] {Real};
+    | [Real] {Real}
+    | [String] {String};
 
 <Args> := _
-    | <Expression>
-    | <Args> [Comma] <Expression>;
+    | <Expression.Or>
+    | <Args> [Comma] <Expression.Or>;

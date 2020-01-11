@@ -7,73 +7,29 @@ import 'package:PatiteParserDart/src/ParseTree/ParseTree.dart' as ParseTree;
 import 'dart:math' as math;
 import 'dart:async';
 
+part 'CalcFuncs.dart';
 part 'Variant.dart';
 
+/// This is the signature for functions which can be called by the calculator.
+///
+/// DO NOT implement functions which my give access to gain control over a website or application.
+typedef Object CalcFunc(List<Object> args);
+
+/// An implementation of a simple calculator language.
+///
+/// This is useful for allowing a text field with higher mathematic control
+/// without exposing exploits via a full language input.
+///
+/// This is also an example of how to use patite parser to construct
+/// a simple interpreted language.
 class Calculator {
   static Parser.Parser _parser;
-
-  Map<String, ParseTree.TriggerHandle> _handles;
-  List<Variant> _stack;
-  Map<String, Variant> _consts;
-  Map<String, CalcFunc> _funcs;
-  math.Random _rand;
-
-  Calculator() {
-    this._handles = {
-      'Add':         this._handleAdd,
-      'And':         this._handleAnd,
-      'Binary':      this._handleBinary,
-      'Call':        this._handleCall,
-      'Decimal':     this._handleDecimal,
-      'Divide':      this._handleDivide,
-      'Hexadecimal': this._handleHexadecimal,
-      'Id':          this._handleId,
-      'Invert':      this._handleInvert,
-      'Multiply':    this._handleMultiply,
-      'Negate':      this._handleNegate,
-      'Not':         this._handleNot,
-      'Octal':       this._handleOctal,
-      'Or':          this._handleOr,
-      'Power':       this._handlePower,
-      'Real':        this._handleReal,
-      'StartCall':   this._handleStartCall,
-      'Subtract':    this._handleSubtract};
-    this._stack = new List<Variant>();
-    this._consts = {
-      "pi":    new Variant.Real(math.pi),
-      "e":     new Variant.Real(math.e),
-      "true":  new Variant.Bool(true),
-      "false": new Variant.Bool(false)};
-    this._funcs = {
-      "abs":    this._funcAbs,
-      "acos":   this._funcAcos,
-      "asin":   this._funcAsin,
-      "atan":   this._funcAtan,
-      "atan2":  this._funcAtan2,
-      "avg":    this._funcAvg,
-      "bool":   this._funcBool,
-      "ceil":   this._funcCeil,
-      "cos":    this._funcCos,
-      "floor":  this._funcFloor,
-      "int":    this._funcInt,
-      "log":    this._funcLog,
-      "log2":   this._funcLog2,
-      "log10":  this._funcLog10,
-      "ln":     this._funcLn,
-      "max":    this._funcMax,
-      "min":    this._funcMin,
-      "rand":   this._funcRand,
-      "real":   this._funcReal,
-      "round":  this._funcRound,
-      "sin":    this._funcSin,
-      "sqrt":   this._funcSqrt,
-      "string": this._funcString,
-      "sum":    this._funcSum,
-      "tan":    this._funcTan};
-    this._rand = new math.Random(0);
-  }
-
-  Future loadParser() async {
+  
+  /// Loads the parser used by the calculator.
+  ///
+  /// This is done in a static method since to load the language
+  /// from a file it has to be done asynchronously.
+  static Future loadParser() async {
     if (_parser == null) {
       Resource resource = const Resource('package:PatiteParserDart/src/Calculator/Calculator.txt');
       return resource.readAsString().then((String language) {
@@ -83,403 +39,361 @@ class Calculator {
     return null;
   }
 
+  Map<String, ParseTree.TriggerHandle> _handles;
+  List<Object> _stack;
+  Map<String, Object> _consts;
+  Map<String, Object> _vars;
+  _CalcFuncs _funcs;
+
+  // Creates a new calculator instance.
+  Calculator() {
+    this._handles = {
+      'Add':          this._handleAdd,
+      'And':          this._handleAnd,
+      'Assign':       this._handleAssign,
+      'Binary':       this._handleBinary,
+      'Call':         this._handleCall,
+      'Decimal':      this._handleDecimal,
+      'Divide':       this._handleDivide,
+      'Equal':        this._handleEqual,
+      'GreaterEqual': this._handleGreaterEqual,
+      'GreaterThan':  this._handleGreaterThan,
+      'Hexadecimal':  this._handleHexadecimal,
+      'Id':           this._handleId,
+      'Invert':       this._handleInvert,
+      'LessEqual':    this._handleLessEqual,
+      'LessThan':     this._handleLessThan,
+      'Multiply':     this._handleMultiply,
+      'Negate':       this._handleNegate,
+      'Not':          this._handleNot,
+      'NotEqual':     this._handleNotEqual,
+      'Octal':        this._handleOctal,
+      'Or':           this._handleOr,
+      'Power':        this._handlePower,
+      'PushVar':      this._handlePushVar,
+      'Real':         this._handleReal,
+      'StartCall':    this._handleStartCall,
+      'String':       this._handleString,
+      'Subtract':     this._handleSubtract,
+      'Xor':          this._handleXor};
+    this._stack = new List<Object>();
+    this._consts = {
+      "pi":    math.pi,
+      "e":     math.e,
+      "true":  true,
+      "false": false};
+    this._vars = new Map<String, Object>();
+    this._funcs = new _CalcFuncs();
+  }
+
+  /// This parses the given calculation input and
+  /// puts the result on the top of the stack.
   void calculate(String input) {
     if (input.isEmpty) return;
     if (_parser == null) {
-      this.pushStr('Error: The parser must have finished loading prior to calculating any input.');
+      this.push('Error: The parser must have finished loading prior to calculating any input.');
       return;
     }
     Parser.Result result = _parser.parse(input);
 
     if (result.errors?.isNotEmpty ?? false) {
-      this.pushStr('Errors in calculator input:\n' + result.errors.join('\n'));
+      this.push('Errors in calculator input:\n' + result.errors.join('\n'));
       return;
     }
 
     try {
       result.tree.process(this._handles);
     } catch (err) {
-      this.pushStr('Errors in calculator input:\n' + err.toString());
+      this.push('Errors in calculator input:\n' + err.toString());
     }
   }
 
-  String get results {
+  /// Get a string showing all the values in the stack.
+  String get stackToString {
     if (this._stack.length <= 0) return 'no result';
     List<String> parts = new List<String>();
-    for (Variant val in this._stack) parts.add('${val}');
+    for (Object val in this._stack) parts.add('${val}');
     return parts.join('\n');
   }
 
-  void addFunc(String name, CalcFunc hndl) => this._funcs[name] = hndl;
+  /// Adds a new function that can be called by the language.
+  /// Set to null to remove a function.
+  void addFunc(String name, CalcFunc hndl) => this._funcs.addFunc(name, hndl);
   
-  void addConstant(String name, Variant value) => this._consts[name] = value;
-
-  bool get stackEmpty => this._stack.isEmpty;
-
-  void clear() => this._stack.clear();
-
-  Variant pop() => this._stack.removeLast();
-
-  void push(Variant value) => this._stack.add(value);
-  
-  void pushStr(String value)    => this.push(new Variant.Str(value));
-  void pushInt(int value)       => this.push(new Variant.Int(value));
-  void pushReal(double value)   => this.push(new Variant.Real(value));
-  void pushBool(bool value)     => this.push(new Variant.Bool(value));
-  void pushFunc(CalcFunc value) => this.push(new Variant.Func(value));
-
-  void _handleAdd(ParseTree.TriggerArgs args) {
-    Variant right = this.pop(), left  = this.pop();
-    if (left.isStr && right.isStr) this.pushStr(left.asStr + right.asStr);
-    else if (left.isFunc || right.isFunc || left.isStr || right.isStr) 
-      throw new Exception('Can not Add $left to $right.');
-    else if (left.isBool && right.isBool) this.pushBool(left.asBool || right.asBool);
-    else if (left.isReal || right.isReal) this.pushReal(left.asReal + right.asReal);
-    else this.pushInt(left.asInt + right.asInt);
+  /// Adds a new constant value into the language.
+  /// Set to null to remove the constant.
+  void addConstant(String name, Object value) {
+    if (value == null) this._consts.remove(name);
+    else this._consts[name] = value;
   }
 
+  /// Sets the value of a variable.
+  /// Set to null to remove the variable.
+  void setVar(String name, Object value) {
+    if (value == null) this._vars.remove(name);
+    else this._vars[name] = value;
+  }
+
+  /// Indicates if the stack is empty or not.
+  bool get stackEmpty => this._stack.isEmpty;
+
+  /// Clears all the values from the stack.
+  void clear() => this._stack.clear();
+
+  /// Removes the top value from the stack.
+  Object pop() => this._stack.removeLast();
+
+  /// Pushes a value onto the stack.
+  void push(Object value) => this._stack.add(value);
+
+  /// Handles calculating the sum of the top two items off of the stack.
+  void _handleAdd(ParseTree.TriggerArgs args) {
+    Variant right = new Variant(this.pop());
+    Variant left  = new Variant(this.pop());
+    if      (left.implicitInt  && right.implicitInt)  this.push(left.asInt  + right.asInt);
+    else if (left.implicitReal && right.implicitReal) this.push(left.asReal + right.asReal);
+    else if (left.implicitStr  && right.implicitStr)  this.push(left.asStr  + right.asStr);
+    else throw new Exception('Can not Add $left to $right.');
+  }
+
+  /// Handles AND-ing the top two items off the stack.
   void _handleAnd(ParseTree.TriggerArgs args) {
-    Variant right = this.pop(), left  = this.pop();
-    if (left.isInt && right.isInt) this.pushInt(left.asInt & right.asInt);
-    else if (left.isBool && right.isBool) this.pushBool(left.asBool && right.asBool);
+    Variant right = new Variant(this.pop());
+    Variant left  = new Variant(this.pop());
+    if      (left.implicitBool && right.implicitBool) this.push(left.asBool && right.asBool);
+    else if (left.implicitInt  && right.implicitInt)  this.push(left.asInt  &  right.asInt);
     else throw new Exception('Can not And $left with $right.');
   }
 
+  /// Handles assigning an variable to the top value off of the stack.
+  void _handleAssign(ParseTree.TriggerArgs args) {
+    Object right = this.pop();
+    Variant left = new Variant(this.pop());
+    if (!left.isStr) throw new Exception('Can not Assign $right to $left.');
+    String text = left.asStr;
+    if (this._consts.containsKey(text))
+      throw new Exception('Can not Assign $right to the constant $left.');
+    this._vars[text] = right;
+  }
+
+  /// Handles adding a binary integer value from the input tokens.
   void _handleBinary(ParseTree.TriggerArgs args) {
     String text = args.recent(1).text;
-    text = text.substring(0, text.length-1); // remove 'b'
-    this.pushInt(int.parse(text, radix: 2));
     args.tokens.clear();
+    text = text.substring(0, text.length-1); // remove 'b'
+    this.push(int.parse(text, radix: 2));
   }
 
+  /// Handles calling a function, taking it's parameters off the stack.
   void _handleCall(ParseTree.TriggerArgs args) {
-    List<Variant> methodArgs = new List<Variant>();
-    Variant val = this._stack.removeLast();
-    while (!val.isFunc) {
+    List<Object> methodArgs = new List<Object>();
+    Object val = this.pop();
+    while (val is! CalcFunc) {
       methodArgs.insert(0, val);
-      val = this._stack.removeLast();
+      val = this.pop();
     }
-    val.asFunc(methodArgs);
+    this.push((val as CalcFunc)(methodArgs));
   }
 
+  /// Handles adding a decimal integer value from the input tokens.
   void _handleDecimal(ParseTree.TriggerArgs args) {
     String text = args.recent(1).text;
-    if (text.endsWith('d')) text = text.substring(0, text.length-1);
-    this.pushInt(int.parse(text, radix: 10));
     args.tokens.clear();
+    if (text.endsWith('d')) text = text.substring(0, text.length-1);
+    this.push(int.parse(text, radix: 10));
   }
 
+  /// Handles dividing the top two items on the stack.
   void _handleDivide(ParseTree.TriggerArgs args) {
-    Variant right = this.pop(), left  = this.pop();
-    if (left.isFunc || right.isFunc || left.isStr || right.isStr || left.isBool || right.isBool)
-      throw new Exception('Can not Divide $left and $right.');
-    else if (left.isInt && right.isInt) this.pushInt(left.asInt ~/ right.asInt);
-    else this.pushReal(left.asReal / right.asReal);
+    Variant right = new Variant(this.pop());
+    Variant left  = new Variant(this.pop());
+    if      (left.implicitInt  && right.implicitInt)  this.push(left.asInt ~/ right.asInt);
+    else if (left.implicitReal && right.implicitReal) this.push(left.asReal / right.asReal);
+    else throw new Exception('Can not Divide $left with $right.');
+  }
+  
+  /// Handles checking if the two top items on the stack are equal.
+  void _handleEqual(ParseTree.TriggerArgs args) {
+    Variant right = new Variant(this.pop());
+    Variant left  = new Variant(this.pop());
+    if      (left.implicitBool && right.implicitBool) this.push(left.asBool == right.asBool);
+    else if (left.implicitInt  && right.implicitInt)  this.push(left.asInt  == right.asInt);
+    else if (left.implicitReal && right.implicitReal) this.push(left.asReal == right.asReal);
+    else if (left.implicitStr  && right.implicitStr)  this.push(left.asStr  == right.asStr);
+    else throw new Exception('Can not Equals $left and $right.');
   }
 
+  /// Handles checking if the two top items on the stack are greater than or equal.
+  void _handleGreaterEqual(ParseTree.TriggerArgs args) {
+    Variant right = new Variant(this.pop());
+    Variant left  = new Variant(this.pop());
+    if      (left.implicitInt  && right.implicitInt)  this.push(left.asInt  >= right.asInt);
+    else if (left.implicitReal && right.implicitReal) this.push(left.asReal >= right.asReal);
+    else throw new Exception('Can not Greater Than or Equals $left and $right.');
+  }
+
+  /// Handles checking if the two top items on the stack are greater than.
+  void _handleGreaterThan(ParseTree.TriggerArgs args) {
+    Variant right = new Variant(this.pop());
+    Variant left  = new Variant(this.pop());
+    if      (left.implicitInt  && right.implicitInt)  this.push(left.asInt  > right.asInt);
+    else if (left.implicitReal && right.implicitReal) this.push(left.asReal > right.asReal);
+    else throw new Exception('Can not Greater Than $left and $right.');
+  }
+
+  /// Handles looking up a constant or variable value.
   void _handleId(ParseTree.TriggerArgs args) {
     String text = args.recent(1).text;
-    if (!this._consts.containsKey(text))
-      throw new Exception('No constant called $text found.');
-    this._stack.add(this._consts[text]);
     args.tokens.clear();
+    if (this._consts.containsKey(text)) {
+      this._stack.add(this._consts[text]);
+      return;
+    }
+    if (this._vars.containsKey(text)) {
+      this._stack.add(this._vars[text]);
+      return;
+    }
+    throw new Exception('No constant called $text found.');
   }
 
+  /// Handles inverting the top value on the stack.
   void _handleInvert(ParseTree.TriggerArgs args) {
-    Variant top = this.pop();
-    if (top.isInt) this.pushInt(~top.asInt);
+    Variant top = new Variant(this.pop());
+    if (top.isInt) this.push(~top.asInt);
     else throw new Exception('Can not Invert $top.');
   }
 
+  /// Handles checking if the two top items on the stack are less than or equal.
+  void _handleLessEqual(ParseTree.TriggerArgs args) {
+    Variant right = new Variant(this.pop());
+    Variant left  = new Variant(this.pop());
+    if      (left.implicitInt  && right.implicitInt)  this.push(left.asInt  <= right.asInt);
+    else if (left.implicitReal && right.implicitReal) this.push(left.asReal <= right.asReal);
+    else throw new Exception('Can not Not Equals $left and $right.');
+  }
+
+  /// Handles checking if the two top items on the stack are less than.
+  void _handleLessThan(ParseTree.TriggerArgs args) {
+    Variant right = new Variant(this.pop());
+    Variant left  = new Variant(this.pop());
+    if      (left.implicitInt  && right.implicitInt)  this.push(left.asInt  < right.asInt);
+    else if (left.implicitReal && right.implicitReal) this.push(left.asReal < right.asReal);
+    else throw new Exception('Can not Not Equals $left and $right.');
+  }
+
+  /// Handles adding a hexadecimal integer value from the input tokens.
   void _handleHexadecimal(ParseTree.TriggerArgs args) {
     String text = args.recent(1).text;
-    text = text.substring(2); // remove '0x'
-    this.pushInt(int.parse(text, radix: 16));
     args.tokens.clear();
+    text = text.substring(2); // remove '0x'
+    this.push(int.parse(text, radix: 16));
   }
 
+  /// Handles calculating the multiplies of the top two items off of the stack.
   void _handleMultiply(ParseTree.TriggerArgs args) {
-    Variant right = this.pop(), left  = this.pop();
-    if (left.isFunc || right.isFunc || left.isStr || right.isStr) 
-      throw new Exception('Can not Multiply $left and $right.');
-    else if (left.isBool && right.isBool) this.pushBool(left.asBool || right.asBool);
-    else if (left.isReal || right.isReal) this.pushReal(left.asReal * right.asReal);
-    else this.pushInt(left.asInt * right.asInt);
+    Variant right = new Variant(this.pop());
+    Variant left  = new Variant(this.pop());
+    if      (left.implicitInt  && right.implicitInt)  this.push(left.asInt  * right.asInt);
+    else if (left.implicitReal && right.implicitReal) this.push(left.asReal * right.asReal);
+    else throw new Exception('Can not Multiply $left to $right.');
   }
 
+  /// Handles negating the an integer or real value.
   void _handleNegate(ParseTree.TriggerArgs args) {
-    Variant top = this.pop();
-    if (top.isInt) this.pushInt(-top.asInt);
-    else if (top.isReal) this.pushReal(-top.asReal);
+    Variant top = new Variant(this.pop());
+    if      (top.isInt)  this.push(-top.asInt);
+    else if (top.isReal) this.push(-top.asReal);
     else throw new Exception('Can not Negate $top.');
   }
 
+  /// Handles NOT-ing the boolean values at the top of the the stack.
   void _handleNot(ParseTree.TriggerArgs args) {
-    Variant top = this.pop();
-    if (top.isBool) this.pushBool(!top.asBool);
+    Variant top = new Variant(this.pop());
+    if (top.isBool) this.push(!top.asBool);
     else throw new Exception('Can not Not $top.');
   }
 
+  /// Handles checking if the two top items on the stack are not equal.
+  void _handleNotEqual(ParseTree.TriggerArgs args) {
+    Variant right = new Variant(this.pop());
+    Variant left  = new Variant(this.pop());
+    if      (left.implicitBool && right.implicitBool) this.push(left.asBool == right.asBool);
+    else if (left.implicitInt  && right.implicitInt)  this.push(left.asInt  == right.asInt);
+    else if (left.implicitReal && right.implicitReal) this.push(left.asReal == right.asReal);
+    else if (left.implicitStr  && right.implicitStr)  this.push(left.asStr  == right.asStr);
+    else throw new Exception('Can not Not Equals $left and $right.');
+  }
+
+  /// Handles adding a octal integer value from the input tokens.
   void _handleOctal(ParseTree.TriggerArgs args) {
     String text = args.recent(1).text;
+    args.tokens.clear();
     text = text.substring(0, text.length-1); // remove 'o'
-    this.pushInt(int.parse(text, radix: 8));
-    args.tokens.clear();
+    this.push(int.parse(text, radix: 8));
   }
 
+  /// Handles OR-ing the boolean values at the top of the the stack.
   void _handleOr(ParseTree.TriggerArgs args) {
-    Variant right = this.pop(), left  = this.pop();
-    if (left.isInt && right.isInt) this.pushInt(left.asInt | right.asInt);
-    else if (left.isBool && right.isBool) this.pushBool(left.asBool || right.asBool);
-    else throw new Exception('Can not Or $left and $right.');
+    Variant right = new Variant(this.pop());
+    Variant left  = new Variant(this.pop());
+    if      (left.implicitBool && right.implicitBool) this.push(left.asBool || right.asBool);
+    else if (left.implicitInt  && right.implicitInt)  this.push(left.asInt  |  right.asInt);
+    else throw new Exception('Can not Or $left to $right.');
   }
 
+  /// Handles calculating the power of the top two values on the stack.
   void _handlePower(ParseTree.TriggerArgs args) {
-    Variant right = this.pop(), left  = this.pop();
-    if (left.isFunc || right.isFunc || left.isStr || right.isStr) 
-      throw new Exception('Can not Power $left and $right.');
-    else if (left.isBool && right.isBool) this.pushBool(left.asBool ^ right.asBool);
-    else if (left.isReal || right.isReal) this.pushReal(math.pow(left.asReal, right.asReal));
-    else this.pushInt(left.asInt ^ right.asInt);
+    Variant right = new Variant(this.pop());
+    Variant left  = new Variant(this.pop());
+    if (left.implicitReal && right.implicitReal) this.push(math.pow(left.asReal, right.asReal));
+    else throw new Exception('Can not Power $left and $right.');
   }
 
-  void _handleReal(ParseTree.TriggerArgs args) {
+  /// Handles push an ID value from the input tokens
+  /// which will be used later as a variable name.
+  void _handlePushVar(ParseTree.TriggerArgs args) {
     String text = args.recent(1).text;
-    this.pushReal(double.parse(text));
     args.tokens.clear();
-  }
-
-  void _handleStartCall(ParseTree.TriggerArgs args) {
-    String text = args.recent(1).text.toLowerCase();
-    if (!this._funcs.containsKey(text))
-      throw new Exception('No function called $text found.');
-    this.pushFunc(this._funcs[text]);
-    args.tokens.clear();
-  }
-
-  void _handleSubtract(ParseTree.TriggerArgs args) {
-    Variant right = this.pop(), left = this.pop();
-    if (left.isFunc || right.isFunc || left.isStr || right.isStr) 
-      throw new Exception('Can not Subtract $left from $right.');
-    else if (left.isBool && right.isBool) this.pushBool(!left.asBool || right.asBool);
-    else if (left.isReal || right.isReal) this.pushReal(left.asReal - right.asReal);
-    else this.pushInt(left.asInt - right.asInt);
-  }
-
-  void _argCount(String name, List<Variant> args, int count) {
-    if (args.length != count)
-      throw new Exception('The function $name requires $count arguments but got ${args.length}.');
-  }
-
-  void _funcAbs(List<Variant> args) {
-    this._argCount('abs', args, 1);
-    Variant arg = args[0];
-    if (arg.isStr || arg.isFunc || arg.isBool) throw new Exception('Can not get the Abs of $arg.');
-    else if (arg.isInt) this.pushInt(args[0].asInt.abs());
-    else this.pushReal(arg.asReal.abs());
-  }
-
-  void _funcAcos(List<Variant> args) {
-    this._argCount('acos', args, 1);
-    Variant arg = args[0];
-    if (arg.isStr || arg.isFunc || arg.isBool) throw new Exception('Can not get the Acos of $arg.');
-    else this.pushReal(math.acos(arg.asReal));
+    this.push(text);
   }
   
-  void _funcAsin(List<Variant> args) {
-    this._argCount('asin', args, 1);
-    Variant arg = args[0];
-    if (arg.isStr || arg.isFunc || arg.isBool) throw new Exception('Can not get the Asin of $arg.');
-    else this.pushReal(math.asin(arg.asReal));
+  /// Handles adding a real value from the input tokens.
+  void _handleReal(ParseTree.TriggerArgs args) {
+    String text = args.recent(1).text;
+    args.tokens.clear();
+    this.push(double.parse(text));
   }
 
-  void _funcAtan(List<Variant> args) {
-    this._argCount('atan', args, 1);
-    Variant arg = args[0];
-    if (arg.isStr || arg.isFunc || arg.isBool) throw new Exception('Can not get the Atan of $arg.');
-    else this.pushReal(math.tan(arg.asReal));
+  /// Handles starting a function call.
+  void _handleStartCall(ParseTree.TriggerArgs args) {
+    String text = args.recent(1).text.toLowerCase();
+    args.tokens.clear();
+    CalcFunc func = this._funcs.findFunc(text);
+    if (func == null) throw new Exception('No function called $text found.');
+    this.push(func);
   }
 
-  void _funcAtan2(List<Variant> args) {
-    this._argCount('atan2', args, 2);
-    Variant left = args[0], right = args[1];
-    if (left.isFunc || right.isFunc || left.isStr || right.isStr || left.isBool || right.isBool)
-      throw new Exception('Can not Atan2 $left with $right.');
-    else this.pushReal(math.atan2(left.asReal, right.asReal));
+  /// Handles adding a string value from the input tokens.
+  void _handleString(ParseTree.TriggerArgs args) {
+    String text = args.recent(1).text;
+    args.tokens.clear();
+    this.push(Parser.Loader.unescapeString(text));
   }
 
-  void _funcAvg(List<Variant> args) {
-    if (args.length <= 0)
-      throw new Exception('The function Average requires at least one argument.');
-    double sum = 0.0;
-    for (Variant arg in args) {
-      if (!arg.isInt && !arg.isReal) throw new Exception('Can not get the Average with $arg.');
-      sum += arg.asReal;
-    }
-    this.pushReal(sum / args.length);
+  /// Handles calculating the difference of the top two items off of the stack.
+  void _handleSubtract(ParseTree.TriggerArgs args) {
+    Variant right = new Variant(this.pop());
+    Variant left  = new Variant(this.pop());
+    if      (left.implicitInt  && right.implicitInt)  this.push(left.asInt  - right.asInt);
+    else if (left.implicitReal && right.implicitReal) this.push(left.asReal - right.asReal);
+    else throw new Exception('Can not Subtract $left to $right.');
   }
 
-  void _funcBool(List<Variant> args) {
-    this._argCount('bool', args, 1);
-    this.pushBool(args[0].asBool);
-  }
-
-  void _funcCeil(List<Variant> args) {
-    this._argCount('ceil', args, 1);
-    Variant arg = args[0];
-    if (arg.isStr || arg.isFunc || arg.isBool) throw new Exception('Can not get the Ceiling of $arg.');
-    else if (arg.isInt) this._stack.add(arg);
-    else this.pushInt(arg.asReal.ceil());
-  }
-
-  void _funcCos(List<Variant> args) {
-    this._argCount('cos', args, 1);
-    Variant arg = args[0];
-    if (arg.isStr || arg.isFunc || arg.isBool) throw new Exception('Can not get the Cos of $arg.');
-    else this.pushReal(math.cos(arg.asReal));
-  }
-
-  void _funcFloor(List<Variant> args) {
-    this._argCount('floor', args, 1);
-    Variant arg = args[0];
-    if (arg.isStr || arg.isFunc || arg.isBool) throw new Exception('Can not get the Floor of $arg.');
-    else if (arg.isInt) this._stack.add(arg);
-    else this.pushInt(arg.asReal.floor());
-  }
-
-  void _funcInt(List<Variant> args) {
-    this._argCount('int', args, 1);
-    this.pushInt(args[0].asInt);
-  }
-
-  void _funcLog(List<Variant> args) {
-    this._argCount('log', args, 2);
-    Variant left = args[0], right = args[1];
-    if (left.isFunc || right.isFunc || left.isStr || right.isStr || left.isBool || right.isBool)
-      throw new Exception('Can not Log $left with $right.');
-    else this.pushReal(math.log(left.asReal)/math.log(right.asReal));
-  }
-
-  void _funcLog2(List<Variant> args) {
-    this._argCount('log2', args, 1);
-    Variant arg = args[0];
-    if (arg.isStr || arg.isFunc || arg.isBool) throw new Exception('Can not get the Log2 of $arg.');
-    else this.pushReal(math.log(arg.asReal)/math.ln2);
-  }
-
-  void _funcLog10(List<Variant> args) {
-    this._argCount('log10', args, 1);
-    Variant arg = args[0];
-    if (arg.isStr || arg.isFunc || arg.isBool) throw new Exception('Can not get the Log10 of $arg.');
-    else this.pushReal(math.log(arg.asReal)/math.ln10);
-  }
-
-  void _funcLn(List<Variant> args) {
-    this._argCount('ln', args, 1);
-    Variant arg = args[0];
-    if (arg.isStr || arg.isFunc || arg.isBool) throw new Exception('Can not get the Ln of $arg.');
-    else this.pushReal(math.log(arg.asReal));
-  }
-
-  void _funcMax(List<Variant> args) {
-    if (args.length <= 0)
-      throw new Exception('The function Maximum requires at least one argument.');
-    bool allInt = true;
-    for (Variant arg in args) {
-      if (arg.isStr || arg.isFunc || arg.isBool) throw new Exception('Can not get the Maximum with $arg.');
-      if (!arg.isInt) allInt = false;
-    }
-
-    if (allInt) {
-      int value = args[0].asInt;
-      for (Variant arg in args) value = math.max(value, arg.asInt);
-      this.pushInt(value);
-    } else {
-      double value = args[0].asReal;
-      for (Variant arg in args) value = math.max(value, arg.asReal);
-      this.pushReal(value);
-    }
-  }
-
-  void _funcMin(List<Variant> args) {
-    if (args.length <= 0)
-      throw new Exception('The function Minimum requires at least one argument.');
-    bool allInt = true;
-    for (Variant arg in args) {
-      if (arg.isStr || arg.isFunc || arg.isBool) throw new Exception('Can not get the Minimum with $arg.');
-      if (!arg.isInt) allInt = false;
-    }
-
-    if (allInt) {
-      int value = args[0].asInt;
-      for (Variant arg in args) value = math.min(value, arg.asInt);
-      this.pushInt(value);
-    } else {
-      double value = args[0].asReal;
-      for (Variant arg in args) value = math.min(value, arg.asReal);
-      this.pushReal(value);
-    }
-  }
-
-  void _funcRand(List<Variant> args) {
-    this._argCount('rand', args, 0);
-    this.pushReal(this._rand.nextDouble());
-  }
-
-  void _funcReal(List<Variant> args) {
-    this._argCount('real', args, 1);
-    this.pushReal(args[0].asReal);
-  }
-
-  void _funcRound(List<Variant> args) {
-    this._argCount('round', args, 1);
-    Variant arg = args[0];
-    if (arg.isStr || arg.isFunc || arg.isBool) throw new Exception('Can not Round $arg.');
-    else if (arg.isInt) this._stack.add(arg);
-    else this.pushInt(arg.asReal.round());
-  }
-
-  void _funcSin(List<Variant> args) {
-    this._argCount('sin', args, 1);
-    Variant arg = args[0];
-    if (arg.isStr || arg.isFunc || arg.isBool) throw new Exception('Can not get the Sin of $arg.');
-    else this.pushReal(math.sin(arg.asReal));
-  }
-
-  void _funcSqrt(List<Variant> args) {
-    this._argCount('sqrt', args, 1);
-    Variant arg = args[0];
-    if (arg.isStr || arg.isFunc || arg.isBool) throw new Exception('Can not get the Sqrt of $arg.');
-    else this.pushReal(math.sqrt(arg.asReal));
-  }
-
-  void _funcString(List<Variant> args) {
-    this._argCount('string', args, 1);
-    this.pushStr(args[0].asStr);
-  }
-
-  void _funcSum(List<Variant> args) {
-    bool allInt = true;
-    for (Variant arg in args) {
-      if (arg.isStr || arg.isFunc || arg.isBool) throw new Exception('Can not get the Sum with $arg.');
-      if (!arg.isInt) allInt = false;
-    }
-
-    if (allInt) {
-      int value = 0;
-      for (Variant arg in args) value += arg.asInt;
-      this.pushInt(value);
-    } else {
-      double value = 0.0;
-      for (Variant arg in args) value += arg.asReal;
-      this.pushReal(value);
-    }
-  }
-
-  void _funcTan(List<Variant> args) {
-    this._argCount('tan', args, 1);
-    Variant arg = args[0];
-    if (arg.isStr || arg.isFunc || arg.isBool) throw new Exception('Can not get the Tan of $arg.');
-    else this.pushReal(math.tan(arg.asReal));
+  /// Handles XOR-ing the boolean values at the top of the the stack.
+  void _handleXor(ParseTree.TriggerArgs args) {
+    Variant right = new Variant(this.pop());
+    Variant left  = new Variant(this.pop());
+    if (left.implicitInt && right.implicitInt) this.push(left.asInt ^ right.asInt);
+    else throw new Exception('Can not Multiply $left to $right.');
   }
 }

@@ -154,6 +154,56 @@ class Loader {
   /// Creates a new parser for loading tokenizer and grammar definitions.
   static Parser getParser() =>
     new Parser.fromGrammar(Loader.getGrammar(), Loader.getTokenizer());
+ 
+  /// This will convert an escaped strings from a tokenized language into
+  /// the correct characters for the string.
+  static String unescapeString(String value) {
+    StringBuffer buf = new StringBuffer();
+    int start = 0;
+    while (start < value.length) {
+      int stop = value.indexOf('\\', start);
+      if (stop < 0) {
+        buf.write(value.substring(start));
+        break;
+      }
+      buf.write(value.substring(start, stop));
+      //  "\\", "\n", "\"", "\'", "\t", "\r", "\xFF", "\uFFFF"
+      switch (value[stop+1]) {
+        case '\\':
+          buf.write('\\');
+          break;
+        case 'n':
+          buf.write('\n');
+          break;
+        case 't':
+          buf.write('\t');
+          break;
+        case 'r':
+          buf.write('\r');
+          break;
+        case '\'':
+          buf.write('\'');
+          break;
+        case '"':
+          buf.write('"');
+          break;
+        case 'x':
+          String hex = value.substring(stop+2, stop+4);
+          int charCode = int.parse(hex, radix: 16);
+          buf.writeCharCode(charCode);
+          stop += 2;
+          break;
+        case 'u':
+          String hex = value.substring(stop+2, stop+6);
+          int charCode = int.parse(hex, radix: 16);
+          buf.writeCharCode(charCode);
+          stop += 4;
+          break;
+      }
+      start = stop + 2;
+    }
+    return buf.toString();
+  }
   
   Map<String, ParseTree.TriggerHandle> _handles;
   Grammar.Grammar _grammar;
@@ -233,56 +283,6 @@ class Loader {
   /// Creates a parser with the loaded tokenizer and grammar.
   Parser get parser => new Parser.fromGrammar(this._grammar, this._tokenizer);
   
-  /// This will convert the escaped strings from the tokenized language into
-  /// the correct characters for the string.
-  String _unescapeString(String value) {
-    StringBuffer buf = new StringBuffer();
-    int start = 0;
-    while (start < value.length) {
-      int stop = value.indexOf('\\', start);
-      if (stop < 0) {
-        buf.write(value.substring(start));
-        break;
-      }
-      buf.write(value.substring(start, stop));
-      //  "\\", "\n", "\"", "\'", "\t", "\r", "\xFF", "\uFFFF"
-      switch (value[stop+1]) {
-        case '\\':
-          buf.write('\\');
-          break;
-        case 'n':
-          buf.write('\n');
-          break;
-        case 't':
-          buf.write('\t');
-          break;
-        case 'r':
-          buf.write('\r');
-          break;
-        case '\'':
-          buf.write('\'');
-          break;
-        case '"':
-          buf.write('"');
-          break;
-        case 'x':
-          String hex = value.substring(stop+2, stop+4);
-          int charCode = int.parse(hex, radix: 16);
-          buf.writeCharCode(charCode);
-          stop += 2;
-          break;
-        case 'u':
-          String hex = value.substring(stop+2, stop+6);
-          int charCode = int.parse(hex, radix: 16);
-          buf.writeCharCode(charCode);
-          stop += 4;
-          break;
-      }
-      start = stop + 2;
-    }
-    return buf.toString();
-  }
-
   /// A trigger handle for starting a new definition block.
   void _newDef(ParseTree.TriggerArgs args) {
     args.tokens.clear();
@@ -389,7 +389,7 @@ class Loader {
   void _matchSet(ParseTree.TriggerArgs args) {
     Tokenizer.Token token = args.recent(1);
     if (this._curTransGroups.isEmpty) this._curTransGroups.add(new Matcher.Group());
-    this._curTransGroups.last.addSet(this._unescapeString(token.text));
+    this._curTransGroups.last.addSet(unescapeString(token.text));
   }
 
   /// A trigger handle for setting the currently building matcher to not match to a character set.
@@ -403,8 +403,8 @@ class Loader {
   void _matchRange(ParseTree.TriggerArgs args) {
     Tokenizer.Token lowChar  = args.recent(3);
     Tokenizer.Token highChar = args.recent(1);
-    String lowText = this._unescapeString(lowChar.text);
-    String highText = this._unescapeString(highChar.text);
+    String lowText = unescapeString(lowChar.text);
+    String highText = unescapeString(highChar.text);
     if (lowText.length != 1)
       throw new Exception('May only have one character for the low char of a range. $lowChar does not.');
     if (highText.length != 1)
@@ -432,7 +432,7 @@ class Loader {
 
   /// A trigger handle for adding a new replacement string to the loader.
   void _addReplaceText(ParseTree.TriggerArgs args) =>
-    this._replaceText.add(this._unescapeString(args.recent(1).text));
+    this._replaceText.add(unescapeString(args.recent(1).text));
 
   /// A trigger handle for setting a set of replacements between two
   /// tokens with a previously set replacement string set.

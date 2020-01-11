@@ -4,11 +4,14 @@ The calculator uses the patite parser to create a simple mathmatical language.
 
 ## Example Input
 
-- `10 * 4 + 6` > `int(46)`
-- `cos(1.5*pi)` > `real(-1.8369701987210297e-16)`
-- `min(4, 8, 15, 16, 23, 42)` > `int(4)`
-- `0x00FF & 0xAAAA` > `int(170)`
-- `int(string(12) + string(34))` > `int(1234)`
+| Input                          | Result                          |
+|--------------------------------|---------------------------------|
+| `10 * 4 + 6`                   | `int: 46`                       |
+| `10 * (-4 + 6)**2.0`           | `real: 40.0`                    |
+| `cos(1.5*pi)`                  | `real: -1.8369701987210297e-16` |
+| `min(4, 8, 15, 16, 23, 42)`    | `int: 4`                        |
+| `0x00FF & 0xAAAA`              | `int: 170`                      |
+| `int(string(12) + string(34))` | `int: 1234`                     |
 
 ## Literals
 
@@ -78,8 +81,8 @@ These are the built-in functions. Additional functions may be added as needed.
     If both numbers are integers then a truncated integer is returned. 
 - `&`: This is a binary operator between two integers or two booleans for bitwise AND-ing the values.
 - `|`: This is a binary operator between two integers or two booleans for bitwise OR-ing the values.
-- `^`: This is a binary operator between two reals for getting the power of the left raised to the right.
-    If between two integers or two booleans for bitwise XOR-ing the values.
+- `**`: This is a binary operator between two reals for getting the power of the left raised to the right.
+- `^`: This is a binary operator between two integers or two booleans for bitwise XOR-ing the values.
 - `~`: This is an unary operator for an integer to bitwise NOT the value.
 - `!`: This is an unary operator for a boolean to NOT the value.
 
@@ -87,5 +90,5 @@ These are the built-in functions. Additional functions may be added as needed.
 
 - `+`, `-`, `|`: Binary add, binary subtract, and binary OR.
 - `*`, `/`, `&`: Binary multiplication, binary division, and binary AND.
-- `^`, `()`, `-`, `+`, `!`, `~`: Binary XOR, parentheses and method calls,
+- `^`, `**`, `()`, `-`, `+`, `!`, `~`: Binary XOR, parentheses and method calls,
     unary negation, unary assertion, and unary NOT and bitwise NOT.
