@@ -10,7 +10,7 @@ part 'Trigger.dart';
 
 /// A grammar is a definition of a language.
 /// It is made up of a set of terms and the rules for how each term is used.
-/// 
+///
 /// Formally a Grammer is defined as `G = (V, E, R, S)`:
 /// - `V` is the set of `v` (non-terminal characters / variables).
 ///   These are referred to as the terms of the grammer in this implementation.
@@ -24,24 +24,24 @@ part 'Trigger.dart';
 ///   one rule must contain a single item. Each term may include a rule with no items
 ///   (`v → ε`). There should be no duplicate rules for a term.
 /// - `S` is the start term where `S` must exist in `V`.
-/// 
+///
 /// For the LR1 parser, used by Patite Parser Dart, the grammar must be a Context-free
 /// Language (CFL) where `L(G) = {w in E*: S => w}`, meaning that all nontermals can be
 /// reached (`=>` means reachable) from the start term following the rules of the grammar.
-/// 
+///
 /// To be a _proper_ CFG there my be no unreachable terms (for all `N` in `V` there
 /// exists an `a` and `b` in `(V union U)*` such that `S => a N b`), no unproductive
 /// symbols (for all `N` in `V` there exists a `w` in `E*` such that `N => w`),
 /// no ε-rules (there does not exist an `N` in `V` such that `N → ε` exist in `R`), and
 /// there are no cycles (there does not exist an `N` in `V` such that `N => ... => N`).
-/// 
+///
 /// For more information see https://en.wikipedia.org/wiki/Context-free_grammar
 class Grammar {
   Set<Term> _terms;
   Set<TokenItem> _tokens;
   Set<Trigger> _triggers;
   Term _start;
-  
+
   /// Creates a new empty grammar.
   Grammar() {
     this._terms    = new Set<Term>();
@@ -104,7 +104,7 @@ class Grammar {
     }
     return grammar;
   }
-  
+
   /// Serializes the grammar.
   Simple.Serializer serialize() {
     Simple.Serializer data = new Simple.Serializer();
@@ -141,16 +141,16 @@ class Grammar {
     this._start = this.term(termName);
     return this._start;
   }
-  
+
   /// Gets the start term for this grammar.
   Term get startTerm => this._start;
 
   /// Gets the terms for this grammar.
   List<Term> get terms => this._terms.toList();
-  
+
   /// Gets the tokens for this grammar.
   List<TokenItem> get tokens => this._tokens.toList();
-  
+
   /// Gets the triggers for this grammar.
   List<Trigger> get triggers => this._triggers.toList();
 
@@ -208,7 +208,7 @@ class Grammar {
     nt ??= this._add(termName);
     return nt;
   }
-  
+
   /// Gets or adds a term for and starts a new rule for that term.
   /// If the start term isn't set, it will be set to this rule's term.
   /// The new rule is returned.

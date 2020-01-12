@@ -1,7 +1,7 @@
 part of PatiteParserDart.ParseTree;
 
 /// The tree node containing reduced rule of the grammar
-/// filled out with tokens and other TreeNodes. 
+/// filled out with tokens and other TreeNodes.
 class RuleNode extends TreeNode {
 
   static const String _charStart  = '─';

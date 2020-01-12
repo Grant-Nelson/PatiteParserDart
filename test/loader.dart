@@ -53,7 +53,7 @@ void loader00(TestArgs args) {
      '  │        └─<def.state.optional>',
      '  └─[semicolon:22:";"]']);
 }
-       
+
 void loader01(TestArgs args) {
   args.log('loader01');
   Parser.Parser parser = Parser.Loader.getParser();
@@ -189,7 +189,7 @@ void loader03(TestArgs args) {
      '  │     ├─{join.token}',
      '  │     └─<def.token.optional>',
      '  └─[semicolon:36:";"]']);
-     
+
   args.checkParser(parser, ["(A): 'a\\x0A\\u00C2' => [D];"],
     ['─<def.set>',
      '  ├─<def.set>',
@@ -327,7 +327,7 @@ void loader05(TestArgs args) {
      '  │     │  └─{new.token.state}',
      '  │     └─{replace.token}',
      '  └─[semicolon:20:";"]']);
-     
+
   args.checkParser(parser, ['[A]: "is", "as", "if" => [D];'],
     ['─<def.set>',
      '  ├─<def.set>',
@@ -398,7 +398,7 @@ void loader06(TestArgs args) {
      '  │     │  └─[lambda:14:"_"]',
      '  │     └─<next.rule.optional>',
      '  └─[semicolon:15:";"]']);
-    
+
   args.checkParser(parser, ['<apple> := _;'],
     ['─<def.set>',
      '  ├─<def.set>',
@@ -519,7 +519,7 @@ void loader08(TestArgs args) {
      "> <Expression> := <Expression> [Add] <Term> | <Expression> [Sub] <Term> | <Term>;",
      "<Term> := <Term> [Mul] <Factor> | <Term> [Div] <Factor> | <Factor>;",
      "<Factor> := [Open] <Expression> [Close] | [Num] | [Var];"].join('\n'));
-     
+
   args.checkParser(parser, ['4 + 3 * pi'],
     ['─<Expression>',
      '  ├─<Expression>',
@@ -543,7 +543,7 @@ void loader09(TestArgs args) {
      "(Start): ' ' => (Whitespace): ' ' => ^[Whitespace];",
      "> <E> := [Symbol];",
      "<E> := <E> [Symbol];"].join('\n'));
-     
+
   args.checkParser(parser, ['\n\t\n\n\\'],
     ['─<E>',
      '  └─[Symbol:5:"\\n\\t\\n\\n\\"]']);

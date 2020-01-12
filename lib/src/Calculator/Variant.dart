@@ -3,7 +3,7 @@ part of PatiteParserDart.Calculator;
 /// Variant is a wrapper of values off the stack with helper methods
 /// for casting and testing the implicit casting of a value.
 class Variant {
-  
+
   /// This ia the wrapped value.
   final Object value;
 
@@ -33,7 +33,7 @@ class Variant {
 
   /// Indicates if the given value can be implicitly cast to a real value.
   bool get implicitReal => isBool || isInt || isReal;
-  
+
   /// Indicates if the given value can be implicitly cast to a string value.
   bool get implicitStr => isStr;
 

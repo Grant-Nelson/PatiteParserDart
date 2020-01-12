@@ -9,7 +9,7 @@ dependencies:
   build_test: ^0.10.2
   build_web_compilers: ^2.4.0
   resource: ^2.1.6
-  
+
 dev_dependencies:
   webdev: ^1.0.0
   

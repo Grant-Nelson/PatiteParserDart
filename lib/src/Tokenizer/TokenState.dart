@@ -13,7 +13,7 @@ class TokenState {
   }
 
   /// Gets the name of this token.
-  String get name => this._name; 
+  String get name => this._name;
 
   /// Adds a replacement which replaces this token's name with the given
   /// [tokenName] when the accepted text is the same as any of the given [text].

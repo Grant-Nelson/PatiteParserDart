@@ -49,7 +49,7 @@ class _CalcFuncs {
 
   /// Finds the function with the given name.
   CalcFunc findFunc(String name) => this._funcs[name];
-  
+
   /// This checks that the specified number of arguments has been given.
   void _argCount(String name, List<Object> args, int count) {
     if (args.length != count)
@@ -72,7 +72,7 @@ class _CalcFuncs {
     if (arg.implicitReal) return math.acos(arg.asReal);
     throw new Exception('Can not use $arg in acos(real).');
   }
-  
+
   /// This function gets the arcsine of the given real.
   Object _funcAsin(List<Object> args) {
     this._argCount('asin', args, 1);

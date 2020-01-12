@@ -1,13 +1,13 @@
 part of Diff;
 
-/// The levenshtein path builder used for diffing two compariable sources. 
+/// The levenshtein path builder used for diffing two compariable sources.
 class _Path {
   static const int NotSet     = -1;
   static const int MoveUp     =  1;
   static const int MoveLeft   =  2;
   static const int MoveUpLeft =  3;
   static const int MoveEqual  =  4;
-  
+
   /// The source comparable to create the path for.
   DiffComparable _comp;
 
@@ -35,23 +35,23 @@ class _Path {
     int addRun = 0;
     Function() insertAdd = () {
       if (addRun > 0) {
-        result.add(new StepGroup(StepType.Added, addRun));    
+        result.add(new StepGroup(StepType.Added, addRun));
         addRun = 0;
       }
     };
-    
+
     int removeRun = 0;
     Function() insertRemove = () {
       if (removeRun > 0) {
-        result.add(new StepGroup(StepType.Removed, removeRun));    
+        result.add(new StepGroup(StepType.Removed, removeRun));
         removeRun = 0;
       }
     };
-    
+
     int equalRun = 0;
     Function() insertEqual = () {
       if (equalRun > 0) {
-        result.add(new StepGroup(StepType.Equal, equalRun));    
+        result.add(new StepGroup(StepType.Equal, equalRun));
         equalRun = 0;
       }
     };
@@ -73,7 +73,7 @@ class _Path {
           break;
       }
     }
-  
+
     insertAdd();
     insertRemove();
     insertEqual();
@@ -83,7 +83,7 @@ class _Path {
   /// Checks if the comparer is equal.
   bool isEqual(int aIndex, int bIndex) =>
     this._comp.equals(aIndex-1, bIndex-1);
-  
+
   /// Gets the cost at a path point.
   int getCost(int aIndex, int bIndex) {
     if (aIndex <= 0) return bIndex;
@@ -99,7 +99,7 @@ class _Path {
     int costA = this.getCost(aIndex-1, bIndex);
     int costB = this.getCost(aIndex,   bIndex-1);
     int minCost = math.min(costA, costB);
-    
+
     int costC = this.getCost(aIndex-1, bIndex-1);
     if (costC <= minCost) {
       // skips any cost for equal values in the inputs
@@ -129,7 +129,7 @@ class _Path {
     int costB = this.getCost(aIndex,   bIndex-1);
     int costC = this.getCost(aIndex-1, bIndex-1);
     int minCost = math.min(math.min(costA, costB), costC);
-    
+
     // calculate the minimum path cost and set movements
     int minPathCost = minCost + 2;
     int minMove = NotSet;
@@ -171,7 +171,7 @@ class _Path {
     this._moves.setValue(aIndex, bIndex, minMove);
     return minPathCost;
   }
-  
+
   /// This handles traversing the diff path using the defined movements,
   /// however it traverses backwards.
   Iterable<StepType> traverseBackwards() sync* {

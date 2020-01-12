@@ -209,7 +209,7 @@ void parser04(TestArgs args) {
   grammar.newRule("E").addToken("(").addTerm("E").addToken(")");
   grammar.newRule("E").addToken("id");
   Parser.Parser parser = new Parser.Parser.fromGrammar(grammar, tok);
-  
+
   // Test serializing and deserializing too.
   String data = parser.serialize().toString();
   parser = new Parser.Parser.deserialize(new Simple.Deserializer(data));
@@ -271,7 +271,7 @@ void parser05(TestArgs args) {
   grammar.newRule("E").addTerm("E").addTerm("T");
   grammar.newRule("T").addToken("a");
   Parser.Parser parser = new Parser.Parser.fromGrammar(grammar, tok);
-    
+
   args.checkParser(parser, ["aaa"],
     ['─<E>',
      '  ├─<E>',

@@ -1,7 +1,7 @@
 part of PatiteParserDart.Parser;
 
 /// Loader is a parser and interpreter for reading a tokenizer and grammar
-/// definition from a string to create a parser. 
+/// definition from a string to create a parser.
 class Loader {
 
   /// Gets the tokenizer used for loading a parser definition.
@@ -12,7 +12,7 @@ class Loader {
     tok.join("start", "whitespace").addSet(" \n\r\t");
     tok.join("whitespace", "whitespace").addSet(" \n\r\t");
     tok.setToken("whitespace", "whitespace").consume();
-    
+
     tok.joinToToken("start", "openParen").addSet("(");
     tok.joinToToken("start", "closeParen").addSet(")");
     tok.joinToToken("start", "openBracket").addSet("[");
@@ -35,11 +35,11 @@ class Loader {
     tok.join("comment", "commentEnd").addSet("\n");
     tok.join("comment", "comment").addAll();
     tok.setToken("commentEnd", "comment").consume();
-    
+
     tok.join("start", "equal").addSet("=");
     tok.join("equal", "arrow").addSet(">");
     tok.setToken("arrow", "arrow");
-    
+
     tok.join("start", "startRange").addSet(".");
     tok.joinToToken("startRange", "range").addSet(".");
 
@@ -95,7 +95,7 @@ class Loader {
     gram.newRule("def").addTrigger("new.def").addToken("closeAngle").addTerm("stateID").addTrigger("start.state").addTerm("def.state.optional");
     gram.newRule("def").addTrigger("new.def").addTerm("stateID").addTerm("def.state");
     gram.newRule("def").addTrigger("new.def").addTerm("tokenStateID").addTerm("def.token");
-    
+
     gram.newRule("def.state.optional");
     gram.newRule("def.state.optional").addTerm("def.state");
 
@@ -109,7 +109,7 @@ class Loader {
     gram.newRule("termID").addToken("openAngle").addToken("id").addToken("closeAngle").addTrigger("new.term");
     gram.newRule("tokenItemID").addToken("openBracket").addToken("id").addToken("closeBracket").addTrigger("new.token.item");
     gram.newRule("triggerID").addToken("openCurly").addToken("id").addToken("closeCurly").addTrigger("new.trigger");
-    
+
     gram.newRule("matcher.start").addToken("any").addTrigger("match.any");
     gram.newRule("matcher.start").addTerm("matcher");
     gram.newRule("matcher.start").addToken("consume").addTerm("matcher").addTrigger("match.consume");
@@ -122,7 +122,7 @@ class Loader {
     gram.newRule("charSetRange").addToken("string").addToken("range").addToken("string").addTrigger("match.range");
     gram.newRule("charSetRange").addToken("not").addToken("string").addToken("range").addToken("string").addTrigger("match.range.not");
     gram.newRule("charSetRange").addToken("not").addToken("openParen").addTrigger("not.group.start").addTerm("matcher").addToken("closeParen").addTrigger("not.group.end");
-    
+
     gram.newRule("def.token.optional");
     gram.newRule("def.token.optional").addTerm("def.token");
     gram.newRule("def.token").addToken("colon").addTerm("replaceText").addToken("arrow").addTerm("tokenStateID").addTrigger("replace.token");
@@ -135,7 +135,7 @@ class Loader {
 
     gram.newRule("start.rule.optional");
     gram.newRule("start.rule.optional").addToken("assign").addTrigger("start.rule").addTerm("start.rule").addTerm("next.rule.optional");
-    
+
     gram.newRule("next.rule.optional");
     gram.newRule("next.rule.optional").addTerm("next.rule.optional").addToken("or").addTrigger("start.rule").addTerm("start.rule");
 
@@ -143,7 +143,7 @@ class Loader {
     gram.newRule("start.rule").addTerm("termID").addTrigger("item.term").addTerm("rule.item");
     gram.newRule("start.rule").addTerm("triggerID").addTrigger("item.trigger").addTerm("rule.item");
     gram.newRule("start.rule").addToken("lambda");
-    
+
     gram.newRule("rule.item");
     gram.newRule("rule.item").addTerm("rule.item").addTerm("tokenItemID").addTrigger("item.token");
     gram.newRule("rule.item").addTerm("rule.item").addTerm("termID").addTrigger("item.term");
@@ -154,7 +154,7 @@ class Loader {
   /// Creates a new parser for loading tokenizer and grammar definitions.
   static Parser getParser() =>
     new Parser.fromGrammar(Loader.getGrammar(), Loader.getTokenizer());
- 
+
   /// This will convert an escaped strings from a tokenized language into
   /// the correct characters for the string.
   static String unescapeString(String value) {
@@ -204,11 +204,11 @@ class Loader {
     }
     return buf.toString();
   }
-  
+
   Map<String, ParseTree.TriggerHandle> _handles;
   Grammar.Grammar _grammar;
   Tokenizer.Tokenizer _tokenizer;
-  
+
   List<Tokenizer.State> _states;
   List<Tokenizer.TokenState> _tokenStates;
   List<Grammar.Term> _terms;
@@ -276,13 +276,13 @@ class Loader {
 
   /// Gets the grammar which is being loaded.
   Grammar.Grammar get grammar => this._grammar;
-  
+
   /// Gets the tokenizer which is being loaded.
   Tokenizer.Tokenizer get tokenizer => this._tokenizer;
-  
+
   /// Creates a parser with the loaded tokenizer and grammar.
   Parser get parser => new Parser.fromGrammar(this._grammar, this._tokenizer);
-  
+
   /// A trigger handle for starting a new definition block.
   void _newDef(ParseTree.TriggerArgs args) {
     args.tokens.clear();
@@ -419,7 +419,7 @@ class Loader {
     this._matchRange(args);
     this._notGroupEnd(args);
   }
-  
+
   /// A trigger handle for starting a not group of matchers.
   void _notGroupStart(ParseTree.TriggerArgs args) {
     if (this._curTransGroups.isEmpty) this._curTransGroups.add(new Matcher.Group());

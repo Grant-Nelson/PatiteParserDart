@@ -70,7 +70,7 @@ These are the built-in functions. Additional functions may be added as needed.
 
 ### Formatting
 
-- `bin`: Formats an integer as a binary number string. 
+- `bin`: Formats an integer as a binary number string.
 - `oct`: Formats an integer as an octal number string.
 - `hex`: Formats an integer as a hexidecimal number string.
 - `sub`: Gets the substring of a string given an integer start and stop, e.g. `sub("hello", 2, 4)`.
@@ -86,7 +86,7 @@ These are the built-in functions. Additional functions may be added as needed.
 - `atan2`: Works on two numbers to get the arc tangent given `y` and `x` as `atan(y/x)`.
 
 ### Logarithms
-    
+
 - `log`: Works on two numbers to get the log given `a` and `b` as `log(a)/log(b)`.
 - `log2`: Works on one number to get the log base 2.
 - `log10`: Works on one number to get the log base 10.

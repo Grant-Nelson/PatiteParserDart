@@ -101,7 +101,7 @@
 
 <Blocks> := <Block>
     | <Blocks> [Separator] <Block>;
-    
+
 <Block> := <Expression.Or>
     | [Id] {PushVar} [Assign] <Expression.Or> {Assign};
 

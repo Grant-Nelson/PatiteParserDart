@@ -24,7 +24,7 @@ typedef Object CalcFunc(List<Object> args);
 /// a simple interpreted language.
 class Calculator {
   static Parser.Parser _parser;
-  
+
   /// Loads the parser used by the calculator.
   ///
   /// This is done in a static method since to load the language
@@ -85,7 +85,7 @@ class Calculator {
     this._vars = new Map<String, Object>();
     this._funcs = new _CalcFuncs();
   }
-  
+
   /// This parses the given calculation input and
   /// returns the results so that the input can be run multiple
   /// times without having to reparse the program.
@@ -93,7 +93,7 @@ class Calculator {
     if (input.isEmpty) return null;
     if (_parser == null)
       throw new Exception('Error: The parser must have finished loading prior to calculating any input.');
-    
+
     try {
       return _parser.parse(input);
     } catch (err) {
@@ -102,7 +102,7 @@ class Calculator {
         ], null);
     }
   }
-  
+
   /// This uses the preparsed input to calculate the result.
   /// This is useful when wanting to rerun the same code multiple
   /// times without having to reparse the program.
@@ -136,7 +136,7 @@ class Calculator {
   /// Adds a new function that can be called by the language.
   /// Set to null to remove a function.
   void addFunc(String name, CalcFunc hndl) => this._funcs.addFunc(name, hndl);
-  
+
   /// Adds a new constant value into the language.
   /// Set to null to remove the constant.
   void addConstant(String name, Object value) {
@@ -228,7 +228,7 @@ class Calculator {
     else if (left.implicitReal && right.implicitReal) this.push(left.asReal / right.asReal);
     else throw new Exception('Can not Divide $left with $right.');
   }
-  
+
   /// Handles checking if the two top items on the stack are equal.
   void _handleEqual(ParseTree.TriggerArgs args) {
     Variant right = new Variant(this.pop());
@@ -374,7 +374,7 @@ class Calculator {
     args.tokens.clear();
     this.push(text);
   }
-  
+
   /// Handles adding a real value from the input tokens.
   void _handleReal(ParseTree.TriggerArgs args) {
     String text = args.recent(1).text;

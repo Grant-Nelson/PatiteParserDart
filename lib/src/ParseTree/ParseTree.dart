@@ -11,7 +11,7 @@ part 'TriggerNode.dart';
 typedef void TriggerHandle(TriggerArgs args);
 
 /// The tree node containing reduced rule of the grammar
-/// filled out with tokens and other TreeNodes. 
+/// filled out with tokens and other TreeNodes.
 abstract class TreeNode {
 
   /// Creates a new tree node.

@@ -60,7 +60,7 @@ class _Runner {
     this._stateStack.add(action.state);
     return true;
   }
-  
+
   /// Handles when a reduce action has been reached.
   bool _reduceAction(_Reduce action, Tokenizer.Token token, String indent) {
     // Pop the items off the stack for this action.
@@ -76,7 +76,7 @@ class _Runner {
         this._stateStack.removeLast();
         ParseTree.TreeNode item = this._itemStack.removeLast();
         items.insert(0, item);
-      
+
         if (ruleItem is Grammar.Term) {
           if (item is ParseTree.RuleNode) {
             if (ruleItem.name != item.rule.term.name)

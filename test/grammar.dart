@@ -41,10 +41,10 @@ void grammar00(TestArgs args) {
 
   args.checkTermFirst(gram, 'stateDef', ['[closeAngle]', '[openParen]', '[openBracket]']);
   args.checkTermFollow(gram, 'stateDef', ['[openParen]', '[openBracket]']);
-  
+
   args.checkTermFirst(gram, 'defBody', ['[openParen]', '[openBracket]']);
   args.checkTermFollow(gram, 'defBody', ['[closeAngle]', '[openParen]', '[openBracket]', '[colon]']);
-  
+
   args.checkTermFirst(gram, 'stateOrTokenID', ['[openParen]', '[openBracket]']);
   args.checkTermFollow(gram, 'stateOrTokenID', ['[closeAngle]', '[openParen]', '[openBracket]', '[colon]']);
 

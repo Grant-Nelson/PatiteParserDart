@@ -2,7 +2,7 @@ part of PatiteParserDart.Grammar;
 
 /// A term is a group of rules and part of a rule
 /// which defines part of the grammar language.
-/// 
+///
 /// For example the term `<T>` with the rules `<T> => "(" <E> ")"`,
 /// `<T> => <E> * <E>`, and `<T> => <E> + <E>`.
 class Term extends Item {
@@ -13,7 +13,7 @@ class Term extends Item {
   Term._(Grammar this._grammar, String name): super._(name) {
     this._rules = new List<Rule>();
   }
-  
+
   /// Gets the list of rules starting with this term.
   List<Rule> get rules => this._rules;
 
@@ -23,7 +23,7 @@ class Term extends Item {
     this._rules.add(rule);
     return rule;
   }
-  
+
   /// Determines the first tokens that can be reached from
   /// the rules of this term.
   List<TokenItem> determineFirsts() {
@@ -39,7 +39,7 @@ class Term extends Item {
     this._determineFollows(tokens, new Set<Term>());
     return tokens.toList();
   }
-  
+
   /// This is the recursive part of the determination of the first token sets which
   /// allows for terms which have already been checked to not be checked again.
   void _determineFirsts(Set<TokenItem> tokens, Set<Term> checked) {
@@ -51,7 +51,7 @@ class Term extends Item {
     }
     if (needFollows) this._determineFollows(tokens, new Set<Term>());
   }
-  
+
   /// This determines the firsts for the given rule.
   /// If the rule has no tokens or terms this will return true
   /// indicating that the rule needs follows to be added.
@@ -77,7 +77,7 @@ class Term extends Item {
     for (Term term in this._grammar.terms) {
       for (Rule rule in term.rules) {
         List<Item> items = rule.basicItems;
-        
+
         int count = items.length;
         for (int i = 0; i < count-1; i++) {
           if (items[i] == this) {
@@ -94,7 +94,7 @@ class Term extends Item {
       }
     }
   }
-  
+
   /// Gets the string for this term.
   String toString() => "<${this.name}>";
 }

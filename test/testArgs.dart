@@ -106,7 +106,7 @@ class TestArgs {
         '\n  Diff:  $diff');
     }
   }
-  
+
   /// Checks the parser will parse the given input.
   void checkParser(Parser.Parser parser, List<String> input, List<String> expected) {
     Parser.Result parseResult = parser.parse(input.join('\n'));
@@ -121,7 +121,7 @@ class TestArgs {
   }
 
   /// Checks that an expected error from the parser builder.
-  void checkParserBuildError(Grammar.Grammar grammar, Tokenizer.Tokenizer tokenizer, List<String> expected) { 
+  void checkParserBuildError(Grammar.Grammar grammar, Tokenizer.Tokenizer tokenizer, List<String> expected) {
     String exp = expected.join('\n');
     try {
       new Parser.Parser.fromGrammar(grammar, tokenizer);

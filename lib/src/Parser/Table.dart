@@ -15,7 +15,7 @@ class _Table {
     this._shiftTable   = new List<Map<String, _Action>>();
     this._gotoTable    = new List<Map<String, _Action>>();
   }
-  
+
   /// Deserializes the given serialized data into this table.
   factory _Table.deserialize(Simple.Deserializer data, Grammar.Grammar grammar) {
     int version = data.readInt();
@@ -53,7 +53,7 @@ class _Table {
     return table;
   }
 
-  /// Creates an action from the given data. 
+  /// Creates an action from the given data.
   _Action _deserializeAction(Simple.Deserializer data, Grammar.Grammar grammar) {
     switch (data.readInt()) {
       case 1: return new _Shift(data.readInt());
@@ -83,7 +83,7 @@ class _Table {
         this._serializeAction(data, shiftMap[key]);
       }
     }
-    
+
     data.writeInt(this._gotoTable.length);
     for (Map<String, _Action> gotoMap in this._gotoTable) {
       data.writeInt(gotoMap.keys.length);
@@ -96,7 +96,7 @@ class _Table {
     return data;
   }
 
-  /// Sets up the data for serializing an action. 
+  /// Sets up the data for serializing an action.
   void _serializeAction(Simple.Serializer data, _Action action) {
     if (action is _Shift) {
       data.writeInt(1);
@@ -117,7 +117,7 @@ class _Table {
       data.writeStr(action.error);
     }
   }
-  
+
   /// Gets all the tokens for the row which are not null or error.
   List<String> getAllTokens(int row) {
     List<String> result = new List<String>();
@@ -171,11 +171,11 @@ class _Table {
       columns.add(column);
     rowData[column] = value;
   }
-  
+
   /// Writes a new shift action to the table.
   void writeShift(int row, String column, _Action value) =>
     this._write(row, column, value, this._shiftColumns, this._shiftTable);
-  
+
   /// Writes a new goto action to the table.
   void writeGoto(int row, String column, _Action value) =>
     this._write(row, column, value, this._gotoColumns, this._gotoTable);
@@ -213,7 +213,7 @@ class _Table {
       }
       grid.add(values);
     }
-    
+
     // Make all the items in a column the same width...
     int colCount = shiftColumns.length + gotoColumns.length + 1;
     int rowCount = grid.length;
