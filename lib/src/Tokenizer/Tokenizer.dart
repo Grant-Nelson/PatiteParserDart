@@ -73,7 +73,7 @@ class Tokenizer {
       data.writeSer(this._states[key]._serialize());
 
     data.writeStrList(this._consume.toList());
-    
+
     bool hasStart = this._start != null;
     data.writeBool(hasStart);
     if (hasStart) data.writeStr(this._start._name);
@@ -116,7 +116,7 @@ class Tokenizer {
   /// already existing transition.
   Transition join(String startStateName, String endStateName) =>
     this.state(startStateName).join(endStateName);
-    
+
   /// This is short hand for a join and setToken
   /// where the state name and token name are the same.
   Transition joinToToken(String startStateName, String endStateName) {
@@ -135,7 +135,7 @@ class Tokenizer {
   /// tokenizer and returns the iterator of tokens for the input.
   /// This will throw an exception if the input is not tokenizable.
   Iterable<Token> tokenize(String input) => this.tokenizeChars(input.codeUnits.iterator);
-  
+
   /// Tokenizes the given iterator of characters with the current configured
   /// tokenizer and returns the iterator of tokens for the input.
   /// This will throw an exception if the input is not tokenizable.

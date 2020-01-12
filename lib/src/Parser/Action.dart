@@ -8,7 +8,7 @@ class _Shift implements _Action {
 
   /// The state number to move to.
   final int state;
-  
+
   /// Creates a new shift action.
   _Shift(this.state);
 
@@ -34,7 +34,7 @@ class _Goto implements _Action {
 /// handled by another action and the current rule
 /// is used to reduce the parse set down to a term.
 class _Reduce implements _Action {
-  
+
   /// The rule to reduce from the parse set.
   final Grammar.Rule rule;
 

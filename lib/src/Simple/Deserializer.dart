@@ -10,7 +10,7 @@ class Deserializer {
     this._index = 0;
     this._data = data;
   }
-  
+
   /// Gets the serialized string of data.
   String toString() =>
     this._data.substring(0, this._index) +
@@ -60,7 +60,7 @@ class Deserializer {
     String data = this.readStr();
     return new Deserializer(data);
   }
-  
+
   /// Reads a list of integers from the data.
   List<int> readIntList() {
     int count = this.readInt();
@@ -69,7 +69,7 @@ class Deserializer {
       list.add(this.readInt());
     return list;
   }
-  
+
   /// Reads a list of strings from the data.
   List<String> readStrList() {
     int count = this.readInt();

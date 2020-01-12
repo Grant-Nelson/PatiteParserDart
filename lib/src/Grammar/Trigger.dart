@@ -7,7 +7,7 @@ class Trigger extends Item {
 
   /// Creates a new trigger.
   Trigger(String name): super._(name);
-  
+
   /// Gets the string for this trigger.
   String toString() => "{${this.name}}";
 }

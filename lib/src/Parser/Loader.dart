@@ -1,7 +1,7 @@
 part of PatiteParserDart.Parser;
 
 /// Loader is a parser and interpreter for reading a tokenizer and grammar
-/// definition from a string to create a parser. 
+/// definition from a string to create a parser.
 class Loader {
 
   /// Gets the tokenizer used for loading a parser definition.
@@ -12,7 +12,7 @@ class Loader {
     tok.join("start", "whitespace").addSet(" \n\r\t");
     tok.join("whitespace", "whitespace").addSet(" \n\r\t");
     tok.setToken("whitespace", "whitespace").consume();
-    
+
     tok.joinToToken("start", "openParen").addSet("(");
     tok.joinToToken("start", "closeParen").addSet(")");
     tok.joinToToken("start", "openBracket").addSet("[");
@@ -30,11 +30,16 @@ class Loader {
     tok.joinToToken("start", "comma").addSet(",");
     tok.joinToToken("start", "any").addSet("*");
     tok.joinToToken("start", "lambda").addSet("_");
-    
+
+    tok.join("start", "comment").addSet("#");
+    tok.join("comment", "commentEnd").addSet("\n");
+    tok.join("comment", "comment").addAll();
+    tok.setToken("commentEnd", "comment").consume();
+
     tok.join("start", "equal").addSet("=");
     tok.join("equal", "arrow").addSet(">");
     tok.setToken("arrow", "arrow");
-    
+
     tok.join("start", "startRange").addSet(".");
     tok.joinToToken("startRange", "range").addSet(".");
 
@@ -44,39 +49,39 @@ class Loader {
     tok.joinToToken("start", "id").add(idLetter);
     tok.join("id", "id").add(idLetter);
 
-    tok.join("start", "charSet.open")..addSet("'")..consume=true;
-    tok.join("charSet.open", "charSet.escape").addSet("\\");
-    tok.join("charSet.open", "charSet.body").addAll();
-    tok.join("charSet.body", "charSet")..addSet("'")..consume=true;
-    tok.join("charSet.body", "charSet.escape").addSet("\\");
-    tok.join("charSet.escape", "charSet.body").addSet("\\nrt'");
-    tok.join("charSet.escape", "charSet.hex1").addSet("x");
-    tok.join("charSet.hex1", "charSet.hex2").add(hexMatcher);
-    tok.join("charSet.hex2", "charSet.body").add(hexMatcher);
-    tok.join("charSet.escape", "charSet.unicode1").addSet("u");
-    tok.join("charSet.unicode1", "charSet.unicode2").add(hexMatcher);
-    tok.join("charSet.unicode2", "charSet.unicode3").add(hexMatcher);
-    tok.join("charSet.unicode3", "charSet.unicode4").add(hexMatcher);
-    tok.join("charSet.unicode4", "charSet.body").add(hexMatcher);
-    tok.join("charSet.body", "charSet.body").addAll();
-    tok.setToken("charSet", "charSet");
+    tok.join("start", "singleQuote.open")..addSet("'")..consume=true;
+    tok.join("singleQuote.open", "singleQuote.escape").addSet("\\");
+    tok.join("singleQuote.open", "singleQuote.body").addAll();
+    tok.join("singleQuote.body", "singleQuote")..addSet("'")..consume=true;
+    tok.join("singleQuote.body", "singleQuote.escape").addSet("\\");
+    tok.join("singleQuote.escape", "singleQuote.body").addSet("\\nrt'");
+    tok.join("singleQuote.escape", "singleQuote.hex1").addSet("x");
+    tok.join("singleQuote.hex1", "singleQuote.hex2").add(hexMatcher);
+    tok.join("singleQuote.hex2", "singleQuote.body").add(hexMatcher);
+    tok.join("singleQuote.escape", "singleQuote.unicode1").addSet("u");
+    tok.join("singleQuote.unicode1", "singleQuote.unicode2").add(hexMatcher);
+    tok.join("singleQuote.unicode2", "singleQuote.unicode3").add(hexMatcher);
+    tok.join("singleQuote.unicode3", "singleQuote.unicode4").add(hexMatcher);
+    tok.join("singleQuote.unicode4", "singleQuote.body").add(hexMatcher);
+    tok.join("singleQuote.body", "singleQuote.body").addAll();
+    tok.setToken("singleQuote", "string");
 
-    tok.join("start", "string.open")..addSet('"')..consume=true;
-    tok.join("string.open", "string.escape").addSet("\\");
-    tok.join("string.open", "string.body").addAll();
-    tok.join("string.body", "string")..addSet('"')..consume=true;
-    tok.join("string.body", "string.escape").addSet("\\");
-    tok.join("string.escape", "string.body").addSet('\\nrt"');
-    tok.join("string.escape", "string.hex1").addSet("x");
-    tok.join("string.hex1", "string.hex2").add(hexMatcher);
-    tok.join("string.hex2", "string.body").add(hexMatcher);
-    tok.join("string.escape", "string.unicode1").addSet("u");
-    tok.join("string.unicode1", "string.unicode2").add(hexMatcher);
-    tok.join("string.unicode2", "string.unicode3").add(hexMatcher);
-    tok.join("string.unicode3", "string.unicode4").add(hexMatcher);
-    tok.join("string.unicode4", "string.body").add(hexMatcher);
-    tok.join("string.body", "string.body").addAll();
-    tok.setToken("string", "string");
+    tok.join("start", "doubleQuote.open")..addSet('"')..consume=true;
+    tok.join("doubleQuote.open", "doubleQuote.escape").addSet("\\");
+    tok.join("doubleQuote.open", "doubleQuote.body").addAll();
+    tok.join("doubleQuote.body", "doubleQuote")..addSet('"')..consume=true;
+    tok.join("doubleQuote.body", "doubleQuote.escape").addSet("\\");
+    tok.join("doubleQuote.escape", "doubleQuote.body").addSet('\\nrt"');
+    tok.join("doubleQuote.escape", "doubleQuote.hex1").addSet("x");
+    tok.join("doubleQuote.hex1", "doubleQuote.hex2").add(hexMatcher);
+    tok.join("doubleQuote.hex2", "doubleQuote.body").add(hexMatcher);
+    tok.join("doubleQuote.escape", "doubleQuote.unicode1").addSet("u");
+    tok.join("doubleQuote.unicode1", "doubleQuote.unicode2").add(hexMatcher);
+    tok.join("doubleQuote.unicode2", "doubleQuote.unicode3").add(hexMatcher);
+    tok.join("doubleQuote.unicode3", "doubleQuote.unicode4").add(hexMatcher);
+    tok.join("doubleQuote.unicode4", "doubleQuote.body").add(hexMatcher);
+    tok.join("doubleQuote.body", "doubleQuote.body").addAll();
+    tok.setToken("doubleQuote", "string");
     return tok;
   }
 
@@ -90,7 +95,7 @@ class Loader {
     gram.newRule("def").addTrigger("new.def").addToken("closeAngle").addTerm("stateID").addTrigger("start.state").addTerm("def.state.optional");
     gram.newRule("def").addTrigger("new.def").addTerm("stateID").addTerm("def.state");
     gram.newRule("def").addTrigger("new.def").addTerm("tokenStateID").addTerm("def.token");
-    
+
     gram.newRule("def.state.optional");
     gram.newRule("def.state.optional").addTerm("def.state");
 
@@ -104,7 +109,7 @@ class Loader {
     gram.newRule("termID").addToken("openAngle").addToken("id").addToken("closeAngle").addTrigger("new.term");
     gram.newRule("tokenItemID").addToken("openBracket").addToken("id").addToken("closeBracket").addTrigger("new.token.item");
     gram.newRule("triggerID").addToken("openCurly").addToken("id").addToken("closeCurly").addTrigger("new.trigger");
-    
+
     gram.newRule("matcher.start").addToken("any").addTrigger("match.any");
     gram.newRule("matcher.start").addTerm("matcher");
     gram.newRule("matcher.start").addToken("consume").addTerm("matcher").addTrigger("match.consume");
@@ -112,12 +117,12 @@ class Loader {
     gram.newRule("matcher").addTerm("charSetRange");
     gram.newRule("matcher").addTerm("matcher").addToken("comma").addTerm("charSetRange");
 
-    gram.newRule("charSetRange").addToken("charSet").addTrigger("match.set");
-    gram.newRule("charSetRange").addToken("not").addToken("charSet").addTrigger("match.set.not");
-    gram.newRule("charSetRange").addToken("charSet").addToken("range").addToken("charSet").addTrigger("match.range");
-    gram.newRule("charSetRange").addToken("not").addToken("charSet").addToken("range").addToken("charSet").addTrigger("match.range.not");
+    gram.newRule("charSetRange").addToken("string").addTrigger("match.set");
+    gram.newRule("charSetRange").addToken("not").addToken("string").addTrigger("match.set.not");
+    gram.newRule("charSetRange").addToken("string").addToken("range").addToken("string").addTrigger("match.range");
+    gram.newRule("charSetRange").addToken("not").addToken("string").addToken("range").addToken("string").addTrigger("match.range.not");
     gram.newRule("charSetRange").addToken("not").addToken("openParen").addTrigger("not.group.start").addTerm("matcher").addToken("closeParen").addTrigger("not.group.end");
-    
+
     gram.newRule("def.token.optional");
     gram.newRule("def.token.optional").addTerm("def.token");
     gram.newRule("def.token").addToken("colon").addTerm("replaceText").addToken("arrow").addTerm("tokenStateID").addTrigger("replace.token");
@@ -130,7 +135,7 @@ class Loader {
 
     gram.newRule("start.rule.optional");
     gram.newRule("start.rule.optional").addToken("assign").addTrigger("start.rule").addTerm("start.rule").addTerm("next.rule.optional");
-    
+
     gram.newRule("next.rule.optional");
     gram.newRule("next.rule.optional").addTerm("next.rule.optional").addToken("or").addTrigger("start.rule").addTerm("start.rule");
 
@@ -138,7 +143,7 @@ class Loader {
     gram.newRule("start.rule").addTerm("termID").addTrigger("item.term").addTerm("rule.item");
     gram.newRule("start.rule").addTerm("triggerID").addTrigger("item.trigger").addTerm("rule.item");
     gram.newRule("start.rule").addToken("lambda");
-    
+
     gram.newRule("rule.item");
     gram.newRule("rule.item").addTerm("rule.item").addTerm("tokenItemID").addTrigger("item.token");
     gram.newRule("rule.item").addTerm("rule.item").addTerm("termID").addTrigger("item.term");
@@ -149,11 +154,61 @@ class Loader {
   /// Creates a new parser for loading tokenizer and grammar definitions.
   static Parser getParser() =>
     new Parser.fromGrammar(Loader.getGrammar(), Loader.getTokenizer());
-  
+
+  /// This will convert an escaped strings from a tokenized language into
+  /// the correct characters for the string.
+  static String unescapeString(String value) {
+    StringBuffer buf = new StringBuffer();
+    int start = 0;
+    while (start < value.length) {
+      int stop = value.indexOf('\\', start);
+      if (stop < 0) {
+        buf.write(value.substring(start));
+        break;
+      }
+      buf.write(value.substring(start, stop));
+      //  "\\", "\n", "\"", "\'", "\t", "\r", "\xFF", "\uFFFF"
+      switch (value[stop+1]) {
+        case '\\':
+          buf.write('\\');
+          break;
+        case 'n':
+          buf.write('\n');
+          break;
+        case 't':
+          buf.write('\t');
+          break;
+        case 'r':
+          buf.write('\r');
+          break;
+        case '\'':
+          buf.write('\'');
+          break;
+        case '"':
+          buf.write('"');
+          break;
+        case 'x':
+          String hex = value.substring(stop+2, stop+4);
+          int charCode = int.parse(hex, radix: 16);
+          buf.writeCharCode(charCode);
+          stop += 2;
+          break;
+        case 'u':
+          String hex = value.substring(stop+2, stop+6);
+          int charCode = int.parse(hex, radix: 16);
+          buf.writeCharCode(charCode);
+          stop += 4;
+          break;
+      }
+      start = stop + 2;
+    }
+    return buf.toString();
+  }
+
   Map<String, ParseTree.TriggerHandle> _handles;
   Grammar.Grammar _grammar;
   Tokenizer.Tokenizer _tokenizer;
-  
+
   List<Tokenizer.State> _states;
   List<Tokenizer.TokenState> _tokenStates;
   List<Grammar.Term> _terms;
@@ -221,10 +276,10 @@ class Loader {
 
   /// Gets the grammar which is being loaded.
   Grammar.Grammar get grammar => this._grammar;
-  
+
   /// Gets the tokenizer which is being loaded.
   Tokenizer.Tokenizer get tokenizer => this._tokenizer;
-  
+
   /// Creates a parser with the loaded tokenizer and grammar.
   Parser get parser => new Parser.fromGrammar(this._grammar, this._tokenizer);
 
@@ -334,7 +389,7 @@ class Loader {
   void _matchSet(ParseTree.TriggerArgs args) {
     Tokenizer.Token token = args.recent(1);
     if (this._curTransGroups.isEmpty) this._curTransGroups.add(new Matcher.Group());
-    this._curTransGroups.last.addSet(token.text);
+    this._curTransGroups.last.addSet(unescapeString(token.text));
   }
 
   /// A trigger handle for setting the currently building matcher to not match to a character set.
@@ -348,12 +403,14 @@ class Loader {
   void _matchRange(ParseTree.TriggerArgs args) {
     Tokenizer.Token lowChar  = args.recent(3);
     Tokenizer.Token highChar = args.recent(1);
-    if (lowChar.text.length != 1)
+    String lowText = unescapeString(lowChar.text);
+    String highText = unescapeString(highChar.text);
+    if (lowText.length != 1)
       throw new Exception('May only have one character for the low char of a range. $lowChar does not.');
-    if (highChar.text.length != 1)
+    if (highText.length != 1)
       throw new Exception('May only have one character for the high char of a range. $highChar does not.');
     if (this._curTransGroups.isEmpty) this._curTransGroups.add(new Matcher.Group());
-    this._curTransGroups.last.addRange(lowChar.text, highChar.text);
+    this._curTransGroups.last.addRange(lowText, highText);
   }
 
   /// A trigger handle for setting the currently building matcher to not match to a character range.
@@ -362,7 +419,7 @@ class Loader {
     this._matchRange(args);
     this._notGroupEnd(args);
   }
-  
+
   /// A trigger handle for starting a not group of matchers.
   void _notGroupStart(ParseTree.TriggerArgs args) {
     if (this._curTransGroups.isEmpty) this._curTransGroups.add(new Matcher.Group());
@@ -375,7 +432,7 @@ class Loader {
 
   /// A trigger handle for adding a new replacement string to the loader.
   void _addReplaceText(ParseTree.TriggerArgs args) =>
-    this._replaceText.add(args.recent(1).text);
+    this._replaceText.add(unescapeString(args.recent(1).text));
 
   /// A trigger handle for setting a set of replacements between two
   /// tokens with a previously set replacement string set.

@@ -21,10 +21,10 @@ class _State {
     this._gotos   = new List<_State>();
     this._accept  = false;
   }
-  
+
   /// The indices which indicated the offset into the matching rule.
   List<int> get indices => this._indices;
-  
+
   /// The rules for this state which meatch up with the indices.
   List<Grammar.Rule> get rules => this._rules;
 
@@ -32,7 +32,7 @@ class _State {
   /// This matches with the goto values to create a connection.
   List<Grammar.Item> get onItems => this._onItems;
 
-  /// This is the goto which indicates which state to go to for the matched items. 
+  /// This is the goto which indicates which state to go to for the matched items.
   /// This matches with the `onItems` to create a connection.
   List<_State> get gotos => this._gotos;
 

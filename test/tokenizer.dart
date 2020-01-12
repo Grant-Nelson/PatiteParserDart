@@ -37,7 +37,7 @@ void tokenizer00(TestArgs args) {
      '[add]:4:"+"',
      '[id]:6:"b"',
      '[close]:7:")"']);
-  
+
   args.checkTok(tok, "a + (b * c) + d",
     ['[id]:1:"a"',
      '[add]:3:"+"',

@@ -2,7 +2,7 @@ part of PatiteParserDart.Matcher;
 
 /// Creates a range matcher.
 class Range implements Matcher {
-  
+
   /// The lowest character value included in this range.
   final int low;
 

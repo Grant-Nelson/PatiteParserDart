@@ -23,4 +23,8 @@ be used by itself for breaking up text for something like text coloring.
 ## Run unit-tests
 
 - Run `pub run test/test.dart`
-- Currently, on success there is no output
+
+## Run the calculator example
+
+- Run `pub run example/example.dart`
+- See [Calculator Documentation](./lib/src/Calculator/Calculator.md)

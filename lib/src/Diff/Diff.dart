@@ -24,10 +24,10 @@ class StepGroup {
 
 /// This is the steps of the levenshtein path.
 enum StepType {
-  
+
   /// Indicates A and B entries are equal.
   Equal,
-  
+
   /// Indicates A was added.
   Added,
 

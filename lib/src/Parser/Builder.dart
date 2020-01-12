@@ -28,7 +28,7 @@ class _Builder {
       }
     }
   }
-  
+
   /// Finds a state with the given offset index for the given rule.
   _State find(int index, Grammar.Rule rule) {
     for (_State state in this._states) {
@@ -93,7 +93,7 @@ class _Builder {
     for (_State state in this._states) {
       if (state.hasAccept)
         this._table.writeShift(state.number, _eofTokenName, new _Accept());
-      
+
       for (int i = 0; i < state.rules.length; i++) {
         Grammar.Rule rule = state.rules[i];
         int index = state.indices[i];
@@ -146,7 +146,7 @@ class _Builder {
   /// Gets all the error which occurred during the build,
   /// or an empty string if no error occurred.
   String get buildErrors => this._errors.toString();
-  
+
   /// The table from the builder.
   _Table get table => this._table;
 

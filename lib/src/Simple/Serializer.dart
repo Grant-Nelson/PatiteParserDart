@@ -27,14 +27,14 @@ class Serializer {
   /// Writes another serializer to the data.
   void writeSer(Serializer value) =>
     this.writeStr(value._data.toString());
-  
+
   /// Writes a list of integers to the data.
   void writeIntList(List<int> value) {
     this.writeInt(value.length);
     for (int intVal in value)
       this.writeInt(intVal);
   }
-  
+
   /// Writes a list of strings to the data.
   void writeStrList(List<String> value) {
     this.writeInt(value.length);

@@ -53,7 +53,7 @@ void loader00(TestArgs args) {
      '  │        └─<def.state.optional>',
      '  └─[semicolon:22:";"]']);
 }
-       
+
 void loader01(TestArgs args) {
   args.log('loader01');
   Parser.Parser parser = Parser.Loader.getParser();
@@ -72,7 +72,7 @@ void loader01(TestArgs args) {
      '  │     ├─<matcher.start>',
      '  │     │  └─<matcher>',
      '  │     │     └─<charSetRange>',
-     '  │     │        ├─[charSet:9:"ab"]',
+     '  │     │        ├─[string:9:"ab"]',
      '  │     │        └─{match.set}',
      '  │     ├─[arrow:12:"=>"]',
      '  │     ├─<stateID>',
@@ -87,7 +87,7 @@ void loader01(TestArgs args) {
      '  │           ├─<matcher.start>',
      '  │           │  └─<matcher>',
      '  │           │     └─<charSetRange>',
-     '  │           │        ├─[charSet:24:"cde"]',
+     '  │           │        ├─[string:24:"cde"]',
      '  │           │        └─{match.set}',
      '  │           ├─[arrow:27:"=>"]',
      '  │           ├─<stateID>',
@@ -166,18 +166,18 @@ void loader03(TestArgs args) {
      '  │     │  │  ├─<matcher>',
      '  │     │  │  │  ├─<matcher>',
      '  │     │  │  │  │  └─<charSetRange>',
-     '  │     │  │  │  │     ├─[charSet:9:"a"]',
+     '  │     │  │  │  │     ├─[string:9:"a"]',
      '  │     │  │  │  │     └─{match.set}',
      '  │     │  │  │  ├─[comma:10:","]',
      '  │     │  │  │  └─<charSetRange>',
-     '  │     │  │  │     ├─[charSet:14:"c"]',
+     '  │     │  │  │     ├─[string:14:"c"]',
      '  │     │  │  │     ├─[range:16:".."]',
-     '  │     │  │  │     ├─[charSet:19:"f"]',
+     '  │     │  │  │     ├─[string:19:"f"]',
      '  │     │  │  │     └─{match.range}',
      '  │     │  │  ├─[comma:20:","]',
      '  │     │  │  └─<charSetRange>',
      '  │     │  │     ├─[not:22:"!"]',
-     '  │     │  │     ├─[charSet:28:"abcd"]',
+     '  │     │  │     ├─[string:28:"abcd"]',
      '  │     │  │     └─{match.set.not}',
      '  │     │  └─{match.consume}',
      '  │     ├─[arrow:31:"=>"]',
@@ -189,7 +189,7 @@ void loader03(TestArgs args) {
      '  │     ├─{join.token}',
      '  │     └─<def.token.optional>',
      '  └─[semicolon:36:";"]']);
-     
+
   args.checkParser(parser, ["(A): 'a\\x0A\\u00C2' => [D];"],
     ['─<def.set>',
      '  ├─<def.set>',
@@ -205,7 +205,7 @@ void loader03(TestArgs args) {
      '  │     ├─<matcher.start>',
      '  │     │  └─<matcher>',
      '  │     │     └─<charSetRange>',
-     '  │     │        ├─[charSet:18:"a\\x0A\\u00C2"]',
+     '  │     │        ├─[string:18:"a\\x0A\\u00C2"]',
      '  │     │        └─{match.set}',
      '  │     ├─[arrow:21:"=>"]',
      '  │     ├─<tokenStateID>',
@@ -238,15 +238,15 @@ void loader03(TestArgs args) {
      '  │     │        ├─<matcher>',
      '  │     │        │  ├─<matcher>',
      '  │     │        │  │  └─<charSetRange>',
-     '  │     │        │  │     ├─[charSet:10:"a"]',
+     '  │     │        │  │     ├─[string:10:"a"]',
      '  │     │        │  │     ├─[range:12:".."]',
-     '  │     │        │  │     ├─[charSet:15:"z"]',
+     '  │     │        │  │     ├─[string:15:"z"]',
      '  │     │        │  │     └─{match.range}',
      '  │     │        │  ├─[comma:16:","]',
      '  │     │        │  └─<charSetRange>',
-     '  │     │        │     ├─[charSet:20:"0"]',
+     '  │     │        │     ├─[string:20:"0"]',
      '  │     │        │     ├─[range:22:".."]',
-     '  │     │        │     ├─[charSet:25:"9"]',
+     '  │     │        │     ├─[string:25:"9"]',
      '  │     │        │     └─{match.range}',
      '  │     │        ├─[closeParen:26:")"]',
      '  │     │        └─{not.group.end}',
@@ -327,7 +327,7 @@ void loader05(TestArgs args) {
      '  │     │  └─{new.token.state}',
      '  │     └─{replace.token}',
      '  └─[semicolon:20:";"]']);
-     
+
   args.checkParser(parser, ['[A]: "is", "as", "if" => [D];'],
     ['─<def.set>',
      '  ├─<def.set>',
@@ -398,7 +398,7 @@ void loader06(TestArgs args) {
      '  │     │  └─[lambda:14:"_"]',
      '  │     └─<next.rule.optional>',
      '  └─[semicolon:15:";"]']);
-    
+
   args.checkParser(parser, ['<apple> := _;'],
     ['─<def.set>',
      '  ├─<def.set>',
@@ -519,7 +519,7 @@ void loader08(TestArgs args) {
      "> <Expression> := <Expression> [Add] <Term> | <Expression> [Sub] <Term> | <Term>;",
      "<Term> := <Term> [Mul] <Factor> | <Term> [Div] <Factor> | <Factor>;",
      "<Factor> := [Open] <Expression> [Close] | [Num] | [Var];"].join('\n'));
-     
+
   args.checkParser(parser, ['4 + 3 * pi'],
     ['─<Expression>',
      '  ├─<Expression>',
@@ -534,4 +534,17 @@ void loader08(TestArgs args) {
      '     ├─[Mul:7:"*"]',
      '     └─<Factor>',
      '        └─[Var:10:"pi"]']);
+}
+
+void loader09(TestArgs args) {
+  args.log('loader09');
+   Parser.Parser parser = new Parser.Parser.fromDefinition(
+    ["> (Start): '\\n' => (First): '\\t' => (Second): '\\x0A' => (Third): '\\u000A' => (Forth): '\\\\' => [Symbol];",
+     "(Start): ' ' => (Whitespace): ' ' => ^[Whitespace];",
+     "> <E> := [Symbol];",
+     "<E> := <E> [Symbol];"].join('\n'));
+
+  args.checkParser(parser, ['\n\t\n\n\\'],
+    ['─<E>',
+     '  └─[Symbol:5:"\\n\\t\\n\\n\\"]']);
 }

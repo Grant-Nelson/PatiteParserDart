@@ -11,7 +11,7 @@ part 'TriggerNode.dart';
 typedef void TriggerHandle(TriggerArgs args);
 
 /// The tree node containing reduced rule of the grammar
-/// filled out with tokens and other TreeNodes. 
+/// filled out with tokens and other TreeNodes.
 abstract class TreeNode {
 
   /// Creates a new tree node.
@@ -34,5 +34,5 @@ class TriggerArgs {
 
   /// Gets the recent token offset from most recent by the given index.
   Tokenizer.Token recent(int index) =>
-    ((index <= 0) || (index >= tokens.length))? null: this.tokens[this.tokens.length-index];
+    ((index > 0) && (index <= tokens.length))? this.tokens[this.tokens.length-index]: null;
 }

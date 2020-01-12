@@ -30,7 +30,7 @@ class _Table {
       }
       grid.add(values);
     }
-    
+
     // Make all the items in a column the same width...\
     for (int j = 0; j < columnCount; j++) {
       int maxWidth = 0;

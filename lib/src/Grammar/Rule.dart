@@ -1,7 +1,7 @@
 part of PatiteParserDart.Grammar;
 
 /// A rule is a single definition from a grammar.
-/// 
+///
 /// For example `<T> → "(" <E> ")"`. The term for the rule is
 /// the left hand side (`T`) while the items are the parts on the right hand size.
 /// The items are made up of tokens (`(`, `)`) and the rule's term or other terms (`E`).
@@ -15,7 +15,7 @@ class Rule {
   Rule._(Grammar this._grammar, Term this._term) {
     this._items = List<Item>();
   }
-  
+
   /// Adds a term to this rule.
   /// This will get or create a new term to the grammar.
   /// Returns this rule so that rule creation can be chained.
@@ -40,7 +40,7 @@ class Rule {
     this._items.add(trigger);
     return this;
   }
-  
+
   /// Gets the left hand side term to the rule.
   Term get term => this._term;
 
@@ -68,7 +68,7 @@ class Rule {
     }
     return true;
   }
-  
+
   /// Gets the string for this rule.
   /// Has an optional step index for showing the different
   /// states of the parser generator.

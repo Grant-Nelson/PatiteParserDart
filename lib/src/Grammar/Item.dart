@@ -8,7 +8,7 @@ abstract class Item {
 
   /// Creates a new item.
   Item._(String this.name);
-  
+
   /// Gets the string for this item.
   String toString() => this.name;
 }
