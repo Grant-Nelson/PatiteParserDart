@@ -85,28 +85,44 @@ class Calculator {
     this._vars = new Map<String, Object>();
     this._funcs = new _CalcFuncs();
   }
+  
+  /// This parses the given calculation input and
+  /// returns the results so that the input can be run multiple
+  /// times without having to reparse the program.
+  Parser.Result parse(String input) {
+    if (input.isEmpty) return null;
+    if (_parser == null)
+      throw new Exception('Error: The parser must have finished loading prior to calculating any input.');
+    
+    try {
+      return _parser.parse(input);
+    } catch (err) {
+      return new Parser.Result([
+        'Errors in calculator input:\n' + err.toString()
+        ], null);
+    }
+  }
+  
+  /// This uses the preparsed input to calculate the result.
+  /// This is useful when wanting to rerun the same code multiple
+  /// times without having to reparse the program.
+  void calculateNode(ParseTree.TreeNode tree) {
+    try {
+      tree.process(this._handles);
+    } catch (err) {
+      this.push('Errors in calculator input:\n' + err.toString());
+    }
+  }
 
   /// This parses the given calculation input and
   /// puts the result on the top of the stack.
   void calculate(String input) {
-    if (input.isEmpty) return;
-    if (_parser == null) {
-      this.push('Error: The parser must have finished loading prior to calculating any input.');
+    Parser.Result result = this.parse(input);
+    if (result.errors?.isNotEmpty ?? false) {
+      this.push('Errors in calculator input:\n' + result.errors.join('\n'));
       return;
     }
-    
-    try {
-      Parser.Result result = _parser.parse(input);
-
-      if (result.errors?.isNotEmpty ?? false) {
-        this.push('Errors in calculator input:\n' + result.errors.join('\n'));
-        return;
-      }
-
-      result.tree.process(this._handles);
-    } catch (err) {
-      this.push('Errors in calculator input:\n' + err.toString());
-    }
+    this.calculateNode(result.tree);
   }
 
   /// Get a string showing all the values in the stack.
