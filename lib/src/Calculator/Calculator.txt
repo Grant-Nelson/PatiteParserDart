@@ -96,8 +96,11 @@
 
 > <Program>;
 
-<Program> := <Block>
-    | <Program> [Separator] <Block>;
+<Program> := <Blocks>
+    | <Blocks> [Separator];
+
+<Blocks> := <Block>
+    | <Blocks> [Separator] <Block>;
     
 <Block> := <Expression.Or>
     | [Id] {PushVar} [Assign] <Expression.Or> {Assign};

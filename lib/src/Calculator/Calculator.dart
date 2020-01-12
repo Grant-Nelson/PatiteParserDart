@@ -94,14 +94,15 @@ class Calculator {
       this.push('Error: The parser must have finished loading prior to calculating any input.');
       return;
     }
-    Parser.Result result = _parser.parse(input);
-
-    if (result.errors?.isNotEmpty ?? false) {
-      this.push('Errors in calculator input:\n' + result.errors.join('\n'));
-      return;
-    }
-
+    
     try {
+      Parser.Result result = _parser.parse(input);
+
+      if (result.errors?.isNotEmpty ?? false) {
+        this.push('Errors in calculator input:\n' + result.errors.join('\n'));
+        return;
+      }
+
       result.tree.process(this._handles);
     } catch (err) {
       this.push('Errors in calculator input:\n' + err.toString());
@@ -113,7 +114,7 @@ class Calculator {
     if (this._stack.length <= 0) return 'no result';
     List<String> parts = new List<String>();
     for (Object val in this._stack) parts.add('${val}');
-    return parts.join('\n');
+    return parts.join(', ');
   }
 
   /// Adds a new function that can be called by the language.
@@ -220,7 +221,7 @@ class Calculator {
     else if (left.implicitInt  && right.implicitInt)  this.push(left.asInt  == right.asInt);
     else if (left.implicitReal && right.implicitReal) this.push(left.asReal == right.asReal);
     else if (left.implicitStr  && right.implicitStr)  this.push(left.asStr  == right.asStr);
-    else throw new Exception('Can not Equals $left and $right.');
+    else this.push(false);
   }
 
   /// Handles checking if the two top items on the stack are greater than or equal.
@@ -269,7 +270,7 @@ class Calculator {
     Variant left  = new Variant(this.pop());
     if      (left.implicitInt  && right.implicitInt)  this.push(left.asInt  <= right.asInt);
     else if (left.implicitReal && right.implicitReal) this.push(left.asReal <= right.asReal);
-    else throw new Exception('Can not Not Equals $left and $right.');
+    else throw new Exception('Can not Less Than or Equals $left and $right.');
   }
 
   /// Handles checking if the two top items on the stack are less than.
@@ -278,7 +279,7 @@ class Calculator {
     Variant left  = new Variant(this.pop());
     if      (left.implicitInt  && right.implicitInt)  this.push(left.asInt  < right.asInt);
     else if (left.implicitReal && right.implicitReal) this.push(left.asReal < right.asReal);
-    else throw new Exception('Can not Not Equals $left and $right.');
+    else throw new Exception('Can not Less Than $left and $right.');
   }
 
   /// Handles adding a hexadecimal integer value from the input tokens.
@@ -317,11 +318,11 @@ class Calculator {
   void _handleNotEqual(ParseTree.TriggerArgs args) {
     Variant right = new Variant(this.pop());
     Variant left  = new Variant(this.pop());
-    if      (left.implicitBool && right.implicitBool) this.push(left.asBool == right.asBool);
-    else if (left.implicitInt  && right.implicitInt)  this.push(left.asInt  == right.asInt);
-    else if (left.implicitReal && right.implicitReal) this.push(left.asReal == right.asReal);
-    else if (left.implicitStr  && right.implicitStr)  this.push(left.asStr  == right.asStr);
-    else throw new Exception('Can not Not Equals $left and $right.');
+    if      (left.implicitBool && right.implicitBool) this.push(left.asBool != right.asBool);
+    else if (left.implicitInt  && right.implicitInt)  this.push(left.asInt  != right.asInt);
+    else if (left.implicitReal && right.implicitReal) this.push(left.asReal != right.asReal);
+    else if (left.implicitStr  && right.implicitStr)  this.push(left.asStr  != right.asStr);
+    else this.push(true);
   }
 
   /// Handles adding a octal integer value from the input tokens.
@@ -345,7 +346,8 @@ class Calculator {
   void _handlePower(ParseTree.TriggerArgs args) {
     Variant right = new Variant(this.pop());
     Variant left  = new Variant(this.pop());
-    if (left.implicitReal && right.implicitReal) this.push(math.pow(left.asReal, right.asReal));
+    if      (left.implicitInt  && right.implicitInt)  this.push(math.pow(left.asInt, right.asInt).toInt());
+    else if (left.implicitReal && right.implicitReal) this.push(math.pow(left.asReal, right.asReal));
     else throw new Exception('Can not Power $left and $right.');
   }
 
