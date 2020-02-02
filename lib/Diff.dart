@@ -1,3 +1,3 @@
-library PatiteParserDart.Diff;
+library PetiteParserDart.Diff;
 
 export 'src/Diff/Diff.dart';

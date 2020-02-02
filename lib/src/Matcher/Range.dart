@@ -1,4 +1,4 @@
-part of PatiteParserDart.Matcher;
+part of PetiteParserDart.Matcher;
 
 /// Creates a range matcher.
 class Range implements Matcher {

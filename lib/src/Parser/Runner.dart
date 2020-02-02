@@ -1,4 +1,4 @@
-part of PatiteParserDart.Parser;
+part of PetiteParserDart.Parser;
 
 /// The runner performs a parse step by step as tokens are added.
 class _Runner {

@@ -1,4 +1,4 @@
-part of PatiteParserDart.Matcher;
+part of PetiteParserDart.Matcher;
 
 /// A matcher which matches all characters.
 /// Since tranitions are called in the order they are added

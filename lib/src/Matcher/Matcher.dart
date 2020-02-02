@@ -1,4 +1,4 @@
-library PatiteParserDart.Matcher;
+library PetiteParserDart.Matcher;
 
 part 'All.dart';
 part 'Group.dart';

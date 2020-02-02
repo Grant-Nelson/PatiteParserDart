@@ -1,4 +1,4 @@
-part of PatiteParserDart.Tokenizer;
+part of PetiteParserDart.Tokenizer;
 
 /// A token state is added to a state to indicate that
 /// the state is acceptance for a token.

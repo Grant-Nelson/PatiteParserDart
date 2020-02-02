@@ -1,7 +1,7 @@
-library PatiteParserDart.Tokenizer;
+library PetiteParserDart.Tokenizer;
 
-import 'package:PatiteParserDart/src/Simple/Simple.dart' as Simple;
-import 'package:PatiteParserDart/src/Matcher/Matcher.dart' as Matcher;
+import 'package:PetiteParserDart/src/Simple/Simple.dart' as Simple;
+import 'package:PetiteParserDart/src/Matcher/Matcher.dart' as Matcher;
 
 part 'State.dart';
 part 'Token.dart';

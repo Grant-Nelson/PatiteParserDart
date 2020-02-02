@@ -1,4 +1,4 @@
-part of PatiteParserDart.ParseTree;
+part of PetiteParserDart.ParseTree;
 
 /// The tree node containing reduced rule of the grammar
 /// filled out with tokens and other TreeNodes.

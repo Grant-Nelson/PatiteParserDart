@@ -1,6 +1,6 @@
-library PatiteParserDart.examples;
+library PetiteParserDart.examples;
 
-import 'package:PatiteParserDart/Calculator.dart' as Calc;
+import 'package:PetiteParserDart/Calculator.dart' as Calc;
 
 import 'dart:io' as io;
 

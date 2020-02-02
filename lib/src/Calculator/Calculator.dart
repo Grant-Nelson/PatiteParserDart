@@ -1,8 +1,8 @@
-library PatiteParserDart.Calculator;
+library PetiteParserDart.Calculator;
 
 import 'package:resource/resource.dart' show Resource;
-import 'package:PatiteParserDart/src/Parser/Parser.dart' as Parser;
-import 'package:PatiteParserDart/src/ParseTree/ParseTree.dart' as ParseTree;
+import 'package:PetiteParserDart/src/Parser/Parser.dart' as Parser;
+import 'package:PetiteParserDart/src/ParseTree/ParseTree.dart' as ParseTree;
 
 import 'dart:math' as math;
 import 'dart:async';
@@ -20,7 +20,7 @@ typedef Object CalcFunc(List<Object> args);
 /// This is useful for allowing a text field with higher mathematic control
 /// without exposing exploits via a full language input.
 ///
-/// This is also an example of how to use patite parser to construct
+/// This is also an example of how to use petite parser to construct
 /// a simple interpreted language.
 class Calculator {
   static Parser.Parser _parser;
@@ -31,7 +31,7 @@ class Calculator {
   /// from a file it has to be done asynchronously.
   static Future loadParser() async {
     if (_parser == null) {
-      Resource resource = const Resource('package:PatiteParserDart/src/Calculator/Calculator.txt');
+      Resource resource = const Resource('package:PetiteParserDart/src/Calculator/Calculator.txt');
       return resource.readAsString().then((String language) {
         _parser = new Parser.Parser.fromDefinition(language);
       });

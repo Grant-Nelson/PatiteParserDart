@@ -1,22 +1,22 @@
-# Patite Parser Calculator
+# Petite Parser Calculator
 
-The calculator uses the patite parser to create a simple mathmatical language.
+The calculator uses the petite parser to create a simple mathematical language.
 
 - [Examples](#examples)
 - [Literals](#literals)
-    - [Implicit Conversions](#implicit-conversions)
+  - [Implicit Conversions](#implicit-conversions)
 - [Constants](#constants)
 - [Functions](#functions)
-    - [Explicit Casts](#explicit-casts)
-    - [Formatting](#formatting)
-    - [Trigganometry](#trigganometry)
-    - [Logarithms](#logarithms)
-    - [Basic Math](#basic-math)
+  - [Explicit Casts](#explicit-casts)
+  - [Formatting](#formatting)
+  - [Trigonometry](#trigonometry)
+  - [Logarithms](#logarithms)
+  - [Basic Math](#basic-math)
 - [Operators](#operators)
-    - [Unary Operators](#unary-operators)
-    - [Binary Operators](#binary-operators)
-    - [Comparing Operators](#comparing-operators)
-    - [Order of Operators](#order-of-operators)
+  - [Unary Operators](#unary-operators)
+  - [Binary Operators](#binary-operators)
+  - [Comparing Operators](#comparing-operators)
+  - [Order of Operators](#order-of-operators)
 
 ## Examples
 
@@ -40,12 +40,12 @@ The calculator uses the patite parser to create a simple mathmatical language.
 - **Boolean** is either `true` and `false`.
 - **Real** numbers are decimals numbers with either a decimal point or exponent in it.
   For example `0.01`, `12e-3`, and `1.1e2`.
-- **String** literals are quoted letters. It can have escaped characters for quotations (`\"`), newlines (`\n`), tabs (`\t`), ascii (`\x0A`) with two hex digits, and unicode (`\u000A`) with four hex digits. For example `""`, `"abc"`, `"\n"`, and `"\x0A"`.
+- **String** literals are quoted letters. It can have escaped characters for quotations (`\"`), newlines (`\n`), tabs (`\t`), ascii (`\x0A`) with two hex digits, and Unicode (`\u000A`) with four hex digits. For example `""`, `"abc"`, `"\n"`, and `"\x0A"`.
 
 ### Implicit Conversions
 
-- Booleans can be implicity converted to and integer or real as 0 and 1.
-- Integers can be implicity converted into reals.
+- Booleans can be implicitly converted to and integer or real as 0 and 1.
+- Integers can be implicitly converted into reals.
 
 ## Constants
 
@@ -53,8 +53,8 @@ These are the built-in constants. Additional constants may be added as needed.
 
 - `pi`: This is a real with the value for pi.
 - `e`: This is a real with the value for e.
-- `true`: This is a boolen for true.
-- `false`: This is a boolean for false.
+- `true`: This is a Boolean for true.
+- `false`: This is a Boolean for false.
 
 ## Functions
 
@@ -62,7 +62,7 @@ These are the built-in functions. Additional functions may be added as needed.
 
 ### Explicit Casts
 
-- `bool`: Converts the value to boolean, e.g `bool(1)`.
+- `bool`: Converts the value to Boolean, e.g `bool(1)`.
 - `int`: Converts the value to integer, e.g `int(123)`.
 - `real`: Converts the value to real, e.g `real(123)`.
 - `string`: Converts the value to string, e.g. `string(123)`.
@@ -72,10 +72,10 @@ These are the built-in functions. Additional functions may be added as needed.
 
 - `bin`: Formats an integer as a binary number string.
 - `oct`: Formats an integer as an octal number string.
-- `hex`: Formats an integer as a hexidecimal number string.
+- `hex`: Formats an integer as a hexadecimal number string.
 - `sub`: Gets the substring of a string given an integer start and stop, e.g. `sub("hello", 2, 4)`.
 
-### Trigganometry
+### Trigonometry
 
 - `sin`: Works on one number to get the sine.
 - `cos`: Works on one number to get the cosine.
@@ -106,7 +106,7 @@ These are the built-in functions. Additional functions may be added as needed.
     If all the numbers are integers then the result will be an integer, e.g. `max(4.5, 3.3, 12.0)`.
 - `min`: Works on one or more numbers to get the minimum of all the numbers.
     If all the numbers are integers then the result will be an integer, e.g. `max(4.5, 3.3, 12.0)`.
-- `sum`: Works on one or more numbers to get the sumation of all the numbers.
+- `sum`: Works on one or more numbers to get the summation of all the numbers.
     If all the numbers are integers then the result will be an integer, e.g. `sum(4.5, 3.3, 12.0)`.
 
 ## Operators
@@ -120,30 +120,30 @@ Parentheses, `(` and `)`, can be used to perform part of the equation first, e.g
 - `+`: As an unary it has no effect on a number because it simply visually asserts the sign, e.g. `+4`.
 - `-`: As an unary for a number it will negate the number, e.g. `-4`.
 - `~`: This gets bitwise NOT the value of an integer, e.g. `~10`.
-- `!`: This gets the NOT the a boolean value.
+- `!`: This gets the NOT the a Boolean value.
 
 ### Binary Operators
 
 - `+`: This will add them together two numbers, e.g. `2+4`. If both numbers are integers then an integer is returned.
-    This can also be used between two strings to concatinate them, e.g. `"ab" + "cd"`.
-    If used between two booleans it will OR them.
+    This can also be used between two strings to concatenate them, e.g. `"ab" + "cd"`.
+    If used between two Booleans it will OR them.
 - `-`: This will subtract the number right from the number left, e.g. `45-11`. If both numbers are integers then an integer
-    is returned. If used between two booleans it will imply (`!a|b`) them.
+    is returned. If used between two Booleans it will imply (`!a|b`) them.
 - `*`: This will multiplying two numbers together. If both numbers are integers then an integer is returned.
 - `**`: This gets the power of the left raised to the right. If both numbers are integers then an integer is returned.
 - `/`: This divides the left number from the right number. If both numbers are integers then a truncated integer is returned.
-- `&`: This performs a bitwise AND-ing of two integers or two booleans.
-- `|`: This performs a bitwise OR-ing of two integers or two booleans.
-- `^`: This performs a bitwise XOR-ing of two integers or two booleans.
+- `&`: This performs a bitwise ANDing of two integers or two Booleans.
+- `|`: This performs a bitwise ORing of two integers or two Booleans.
+- `^`: This performs a bitwise XORing of two integers or two Booleans.
 - `:=`: This assigns a value to a variable, e.g. `x := 5; y := x + 2`.
   When a variable is assigned it is removed from the stack so will not be outputted.
 
 ### Comparing Operators
 
-- `==`: This checks the equality of two values and returns a boolean with the result.
-    The values are comparied if they are the same kind or can be implicity cast to the same kind, otherwise false is returned.
-- `!=`: This checks the inequality of two values and returns a boolean with the result.
-    The values are comparied if they are the same kind or can be implicity cast to the same kind, otherwise true is returned.
+- `==`: This checks the equality of two values and returns a Boolean with the result.
+    The values are compared if they are the same kind or can be implicitly cast to the same kind, otherwise false is returned.
+- `!=`: This checks the inequality of two values and returns a Boolean with the result.
+    The values are compared if they are the same kind or can be implicitly cast to the same kind, otherwise true is returned.
 - `>`: This checks if the left number is greater than the right number.
 - `>=`: This checks if the left number is greater than or equal to the right number.
 - `<`: This checks if the left number is less than the right number.

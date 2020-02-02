@@ -1,4 +1,4 @@
-part of PatiteParserDart.Parser;
+part of PetiteParserDart.Parser;
 
 /// This is a state in the parser builder.
 /// The state is a collection of rules with offset indices.

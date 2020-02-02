@@ -1,4 +1,4 @@
-part of PatiteParserDart.Parser;
+part of PetiteParserDart.Parser;
 
 /// Loader is a parser and interpreter for reading a tokenizer and grammar
 /// definition from a string to create a parser.

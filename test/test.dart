@@ -1,11 +1,13 @@
-library PatiteParserDart.test;
+library PetiteParserDart.test;
 
-import 'package:PatiteParserDart/Grammar.dart' as Grammar;
-import 'package:PatiteParserDart/Parser.dart' as Parser;
-import 'package:PatiteParserDart/Tokenizer.dart' as Tokenizer;
-import 'package:PatiteParserDart/Simple.dart' as Simple;
-import 'package:PatiteParserDart/Diff.dart' as Diff;
+import 'package:PetiteParserDart/Calculator.dart' as Calculator;
+import 'package:PetiteParserDart/Grammar.dart' as Grammar;
+import 'package:PetiteParserDart/Parser.dart' as Parser;
+import 'package:PetiteParserDart/Tokenizer.dart' as Tokenizer;
+import 'package:PetiteParserDart/Simple.dart' as Simple;
+import 'package:PetiteParserDart/Diff.dart' as Diff;
 
+part 'calculator.dart';
 part 'diff.dart';
 part 'grammar.dart';
 part 'loader.dart';
@@ -14,8 +16,8 @@ part 'testArgs.dart';
 part 'testTool.dart';
 part 'tokenizer.dart';
 
-/// Tests for Patite Parser Dart.
-void main() {
+/// Tests for Petite Parser Dart.
+void main() async {
   TestTool test = new TestTool();
 
   test.run(diff00);
@@ -44,6 +46,11 @@ void main() {
   test.run(loader07);
   test.run(loader08);
   test.run(loader09);
+
+  await Calculator.Calculator.loadParser();
+  test.run(calc00);
+  test.run(calc01);
+  test.run(calc02);
 
   test.printResult();
 }

@@ -1,4 +1,4 @@
-part of PatiteParserDart.Grammar;
+part of PetiteParserDart.Grammar;
 
 /// A trigger is an optional item which can be added
 /// to a parse that is carried through to the parse results.

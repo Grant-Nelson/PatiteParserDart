@@ -1,4 +1,4 @@
-part of PatiteParserDart.Tokenizer;
+part of PetiteParserDart.Tokenizer;
 
 /// A token contains the text and information from a tokenizer.
 class Token {

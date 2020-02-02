@@ -1,4 +1,4 @@
-part of PatiteParserDart.Grammar;
+part of PetiteParserDart.Grammar;
 
 /// A rule is a single definition from a grammar.
 ///

@@ -1,4 +1,4 @@
-part of PatiteParserDart.Matcher;
+part of PetiteParserDart.Matcher;
 
 /// A group of matchers for matching complicated sets of characters.
 class Group implements Matcher {

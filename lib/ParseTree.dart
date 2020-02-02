@@ -1,3 +1,3 @@
-library PatiteParserDart.ParseTree;
+library PetiteParserDart.ParseTree;
 
 export 'src/ParseTree/ParseTree.dart';

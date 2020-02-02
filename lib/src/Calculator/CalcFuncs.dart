@@ -1,4 +1,4 @@
-part of PatiteParserDart.Calculator;
+part of PetiteParserDart.Calculator;
 
 /// This is a collection of functions for the calculator.
 class _CalcFuncs {
@@ -119,7 +119,7 @@ class _CalcFuncs {
     throw new Exception('Can not use $arg to bin(int).');
   }
 
-  /// This function casts the given value into a boolean value.
+  /// This function casts the given value into a Boolean value.
   Object _funcBool(List<Object> args) {
     this._argCount('bool', args, 1);
     Variant arg = new Variant(args[0]);

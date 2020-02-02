@@ -1,4 +1,4 @@
-part of PatiteParserDart.Grammar;
+part of PetiteParserDart.Grammar;
 
 /// An item is part of a term rule.
 abstract class Item {

@@ -1,6 +1,6 @@
-# PatiteParserDart
+# PetiteParserDart
 
-Patite Parser is a simple parsing tool which can be
+Petite Parser is a simple parsing tool which can be
 configured to read different languages and structures.
 
 This can be used to read complex data files, interpret scripts,

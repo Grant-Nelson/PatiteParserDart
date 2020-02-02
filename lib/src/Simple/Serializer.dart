@@ -1,4 +1,4 @@
-part of PatiteParserDart.Simple;
+part of PetiteParserDart.Simple;
 
 /// This is a simple serializer designed for fast serialization and deserialization.
 class Serializer {

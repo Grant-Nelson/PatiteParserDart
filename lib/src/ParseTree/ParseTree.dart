@@ -1,7 +1,7 @@
-library PatiteParserDart.ParseTree;
+library PetiteParserDart.ParseTree;
 
-import 'package:PatiteParserDart/src/Grammar/Grammar.dart' as Grammar;
-import 'package:PatiteParserDart/src/Tokenizer/Tokenizer.dart' as Tokenizer;
+import 'package:PetiteParserDart/src/Grammar/Grammar.dart' as Grammar;
+import 'package:PetiteParserDart/src/Tokenizer/Tokenizer.dart' as Tokenizer;
 
 part 'RuleNode.dart';
 part 'TokenNode.dart';

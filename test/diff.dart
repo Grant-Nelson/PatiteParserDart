@@ -1,4 +1,4 @@
-part of PatiteParserDart.test;
+part of PetiteParserDart.test;
 
 void diff00(TestArgs args) {
   args.log('diff00');

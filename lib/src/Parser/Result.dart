@@ -1,4 +1,4 @@
-part of PatiteParserDart.Parser;
+part of PetiteParserDart.Parser;
 
 /// This is the result from a parse of a stream of tokens.
 class Result {

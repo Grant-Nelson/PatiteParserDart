@@ -1,4 +1,4 @@
-part of PatiteParserDart.test;
+part of PetiteParserDart.test;
 
 void grammar00(TestArgs args) {
   args.log('grammar00');

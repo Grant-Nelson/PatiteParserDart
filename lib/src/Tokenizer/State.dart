@@ -1,4 +1,4 @@
-part of PatiteParserDart.Tokenizer;
+part of PetiteParserDart.Tokenizer;
 
 /// A state in the tokenizer used as a character
 /// point in the tokenizer state machine.

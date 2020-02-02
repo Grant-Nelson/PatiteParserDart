@@ -1,4 +1,4 @@
-part of PatiteParserDart.Matcher;
+part of PetiteParserDart.Matcher;
 
 /// A matcher which matchs a set of characters.
 class Set implements Matcher {

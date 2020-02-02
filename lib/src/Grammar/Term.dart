@@ -1,4 +1,4 @@
-part of PatiteParserDart.Grammar;
+part of PetiteParserDart.Grammar;
 
 /// A term is a group of rules and part of a rule
 /// which defines part of the grammar language.

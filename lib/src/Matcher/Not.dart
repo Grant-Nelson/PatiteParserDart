@@ -1,4 +1,4 @@
-part of PatiteParserDart.Matcher;
+part of PetiteParserDart.Matcher;
 
 /// A group of matchers which returns the opposite of the contained group of matchers.
 class Not extends Group {

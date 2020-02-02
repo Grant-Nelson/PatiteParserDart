@@ -1,6 +1,6 @@
-library PatiteParserDart.Grammar;
+library PetiteParserDart.Grammar;
 
-import 'package:PatiteParserDart/src/Simple/Simple.dart' as Simple;
+import 'package:PetiteParserDart/src/Simple/Simple.dart' as Simple;
 
 part 'Item.dart';
 part 'Rule.dart';
@@ -25,7 +25,7 @@ part 'Trigger.dart';
 ///   (`v → ε`). There should be no duplicate rules for a term.
 /// - `S` is the start term where `S` must exist in `V`.
 ///
-/// For the LR1 parser, used by Patite Parser Dart, the grammar must be a Context-free
+/// For the LR1 parser, used by Petite Parser Dart, the grammar must be a Context-free
 /// Language (CFL) where `L(G) = {w in E*: S => w}`, meaning that all nontermals can be
 /// reached (`=>` means reachable) from the start term following the rules of the grammar.
 ///

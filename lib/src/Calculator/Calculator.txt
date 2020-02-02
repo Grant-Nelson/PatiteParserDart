@@ -1,4 +1,4 @@
-# Patite Parser Example
+# Petite Parser Example
 # Calculator Language Definition
 
 > (Start);

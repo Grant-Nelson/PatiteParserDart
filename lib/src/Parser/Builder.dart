@@ -1,4 +1,4 @@
-part of PatiteParserDart.Parser;
+part of PetiteParserDart.Parser;
 
 /// This is a builder used to generate a parser giving a grammar.
 class _Builder {

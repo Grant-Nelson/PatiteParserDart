@@ -1,4 +1,4 @@
-part of PatiteParserDart.Calculator;
+part of PetiteParserDart.Calculator;
 
 /// Variant is a wrapper of values off the stack with helper methods
 /// for casting and testing the implicit casting of a value.

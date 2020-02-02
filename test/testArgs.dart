@@ -1,4 +1,4 @@
-part of PatiteParserDart.test;
+part of PetiteParserDart.test;
 
 /// The arguments passed into a test.
 class TestArgs {
@@ -135,6 +135,20 @@ class TestArgs {
         this.error('Got a different error from the parser builder than expected:'+
           '\n  Diff: $diff');
       }
+    }
+  }
+
+  /// Checks that the given input to the given calculator will result in the expected lines on the stack.
+  void checkCalc(Calculator.Calculator calc, String input, List<String> expected) {
+    calc.clear();
+    calc.calculate(input);
+    String result = calc.stackToString;
+    String exp = expected.join('\n');
+    if (exp != result) {
+        String diff = Diff.plusMinusLines(exp, result);
+        diff = diff.trimRight().replaceAll('\n', '\n        ');
+        this.error('Got a different result from the calculator than expected:'+
+          '\n  Diff: $diff');
     }
   }
 }

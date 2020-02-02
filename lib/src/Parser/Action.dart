@@ -1,4 +1,4 @@
-part of PatiteParserDart.Parser;
+part of PetiteParserDart.Parser;
 
 /// An action indicates what to perform for a cell of the parse table.
 abstract class _Action {}

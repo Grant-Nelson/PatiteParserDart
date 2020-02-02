@@ -1,4 +1,4 @@
-part of PatiteParserDart.Simple;
+part of PetiteParserDart.Simple;
 
 /// Deserializes a previous serialized string of data.
 class Deserializer {

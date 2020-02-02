@@ -1,4 +1,4 @@
-part of PatiteParserDart.Tokenizer;
+part of PetiteParserDart.Tokenizer;
 
 /// A transition is a matcher group which connects two states together.
 /// When at one state this transition should be taken to the next if

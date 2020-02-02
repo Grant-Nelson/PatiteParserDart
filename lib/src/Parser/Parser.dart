@@ -1,12 +1,12 @@
-library PatiteParserDart.Parser;
+library PetiteParserDart.Parser;
 
 import 'dart:math' as math;
 
-import 'package:PatiteParserDart/src/Grammar/Grammar.dart' as Grammar;
-import 'package:PatiteParserDart/src/Matcher/Matcher.dart' as Matcher;
-import 'package:PatiteParserDart/src/Tokenizer/Tokenizer.dart' as Tokenizer;
-import 'package:PatiteParserDart/src/Simple/Simple.dart' as Simple;
-import 'package:PatiteParserDart/src/ParseTree/ParseTree.dart' as ParseTree;
+import 'package:PetiteParserDart/src/Grammar/Grammar.dart' as Grammar;
+import 'package:PetiteParserDart/src/Matcher/Matcher.dart' as Matcher;
+import 'package:PetiteParserDart/src/Tokenizer/Tokenizer.dart' as Tokenizer;
+import 'package:PetiteParserDart/src/Simple/Simple.dart' as Simple;
+import 'package:PetiteParserDart/src/ParseTree/ParseTree.dart' as ParseTree;
 
 part 'Action.dart';
 part 'Builder.dart';

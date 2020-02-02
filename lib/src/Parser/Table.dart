@@ -1,4 +1,4 @@
-part of PatiteParserDart.Parser;
+part of PetiteParserDart.Parser;
 
 /// This is a table to define the actions to take when
 /// a new token is added to the parse.
