@@ -12,7 +12,7 @@ class Serializer {
   /// Gets the serialized string of data.
   String toString() => this._data.toString();
 
-  /// Writes a boolean to the data.
+  /// Writes a Boolean to the data.
   void writeBool(bool value) =>
     this._data.write(value? "T": "F");
 

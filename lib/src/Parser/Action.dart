@@ -16,7 +16,7 @@ class _Shift implements _Action {
   String toString() => "shift ${this.state}";
 }
 
-/// A goto indicicates that the current token will be
+/// A goto indicates that the current token will be
 /// handled by another action and simply move to the next state.
 class _Goto implements _Action {
 
@@ -56,7 +56,7 @@ class _Accept implements _Action {
   String toString() => "accept";
 }
 
-/// An error indates that the given token can not
+/// An error indicates that the given token can not
 /// be processed from the current state.
 /// A null action is a generic error, this one gives specific information.
 class _Error implements _Action {

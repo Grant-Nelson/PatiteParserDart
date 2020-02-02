@@ -33,7 +33,7 @@ class Term extends Item {
   }
 
   /// Determines the follow tokens that can be reached from the reduction of all the rules,
-  /// ie. the tokens which follow after the term and any first term in all the rules.
+  /// i.e. the tokens which follow after the term and any first term in all the rules.
   List<TokenItem> determineFollows() {
     Set<TokenItem> tokens = new Set<TokenItem>();
     this._determineFollows(tokens, new Set<Term>());

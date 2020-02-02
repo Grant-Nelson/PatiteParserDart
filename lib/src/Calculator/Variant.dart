@@ -13,7 +13,7 @@ class Variant {
   /// Gets the string for this value.
   String toString() => '${value.runtimeType}($value)';
 
-  /// Indicates if this value is a boolean value.
+  /// Indicates if this value is a Boolean value.
   bool get isBool => value is bool;
 
   /// Indicates if this value is an integer value.
@@ -25,7 +25,7 @@ class Variant {
   /// Indicates if this value is a string value.
   bool get isStr => value is String;
 
-  /// Indicates if the given value can be implicitly cast to a boolean value.
+  /// Indicates if the given value can be implicitly cast to a Boolean value.
   bool get implicitBool => isBool;
 
   /// Indicates if the given value can be implicitly cast to an integer value.
@@ -37,7 +37,7 @@ class Variant {
   /// Indicates if the given value can be implicitly cast to a string value.
   bool get implicitStr => isStr;
 
-  /// Casts this value to a boolean.
+  /// Casts this value to a Boolean.
   bool get asBool {
     if (isStr) {
       String val = (value as String).toLowerCase();
@@ -46,7 +46,7 @@ class Variant {
     if (isInt)  return (value as int) != 0;
     if (isReal) return (value as double) != 0;
     if (isBool) return value as bool;
-    throw new Exception('May not cast ${value} to boolean.');
+    throw new Exception('May not cast ${value} to Boolean.');
   }
 
   /// Casts this value to an integer.

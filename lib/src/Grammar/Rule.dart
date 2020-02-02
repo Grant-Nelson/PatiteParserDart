@@ -5,7 +5,7 @@ part of PetiteParserDart.Grammar;
 /// For example `<T> → "(" <E> ")"`. The term for the rule is
 /// the left hand side (`T`) while the items are the parts on the right hand size.
 /// The items are made up of tokens (`(`, `)`) and the rule's term or other terms (`E`).
-/// The order of the items defines how this rule in the grammer is to be used.
+/// The order of the items defines how this rule in the grammar is to be used.
 class Rule {
   Grammar _grammar;
   Term _term;

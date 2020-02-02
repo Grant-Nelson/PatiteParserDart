@@ -22,7 +22,7 @@ class StepGroup {
   String toString() => '$type $count';
 }
 
-/// This is the steps of the levenshtein path.
+/// This is the steps of the Levenshtein path.
 enum StepType {
 
   /// Indicates A and B entries are equal.

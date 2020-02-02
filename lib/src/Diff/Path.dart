@@ -1,6 +1,6 @@
 part of Diff;
 
-/// The levenshtein path builder used for diffing two compariable sources.
+/// The levenshtein path builder used for diffing two comparable sources.
 class _Path {
   static const int NotSet     = -1;
   static const int MoveUp     =  1;
@@ -120,7 +120,7 @@ class _Path {
     if (aIndex <= 0) return bIndex;
     if (bIndex <= 0) return aIndex;
 
-    // Check if this subpath has already been solved.
+    // Check if this sub-path has already been solved.
     if (this._moves.getValue(aIndex, bIndex) != NotSet)
       return this._costs.getValue(aIndex, bIndex);
 

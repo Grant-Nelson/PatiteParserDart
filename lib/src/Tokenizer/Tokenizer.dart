@@ -88,7 +88,7 @@ class Tokenizer {
   }
 
   /// Creates and adds a state by the given name [stateName].
-  /// If a state aleady exists it is returned,
+  /// If a state already exists it is returned,
   /// otherwise the new state is returned.
   State state(String stateName) {
     State state = this._states[stateName];

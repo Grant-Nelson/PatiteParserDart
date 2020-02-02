@@ -102,7 +102,7 @@ class State {
 
   /// Gets the acceptance token for this state if this state
   /// accepts the input at this point.
-  /// If this isn't an accepting state thie will return null.
+  /// If this isn't an accepting state this will return null.
   TokenState get token => this._token;
 
   /// Sets the acceptance token for this state to the token with
@@ -114,9 +114,9 @@ class State {
   }
 
   /// Joins this state to another state by the given [endStateName]
-  /// with a new transition. If a trasnition already exists between
+  /// with a new transition. If a transition already exists between
   /// these two states that transition is returned,
-  /// otherise the new transition is returned.
+  /// otherwise the new transition is returned.
   Transition join(String endStateName) {
     for (Transition trans in this._trans) {
       if (trans.target.name == endStateName) return trans;

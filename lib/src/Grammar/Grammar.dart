@@ -11,13 +11,13 @@ part 'Trigger.dart';
 /// A grammar is a definition of a language.
 /// It is made up of a set of terms and the rules for how each term is used.
 ///
-/// Formally a Grammer is defined as `G = (V, E, R, S)`:
+/// Formally a Grammar is defined as `G = (V, E, R, S)`:
 /// - `V` is the set of `v` (non-terminal characters / variables).
-///   These are referred to as the terms of the grammer in this implementation.
+///   These are referred to as the terms of the grammar in this implementation.
 /// - `E` (normally shown as an epsilon) is the set of `t` (terminals / tokens).
-///   These are referred to as the tokens of this grammer in this implementation.
+///   These are referred to as the tokens of this grammar in this implementation.
 ///   `V` and `E` are disjoint, meaning no `v` exists in `E` and no `t` exists in `V`.
-/// - `R` is the relationship of `V` to `(V union E)*`, where here the astrisk is
+/// - `R` is the relationship of `V` to `(V union E)*`, where here the asterisk is
 ///   the Kleene star operation. Each `r` in `R` is a rule (rewrite rules / productions)
 ///   of the grammar as represented by `v → [v or t]*` where `[v or t]` is an item in
 ///   in the rule. Each term must be the start of one or more rules with, at least
@@ -26,7 +26,7 @@ part 'Trigger.dart';
 /// - `S` is the start term where `S` must exist in `V`.
 ///
 /// For the LR1 parser, used by Petite Parser Dart, the grammar must be a Context-free
-/// Language (CFL) where `L(G) = {w in E*: S => w}`, meaning that all nontermals can be
+/// Language (CFL) where `L(G) = {w in E*: S => w}`, meaning that all non-terminals can be
 /// reached (`=>` means reachable) from the start term following the rules of the grammar.
 ///
 /// To be a _proper_ CFG there my be no unreachable terms (for all `N` in `V` there
@@ -227,7 +227,7 @@ class Grammar {
     return buf.toString();
   }
 
-  /// Validates the grammers configuration,
+  /// Validates the grammars configuration,
   /// on success (no errors) an empty string is returned,
   /// on failure a string containing each error line separated is returned.
   String validate() {
@@ -252,7 +252,7 @@ class Grammar {
 
     for (Term term in this._terms) {
       if (term.name.trim().isEmpty)
-        buf.writeln('There exists a term which is all whitespace or emtpy.');
+        buf.writeln('There exists a term which is all whitespace or empty.');
       if (term._rules.length <= 0)
         buf.writeln('The term, $term, has no rules defined for it.');
 
@@ -271,7 +271,7 @@ class Grammar {
 
         for (Item item in rule._items) {
           if (item.name.trim().isEmpty)
-            buf.writeln('There exists an item in rule for ${term.name} which is all whitespace or emtpy.');
+            buf.writeln('There exists an item in rule for ${term.name} which is all whitespace or empty.');
           if (item is Term) {
             if (!this._terms.contains(item))
               buf.writeln("The term, $item, in a rule for ${term.name}, was not found in the set of terms.");

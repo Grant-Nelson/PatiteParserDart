@@ -26,7 +26,7 @@ class TokenState {
   void consume() => this._tokenizer.consume([this._name]);
 
   /// Creates a token for this token state and the given [text].
-  /// If the text matches a repelacement's text the
+  /// If the text matches a replacement's text the
   /// replacement token is used instead.
   Token getToken(String text, int index) =>
     new Token(this._replace[text]??this._name, text, index);

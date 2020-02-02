@@ -55,7 +55,7 @@ class Parser {
     return new Parser._(builder.table, grammar, tokenizer);
   }
 
-  /// Creates a parser from the given json serialization.
+  /// Creates a parser from the given JSON serialization.
   factory Parser.deserialize(Simple.Deserializer data) {
     int version = data.readInt();
     if (version != 1)
@@ -73,7 +73,7 @@ class Parser {
   /// Creates a parser from a parser definition string.
   factory Parser.fromDefinitionChar(Iterator<int> input) => (new Loader()..loadChars(input)).parser;
 
-  /// Serializes the parser into a json serialization.
+  /// Serializes the parser into a JSON serialization.
   Simple.Serializer serialize() =>
     new Simple.Serializer()
       ..writeInt(1) // Version 1

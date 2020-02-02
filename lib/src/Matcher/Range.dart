@@ -34,7 +34,7 @@ class Range implements Matcher {
   }
 
   /// Determines if this matcher matches the given character, [c].
-  /// Returns true if the caracter is inclusively in the given range, false otherwise.
+  /// Returns true if the character is inclusively in the given range, false otherwise.
   bool match(int c) => (this.low <= c) && (this.high >= c);
 
   /// Returns the string for this matcher.

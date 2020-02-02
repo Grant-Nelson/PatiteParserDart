@@ -25,7 +25,7 @@ class _State {
   /// The indices which indicated the offset into the matching rule.
   List<int> get indices => this._indices;
 
-  /// The rules for this state which meatch up with the indices.
+  /// The rules for this state which match up with the indices.
   List<Grammar.Rule> get rules => this._rules;
 
   /// This is the items which connect two states together.

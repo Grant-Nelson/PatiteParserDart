@@ -1,7 +1,7 @@
 part of PetiteParserDart.Matcher;
 
 /// A matcher which matches all characters.
-/// Since tranitions are called in the order they are added
+/// Since transitions are called in the order they are added
 /// this matcher can be used as an "else" matcher.
 class All implements Matcher {
 

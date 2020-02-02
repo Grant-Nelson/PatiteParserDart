@@ -1,6 +1,6 @@
 part of PetiteParserDart.Matcher;
 
-/// A matcher which matchs a set of characters.
+/// A matcher which matches a set of characters.
 class Set implements Matcher {
   List<int> _set;
 

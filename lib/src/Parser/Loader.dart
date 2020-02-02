@@ -346,7 +346,7 @@ class Loader {
   }
 
   /// A trigger handle for adding a new token to the tokenizer
-  /// and setting it to comsume that token.
+  /// and setting it to consume that token.
   void _newTokenConsume(ParseTree.TriggerArgs args) {
     String name = args.recent(2).text;
     Tokenizer.TokenState token = this._tokenizer.token(name);
@@ -443,7 +443,7 @@ class Loader {
     this._replaceText.clear();
   }
 
-  /// A trigger handle for starting a grammer definition of a term.
+  /// A trigger handle for starting a grammar definition of a term.
   void _startTerm(ParseTree.TriggerArgs args) =>
     this._grammar.start(this._terms.last.name);
 

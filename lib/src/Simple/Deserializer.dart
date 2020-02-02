@@ -25,7 +25,7 @@ class Deserializer {
       throw new Exception("Unexpected end of serialized data");
   }
 
-  /// Reads a boolean from the data.
+  /// Reads a Boolean from the data.
   bool readBool() {
     this._eofException();
     String c = this._data[this._index];

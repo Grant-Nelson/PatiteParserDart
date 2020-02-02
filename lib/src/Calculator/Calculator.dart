@@ -103,7 +103,7 @@ class Calculator {
     }
   }
 
-  /// This uses the preparsed input to calculate the result.
+  /// This uses the pre-parsed input to calculate the result.
   /// This is useful when wanting to rerun the same code multiple
   /// times without having to reparse the program.
   void calculateNode(ParseTree.TreeNode tree) {
@@ -173,7 +173,7 @@ class Calculator {
     else throw new Exception('Can not Add $left to $right.');
   }
 
-  /// Handles AND-ing the top two items off the stack.
+  /// Handles ANDing the top two items off the stack.
   void _handleAnd(ParseTree.TriggerArgs args) {
     Variant right = new Variant(this.pop());
     Variant left  = new Variant(this.pop());
@@ -323,7 +323,7 @@ class Calculator {
     else throw new Exception('Can not Negate $top.');
   }
 
-  /// Handles NOT-ing the boolean values at the top of the the stack.
+  /// Handles NOTing the Boolean values at the top of the the stack.
   void _handleNot(ParseTree.TriggerArgs args) {
     Variant top = new Variant(this.pop());
     if (top.isBool) this.push(!top.asBool);
@@ -349,7 +349,7 @@ class Calculator {
     this.push(int.parse(text, radix: 8));
   }
 
-  /// Handles OR-ing the boolean values at the top of the the stack.
+  /// Handles ORing the Boolean values at the top of the the stack.
   void _handleOr(ParseTree.TriggerArgs args) {
     Variant right = new Variant(this.pop());
     Variant left  = new Variant(this.pop());
@@ -407,7 +407,7 @@ class Calculator {
     else throw new Exception('Can not Subtract $left to $right.');
   }
 
-  /// Handles XOR-ing the boolean values at the top of the the stack.
+  /// Handles XORing the Boolean values at the top of the the stack.
   void _handleXor(ParseTree.TriggerArgs args) {
     Variant right = new Variant(this.pop());
     Variant left  = new Variant(this.pop());
