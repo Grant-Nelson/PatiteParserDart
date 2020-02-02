@@ -118,11 +118,13 @@ class Calculator {
   /// puts the result on the top of the stack.
   void calculate(String input) {
     Parser.Result result = this.parse(input);
-    if (result.errors?.isNotEmpty ?? false) {
-      this.push('Errors in calculator input:\n' + result.errors.join('\n'));
-      return;
+    if (result != null) {
+      if (result.errors?.isNotEmpty ?? false) {
+        this.push('Errors in calculator input:\n' + result.errors.join('\n'));
+        return;
+      }
+      this.calculateNode(result.tree);
     }
-    this.calculateNode(result.tree);
   }
 
   /// Get a string showing all the values in the stack.
@@ -411,7 +413,8 @@ class Calculator {
   void _handleXor(ParseTree.TriggerArgs args) {
     Variant right = new Variant(this.pop());
     Variant left  = new Variant(this.pop());
-    if (left.implicitInt && right.implicitInt) this.push(left.asInt ^ right.asInt);
+    if (left.implicitBool && right.implicitBool) this.push(left.asBool ^ right.asBool);
+    else if (left.implicitInt && right.implicitInt) this.push(left.asInt ^ right.asInt);
     else throw new Exception('Can not Multiply $left to $right.');
   }
 }

@@ -83,9 +83,7 @@
 (Start): ':' => (Colon): '=' => [Assign];
 (Start): ' ' => (Whitespace): ' ' => ^[Whitespace];
 
-(Start): ^'"' => (Str.Open);
-(Str.Open): '\\' => (Str.Escape);
-(Str.Open): * => (Str.Body);
+(Start): ^'"' => (Str.Body);
 (Str.Body): ^'"' => [String];
 (Str.Body): '\\' => (Str.Escape);
 (Str.Escape): '\\"nrt' => (Str.Body);

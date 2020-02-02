@@ -51,6 +51,11 @@ void main() async {
   test.run(calc00);
   test.run(calc01);
   test.run(calc02);
+  test.run(calc03);
+  test.run(calc04);
+  test.run(calc05);
+  test.run(calc06);
+  test.run(calc07);
 
   test.printResult();
 }

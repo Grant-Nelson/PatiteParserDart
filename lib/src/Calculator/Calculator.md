@@ -74,6 +74,9 @@ These are the built-in functions. Additional functions may be added as needed.
 - `oct`: Formats an integer as an octal number string.
 - `hex`: Formats an integer as a hexadecimal number string.
 - `sub`: Gets the substring of a string given an integer start and stop, e.g. `sub("hello", 2, 4)`.
+- `upper`: Gets the upper case of a string.
+- `lower`: Gets the lower case of a string.
+- `len`: Returns the length of a string.
 
 ### Trigonometry
 

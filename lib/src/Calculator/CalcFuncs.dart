@@ -21,9 +21,11 @@ class _CalcFuncs {
       'floor':  this._funcFloor,
       'hex':    this._funcHex,
       'int':    this._funcInt,
+      'len':    this._funcLen,
       'log':    this._funcLog,
       'log2':   this._funcLog2,
       'log10':  this._funcLog10,
+      'lower':  this._funcLower,
       'ln':     this._funcLn,
       'max':    this._funcMax,
       'min':    this._funcMin,
@@ -36,7 +38,8 @@ class _CalcFuncs {
       'string': this._funcString,
       'sub':    this._funcSub,
       'sum':    this._funcSum,
-      'tan':    this._funcTan};
+      'tan':    this._funcTan,
+      'upper':  this._funcUpper};
     this._rand = new math.Random(0);
   }
 
@@ -165,6 +168,14 @@ class _CalcFuncs {
     return arg.asInt;
   }
 
+  /// This function gets the length of a string.
+  Object _funcLen(List<Object> args) {
+    this._argCount('len', args, 1);
+    Variant arg = new Variant(args[0]);
+    if (arg.implicitStr) return arg.asStr.length;
+    throw new Exception('Can not use $arg to len(string).');
+  }
+
   /// This function gets the log of the given real with the base of another real.
   Object _funcLog(List<Object> args) {
     this._argCount('log', args, 2);
@@ -188,6 +199,14 @@ class _CalcFuncs {
     Variant arg = new Variant(args[0]);
     if (arg.implicitReal) return math.log(arg.asReal)/math.ln10;
     throw new Exception('Can not use $arg in log10(real).');
+  }
+
+  /// This function gets the lower case of the given string.
+  Object _funcLower(List<Object> args) {
+    this._argCount('lower', args, 1);
+    Variant arg = new Variant(args[0]);
+    if (arg.implicitStr) return arg.asStr.toLowerCase();
+    throw new Exception('Can not use $arg in lower(string).');
   }
 
   /// This function gets the natural log of the given real.
@@ -306,7 +325,7 @@ class _CalcFuncs {
     Variant arg2 = new Variant(args[2]);
     if (arg0.implicitStr && arg1.implicitInt && arg2.implicitInt)
       return arg0.asStr.substring(arg1.asInt, arg2.asInt);
-    throw new Exception('Can not uce $arg0, $arg1, and $arg2 in sub(string, int, int).');
+    throw new Exception('Can not use $arg0, $arg1, and $arg2 in sub(string, int, int).');
   }
 
   /// This function gets the sum of zero or more integers or reals.
@@ -337,5 +356,13 @@ class _CalcFuncs {
     Variant arg = new Variant(args[0]);
     if (arg.implicitReal) return math.tan(arg.asReal);
     throw new Exception('Can not use $arg in tan(real).');
+  }
+
+  /// This function gets the upper case of the given string.
+  Object _funcUpper(List<Object> args) {
+    this._argCount('upper', args, 1);
+    Variant arg = new Variant(args[0]);
+    if (arg.implicitStr) return arg.asStr.toUpperCase();
+    throw new Exception('Can not use $arg in upper(string).');
   }
 }
