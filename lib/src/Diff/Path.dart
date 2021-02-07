@@ -1,6 +1,6 @@
 part of Diff;
 
-/// The levenshtein/Hirschberg path builder used for diffing two comparable sources.
+/// The Levenshtein/Hirschberg path builder used for diffing two comparable sources.
 /// See https://en.wikipedia.org/wiki/Levenshtein_distance
 /// And https://en.wikipedia.org/wiki/Hirschberg%27s_algorithm
 class _Path {
@@ -43,7 +43,7 @@ class _Path {
   int _max(int a, int b, int c) => math.max(a, math.max(b, c));
 
   /// Calculate the Needleman-Wunsch score.
-  /// At the end of this calculation the score is in the front vector.
+  /// At the end of this calculation the score is in the back vector.
   void _calculateScore(_Container comp) {
     final int aLen = comp.aLength;
     final int bLen = comp.bLength;
@@ -54,18 +54,18 @@ class _Path {
 
     for (int i = 1; i <= aLen; ++i) {
       this._scoreFront[0] = this._scoreBack[0] + comp.removeCost(i-1);
-      for (int j = 1; j <= bLen; ++j) {
+      for (int j = 1; j <= bLen; ++j)
         this._scoreFront[j] = this._max(
           this._scoreBack[j-1]  + comp.substitionCost(i-1, j-1),
           this._scoreBack[j]    + comp.removeCost(i-1),
           this._scoreFront[j-1] + comp.addCost(j-1));
-      }
 
       this._swapScores();
     }
   }
 
   /// Finds the pivot between the other score and the reverse of the back score.
+  /// The pivot is the index of the maximum sum of each element in the two scores.
   int _findPivot(int bLength) {
     int index = 0;
     int max = this._scoreOther[0] + this._scoreBack[bLength];
@@ -79,6 +79,7 @@ class _Path {
     return index;
   }
 
+  /// Handles when at the edge of the A source subset in the given container.
   Iterable<Step> _aEdge(_Container comp) sync* {
     final int aLen = comp.aLength;
     final int bLen = comp.bLength;
@@ -109,6 +110,7 @@ class _Path {
     }
   }
 
+  /// Handles when at the edge of the B source subset in the given container.
   Iterable<Step> _bEdge(_Container comp) sync* {
     final int aLen = comp.aLength;
     final int bLen = comp.bLength;
@@ -157,7 +159,7 @@ class _Path {
     final int aMid = aLen~/2;
     this._calculateScore(comp.sub(0, aMid, 0, bLen));
     this._storeScore();
-    this._calculateScore(comp.rev(aMid, aLen, 0, bLen));
+    this._calculateScore(comp.sub(aMid, aLen, 0, bLen, reverse: true));
     final int bMid = this._findPivot(bLen);
 
     yield* this._breakupPath(comp.sub(0, aMid, 0, bMid));
@@ -165,6 +167,7 @@ class _Path {
   }
 
   /// Iterates through the diff path for the comparer this path was setup for.
+  /// This will combine and sort the steps to create runs where removed is before the added.
   Iterable<Step> iteratePath() sync* {
     int removedCount = 0;
     int addedCount = 0;
@@ -180,6 +183,7 @@ class _Path {
           }
           addedCount += step.count;
           break;
+        
         case StepType.Removed:
           if (equalCount > 0) {
             yield new Step(StepType.Equal, equalCount);
@@ -187,6 +191,7 @@ class _Path {
           }
           removedCount += step.count;
           break;
+        
         case StepType.Equal:
           if (removedCount > 0) {
             yield new Step(StepType.Removed, removedCount);
@@ -200,17 +205,12 @@ class _Path {
           break;
       }
     }
-    if (removedCount > 0) {
+
+    if (removedCount > 0)
       yield new Step(StepType.Removed, removedCount);
-      removedCount = 0;
-    }
-    if (addedCount > 0) {
+    if (addedCount > 0)
       yield new Step(StepType.Added, addedCount);
-      addedCount = 0;
-    }
-    if (equalCount > 0) {
+    if (equalCount > 0)
       yield new Step(StepType.Equal, equalCount);
-      equalCount = 0;
-    }
   }
 }

@@ -13,12 +13,15 @@ abstract class Comparable {
   bool equals(int aIndex, int bIndex);
 
   /// Gives the cost to remove A at the given index.
+  /// By default this will always return -1.
   int removeCost(int aIndex) => -1;
 
   /// Gives the cost to add B at the given index.
+  /// By default this will always return -1.
   int addCost(int bIndex) => -1;
 
   /// Gives the substition cost for replacing A with B at the given indices.
+  /// By default this will always return 0 if equal, -2 if not equal.
   int substitionCost(int aIndex, int bIndex) =>
     this.equals(aIndex, bIndex)? 0: -2;
 
@@ -47,5 +50,5 @@ class _StringsComparable extends Comparable {
   
   /// Gets a generic debug string for this comparable.
   @override
-  String toString() => 'Comparable(${_aSource.join('|')}, ${_bSource.join('|')})';
+  String toString() => '(${_aSource.join('|')}, ${_bSource.join('|')})';
 }

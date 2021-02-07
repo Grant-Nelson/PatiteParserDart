@@ -22,7 +22,6 @@ void main() async {
 
   test.run(diff00);
 
-  /*
   test.run(grammar00);
   test.run(grammar01);
 
@@ -57,6 +56,5 @@ void main() async {
   test.run(calc05);
   test.run(calc06);
   test.run(calc07);
-  */
   test.printResult();
 }
