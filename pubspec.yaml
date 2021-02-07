@@ -1,5 +1,5 @@
 name: PetiteParserDart
-version: 1.1.0
+version: 1.2.0
 description: A simple customizable parsing tool.
 environment:
   sdk: '>=2.0.0'
