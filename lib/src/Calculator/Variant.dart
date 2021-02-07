@@ -4,7 +4,7 @@ part of PetiteParserDart.Calculator;
 /// for casting and testing the implicit casting of a value.
 class Variant {
 
-  /// This ia the wrapped value.
+  /// This is the wrapped value.
   final Object value;
 
   /// Wraps the given value into a new Variant.
