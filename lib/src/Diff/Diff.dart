@@ -51,16 +51,16 @@ Iterable<Step> linesPath(String aSource, String bSource) =>
 /// It formats the results by prepending a "+" to new lines in `bSource`,
 /// a "-" for any to removed strings from `aSource`, and space if the strings are the same.
 String plusMinusLines(String aSource, String bSource) =>
-	plusMinusParts(aSource.split('\n'), bSource.split('\n')).join('\n');
+  plusMinusParts(aSource.split('\n'), bSource.split('\n')).join('\n');
 
 /// Gets the labelled difference between the two list of lines.
 /// It formats the results by prepending a "+" to new lines in `bSource`,
 /// a "-" for any to removed strings from `aSource`, and space if the strings are the same.
 List<String> plusMinusParts(List<String> aSource, List<String> bSource) {
-	List<String> result = new List<String>();
-	int aIndex = 0, bIndex = 0;
-	for (Step step in stringListPath(aSource, bSource)) {
-		switch (step.type) {
+  List<String> result = new List<String>();
+  int aIndex = 0, bIndex = 0;
+  for (Step step in stringListPath(aSource, bSource)) {
+    switch (step.type) {
       case StepType.Equal:
         for (int i = step.count-1; i >= 0; i--) {
           result.add(' '+aSource[aIndex]);
@@ -80,7 +80,7 @@ List<String> plusMinusParts(List<String> aSource, List<String> bSource) {
           aIndex++;
         }
         break;
-		}
-	}
-	return result;
+    }
+  }
+  return result;
 }

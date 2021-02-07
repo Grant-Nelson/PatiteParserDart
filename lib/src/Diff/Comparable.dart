@@ -3,13 +3,13 @@ part of Diff;
 /// A simple interface for generic difference determination.
 abstract class Comparable {
 
-	/// The length of the first list being compared.
+  /// The length of the first list being compared.
   int get aLength;
 
-	/// The length of the second list being compared.
+  /// The length of the second list being compared.
   int get bLength;
 
-	/// Determines if the entries in the two given indices are equal.
+  /// Determines if the entries in the two given indices are equal.
   bool equals(int aIndex, int bIndex);
 
   /// Gives the cost to remove A at the given index.
@@ -38,13 +38,13 @@ class _StringsComparable extends Comparable {
   /// Creates a new diff comparable for the two given strings.
   _StringsComparable(this._aSource, this._bSource);
 
-	/// The length of the first list being compared.
+  /// The length of the first list being compared.
   int get aLength => this._aSource.length;
 
-	/// The length of the section list being compared.
+  /// The length of the section list being compared.
   int get bLength => this._bSource.length;
 
-	/// Determines if the entries in the two given indices are equal.
+  /// Determines if the entries in the two given indices are equal.
   bool equals(int aIndex, int bIndex) =>
     this._aSource[aIndex] == this._bSource[bIndex];
   

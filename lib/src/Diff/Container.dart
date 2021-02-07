@@ -24,10 +24,10 @@ class _Container {
     return new _Container(this._comp, a2Low, aHigh-aLow, b2Low, bHigh-bLow, this._reverse != reverse);
   }
   
-	/// The length of the first list being compared.
+  /// The length of the first list being compared.
   int get aLength => this._aLength;
 
-	/// The length of the section list being compared.
+  /// The length of the section list being compared.
   int get bLength => this._bLength;
 
   /// Gets the A index adjusted by the container's condition.
@@ -40,7 +40,7 @@ class _Container {
     (this._bLength-1-bIndex+this._bOffset) :
     (bIndex+this._bOffset);
 
-	/// Determines if the entries in the two given indices are equal.
+  /// Determines if the entries in the two given indices are equal.
   bool equals(int aIndex, int bIndex) =>
     this._comp.equals(this._aAdjust(aIndex), this._bAdjust(bIndex));
 
