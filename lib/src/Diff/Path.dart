@@ -1,218 +1,216 @@
 part of Diff;
 
-/// The levenshtein path builder used for diffing two comparable sources.
+/// The Levenshtein/Hirschberg path builder used for diffing two comparable sources.
+/// See https://en.wikipedia.org/wiki/Levenshtein_distance
+/// And https://en.wikipedia.org/wiki/Hirschberg%27s_algorithm
 class _Path {
-  static const int NotSet     = -1;
-  static const int MoveUp     =  1;
-  static const int MoveLeft   =  2;
-  static const int MoveUpLeft =  3;
-  static const int MoveEqual  =  4;
 
   /// The source comparable to create the path for.
-  DiffComparable _comp;
+  Comparable _baseComp;
 
-  /// The container for the levenshtein costs.
-  _Table _costs;
+  /// The score vector at the front of the score calculation.
+  List<int> _scoreFront;
 
-  /// The container for the path movements.
-  _Table _moves;
+  /// The score vector at the back of the score calculation.
+  List<int> _scoreBack;
+
+  /// The score vector to store off a result vector to.
+  List<int> _scoreOther;
 
   /// Creates a new path builder.
-  _Path(DiffComparable this._comp) {
-    final int aLen = this._comp.aLength;
-    final int bLen = this._comp.bLength;
-    this._costs = new _Table(aLen, bLen, -1);
-    this._moves = new _Table(aLen, bLen, NotSet);
+  _Path(Comparable this._baseComp) {
+    final int len = this._baseComp.bLength + 1;
+    this._scoreFront = new List<int>.filled(len, 0, growable: false);
+    this._scoreBack = new List<int>.filled(len, 0, growable: false);
+    this._scoreOther = new List<int>.filled(len, 0, growable: false);
   }
 
-  /// Path gets the difference path for the two given items.
-  /// Gets the path with the lowest cost.
-  /// See https://en.wikipedia.org/wiki/Levenshtein_distance
-  List<StepGroup> createPath() {
-    List<StepGroup> result = new List<StepGroup>();
-    this._setMovement(this._comp.aLength, this._comp.bLength);
+  /// Swaps the front and back score vectors.
+  void _swapScores() {
+    List<int> temp = this._scoreFront;
+    this._scoreFront = this._scoreBack;
+    this._scoreBack = temp;
+  }
 
-    int addRun = 0;
-    Function() insertAdd = () {
-      if (addRun > 0) {
-        result.add(new StepGroup(StepType.Added, addRun));
-        addRun = 0;
+  /// Swaps the back and other score vectors.
+  void _storeScore() {
+    List<int> temp = this._scoreBack;
+    this._scoreBack = this._scoreOther;
+    this._scoreOther = temp;
+  }
+
+  /// Gets the maximum value of the three given values.
+  int _max(int a, int b, int c) => math.max(a, math.max(b, c));
+
+  /// Calculate the Needleman-Wunsch score.
+  /// At the end of this calculation the score is in the back vector.
+  void _calculateScore(_Container comp) {
+    final int aLen = comp.aLength;
+    final int bLen = comp.bLength;
+
+    this._scoreBack[0] = 0;
+    for (int j = 1; j <= bLen; ++j)
+      this._scoreBack[j] = this._scoreBack[j-1] + comp.addCost(j-1);
+
+    for (int i = 1; i <= aLen; ++i) {
+      this._scoreFront[0] = this._scoreBack[0] + comp.removeCost(i-1);
+      for (int j = 1; j <= bLen; ++j)
+        this._scoreFront[j] = this._max(
+          this._scoreBack[j-1]  + comp.substitionCost(i-1, j-1),
+          this._scoreBack[j]    + comp.removeCost(i-1),
+          this._scoreFront[j-1] + comp.addCost(j-1));
+
+      this._swapScores();
+    }
+  }
+
+  /// Finds the pivot between the other score and the reverse of the back score.
+  /// The pivot is the index of the maximum sum of each element in the two scores.
+  int _findPivot(int bLength) {
+    int index = 0;
+    int max = this._scoreOther[0] + this._scoreBack[bLength];
+    for (int j = 1; j <= bLength; ++j) {
+      int value = this._scoreOther[j] + this._scoreBack[bLength - j];
+      if (value > max) {
+        max = value;
+        index = j;
       }
-    };
+    }
+    return index;
+  }
 
-    int removeRun = 0;
-    Function() insertRemove = () {
-      if (removeRun > 0) {
-        result.add(new StepGroup(StepType.Removed, removeRun));
-        removeRun = 0;
+  /// Handles when at the edge of the A source subset in the given container.
+  Iterable<Step> _aEdge(_Container comp) sync* {
+    final int aLen = comp.aLength;
+    final int bLen = comp.bLength;
+    
+    if (aLen <= 0) {
+      if (bLen > 0)
+        yield new Step(StepType.Added, bLen);
+      return;
+    }
+
+    int split = -1;
+    for (int j = 0; j < bLen; j++) {
+      if (comp.equals(0, j)) {
+        split = j;
+        break;
       }
-    };
+    }
 
-    int equalRun = 0;
-    Function() insertEqual = () {
-      if (equalRun > 0) {
-        result.add(new StepGroup(StepType.Equal, equalRun));
-        equalRun = 0;
+    if (split < 0) {
+      yield new Step(StepType.Removed, 1);
+      yield new Step(StepType.Added, bLen);
+    } else {
+      if (split > 0)
+        yield new Step(StepType.Added, split);
+      yield new Step(StepType.Equal, 1);
+      if (split < bLen-1)
+        yield new Step(StepType.Added, bLen-split-1);
+    }
+  }
+
+  /// Handles when at the edge of the B source subset in the given container.
+  Iterable<Step> _bEdge(_Container comp) sync* {
+    final int aLen = comp.aLength;
+    final int bLen = comp.bLength;
+    
+    if (bLen <= 0) {
+      if (aLen > 0)
+        yield new Step(StepType.Removed, aLen);
+      return;
+    }
+    
+    int split = -1;
+    for (int i = 0; i < aLen; i++) {
+      if (comp.equals(i, 0)) {
+        split = i;
+        break;
       }
-    };
+    }
 
-    for (StepType step in this.traverseBackwards()) {
-      switch (step) {
-        case StepType.Equal:
-          insertAdd();
-          insertRemove();
-          equalRun++;
-          break;
+    if (split < 0) {
+      yield new Step(StepType.Removed, aLen);
+      yield new Step(StepType.Added, 1);
+    } else {
+      if (split > 0)
+        yield new Step(StepType.Removed, split);
+      yield new Step(StepType.Equal, 1);
+      if (split < aLen-1)
+        yield new Step(StepType.Removed, aLen-split-1);
+    }
+  }
+
+  /// This performs the Hirschberg divide and concore and returns the path.
+  Iterable<Step> _breakupPath(_Container comp) sync* {
+    final int aLen = comp.aLength;
+    final int bLen = comp.bLength;
+    
+    if (aLen <= 1) {
+      yield* this._aEdge(comp);
+      return;
+    }
+    
+    if (bLen <= 1) {
+      yield* this._bEdge(comp);
+      return;
+    }
+
+    final int aMid = aLen~/2;
+    this._calculateScore(comp.sub(0, aMid, 0, bLen));
+    this._storeScore();
+    this._calculateScore(comp.sub(aMid, aLen, 0, bLen, reverse: true));
+    final int bMid = this._findPivot(bLen);
+
+    yield* this._breakupPath(comp.sub(0, aMid, 0, bMid));
+    yield* this._breakupPath(comp.sub(aMid, aLen, bMid, bLen));
+  }
+
+  /// Iterates through the diff path for the comparer this path was setup for.
+  /// This will combine and sort the steps to create runs where removed is before the added.
+  Iterable<Step> iteratePath() sync* {
+    int removedCount = 0;
+    int addedCount = 0;
+    int equalCount = 0;
+
+    _Container cont = new _Container.Full(this._baseComp);
+    for (Step step in this._breakupPath(cont)) {
+      switch(step.type) {
         case StepType.Added:
-          insertEqual();
-          addRun++;
+          if (equalCount > 0) {
+            yield new Step(StepType.Equal, equalCount);
+            equalCount = 0;
+          }
+          addedCount += step.count;
           break;
+        
         case StepType.Removed:
-          insertEqual();
-          removeRun++;
+          if (equalCount > 0) {
+            yield new Step(StepType.Equal, equalCount);
+            equalCount = 0;
+          }
+          removedCount += step.count;
+          break;
+        
+        case StepType.Equal:
+          if (removedCount > 0) {
+            yield new Step(StepType.Removed, removedCount);
+            removedCount = 0;
+          }
+          if (addedCount > 0) {
+            yield new Step(StepType.Added, addedCount);
+            addedCount = 0;
+          }
+          equalCount += step.count;
           break;
       }
     }
 
-    insertAdd();
-    insertRemove();
-    insertEqual();
-    return new List<StepGroup>.from(result.reversed);
-  }
-
-  /// Checks if the comparer is equal.
-  bool isEqual(int aIndex, int bIndex) =>
-    this._comp.equals(aIndex-1, bIndex-1);
-
-  /// Gets the cost at a path point.
-  int getCost(int aIndex, int bIndex) {
-    if (aIndex <= 0) return bIndex;
-    if (bIndex <= 0) return aIndex;
-    int cost = this._costs.getValue(aIndex, bIndex);
-    if (cost < 0) cost = this.setCost(aIndex, bIndex);
-    return cost;
-  }
-
-  /// Sets the cost of a path point.
-  int setCost(int aIndex, int bIndex) {
-    // get the minimum of entry skip entry from a, skip entry from b, and skip entry from both
-    int costA = this.getCost(aIndex-1, bIndex);
-    int costB = this.getCost(aIndex,   bIndex-1);
-    int minCost = math.min(costA, costB);
-
-    int costC = this.getCost(aIndex-1, bIndex-1);
-    if (costC <= minCost) {
-      // skips any cost for equal values in the inputs
-      int skipCost = this.isEqual(aIndex, bIndex)? -1: 0;
-      minCost = costC + skipCost;
-    }
-
-    // calculate the minimum path cost and set cost
-    minCost++;
-    this._costs.setValue(aIndex, bIndex, minCost);
-    return minCost;
-  }
-
-  /// Determines the minimum path starting from this point
-  /// and then sets the movement from this point towards the shorter path.
-  int _setMovement(int aIndex, int bIndex) {
-    // base case when one of the inputs are empty
-    if (aIndex <= 0) return bIndex;
-    if (bIndex <= 0) return aIndex;
-
-    // Check if this sub-path has already been solved.
-    if (this._moves.getValue(aIndex, bIndex) != NotSet)
-      return this._costs.getValue(aIndex, bIndex);
-
-	  // get the minimum of entry skip entry from a, skip entry from b, and skip entry from both
-    int costA = this.getCost(aIndex-1, bIndex);
-    int costB = this.getCost(aIndex,   bIndex-1);
-    int costC = this.getCost(aIndex-1, bIndex-1);
-    int minCost = math.min(math.min(costA, costB), costC);
-
-    // calculate the minimum path cost and set movements
-    int minPathCost = minCost + 2;
-    int minMove = NotSet;
-
-    if (costA <= minCost) {
-      // costA is minimum
-      int cost = this._setMovement(aIndex-1, bIndex) + 1;
-      if (cost < minPathCost) {
-        minPathCost = cost;
-        minMove = MoveLeft;
-      }
-    }
-
-    if (costB <= minCost) {
-      // costB is minimum
-      int cost = this._setMovement(aIndex, bIndex-1) + 1;
-      if (cost < minPathCost) {
-        minPathCost = cost;
-        minMove = MoveUp;
-      }
-    }
-
-    if (costC <= minCost) {
-      int cost = this._setMovement(aIndex-1, bIndex-1);
-      if (this.isEqual(aIndex, bIndex)) {
-        if (cost < minPathCost) {
-          minPathCost = cost;
-          minMove = MoveEqual;
-        }
-      } else {
-        cost++;
-        if (cost < minPathCost) {
-          minPathCost = cost;
-          minMove = MoveUpLeft;
-        }
-      }
-    }
-
-    this._moves.setValue(aIndex, bIndex, minMove);
-    return minPathCost;
-  }
-
-  /// This handles traversing the diff path using the defined movements,
-  /// however it traverses backwards.
-  Iterable<StepType> traverseBackwards() sync* {
-    int aIndex = this._comp.aLength;
-    int bIndex = this._comp.bLength;
-    while (true) {
-      if (aIndex <= 0) {
-        for (int i = 0; i < bIndex; i++)
-          yield StepType.Added;
-        return;
-      }
-
-      if (bIndex <= 0) {
-        for (int i = 0; i < aIndex; i++)
-          yield StepType.Removed;
-        return;
-      }
-
-      switch (this._moves.getValue(aIndex, bIndex)) {
-        case MoveLeft:
-          aIndex--;
-          yield StepType.Removed;
-          break;
-        case MoveUp:
-          bIndex--;
-          yield StepType.Added;
-          break;
-        case MoveEqual:
-          aIndex--;
-          bIndex--;
-          yield StepType.Equal;
-          break;
-        case MoveUpLeft:
-          aIndex--;
-          bIndex--;
-          yield StepType.Added;
-          yield StepType.Removed;
-          break;
-        case NotSet:
-          throw new Exception('Hit not set at ($aIndex, $bIndex).');
-      }
-    }
+    if (removedCount > 0)
+      yield new Step(StepType.Removed, removedCount);
+    if (addedCount > 0)
+      yield new Step(StepType.Added, addedCount);
+    if (equalCount > 0)
+      yield new Step(StepType.Equal, equalCount);
   }
 }

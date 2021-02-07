@@ -44,10 +44,10 @@ class TestArgs {
     String expStr = exp.join('|');
     if (expStr != result) {
       this.error('The diff did not return the expected result:'+
-        '\n  A Input:  ${a.join("|")}'+
-        '\n  B Input:  ${b.join("|")}'+
-        '\n  Expected: $expStr'+
-        '\n  Result:   $result');
+        '\n  A Input:  [${a.join("|")}]'+
+        '\n  B Input:  [${b.join("|")}]'+
+        '\n  Expected: [$expStr]'+
+        '\n  Result:   [$result]');
     }
   }
 
