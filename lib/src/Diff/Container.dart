@@ -19,11 +19,9 @@ class _Container {
 
   /// Creates a new comparable container for a subset and reverse realative to this container's settings.
   _Container sub(int aLow, int aHigh, int bLow, int bHigh, {bool reverse = false}) {
-    int a2Low = this._aAdjust(aLow), a2High = this._aAdjust(aHigh);
-    int b2Low = this._bAdjust(bLow), b2High = this._bAdjust(bHigh);
-    if (this._reverse)
-      return new _Container(this._comp, a2High, a2Low-a2High, b2High, b2Low-b2High, !reverse);
-    return new _Container(this._comp, a2Low, a2High-a2Low, b2Low, b2High-b2Low, reverse);
+    final int a2Low = this._aAdjust(this._reverse ? aHigh : aLow);
+    final int b2Low = this._bAdjust(this._reverse ? bHigh : bLow);
+    return new _Container(this._comp, a2Low, aHigh-aLow, b2Low, bHigh-bLow, this._reverse != reverse);
   }
   
 	/// The length of the first list being compared.
