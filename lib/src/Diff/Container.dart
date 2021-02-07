@@ -17,7 +17,7 @@ class _Container {
   factory _Container.Full(Comparable comp) =>
     new _Container(comp, 0, comp.aLength, 0, comp.bLength, false);
 
-  /// Creates a new comparable container for a subset and reverse realative to this container's settings.
+  /// Creates a new comparable container for a subset and reverse relative to this container's settings.
   _Container sub(int aLow, int aHigh, int bLow, int bHigh, {bool reverse = false}) {
     final int aOffset = this._aAdjust(this._reverse ? aHigh : aLow);
     final int bOffset = this._bAdjust(this._reverse ? bHigh : bLow);
