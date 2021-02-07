@@ -49,9 +49,8 @@ class _Path {
     final int bLen = comp.bLength;
 
     this._scoreBack[0] = 0;
-    for (int j = 1; j <= bLen; ++j) {
+    for (int j = 1; j <= bLen; ++j)
       this._scoreBack[j] = this._scoreBack[j-1] + comp.addCost(j-1);
-    }
 
     for (int i = 1; i <= aLen; ++i) {
       this._scoreFront[0] = this._scoreBack[0] + comp.removeCost(i-1);
@@ -141,10 +140,9 @@ class _Path {
   }
 
   /// This performs the Hirschberg divide and concore and returns the path.
-  Iterable<Step> _breakupPath(_Container comp, [String indent = ""]) sync* {
+  Iterable<Step> _breakupPath(_Container comp) sync* {
     final int aLen = comp.aLength;
     final int bLen = comp.bLength;
-    print('$indent$comp');
     
     if (aLen <= 1) {
       yield* this._aEdge(comp);
@@ -162,16 +160,12 @@ class _Path {
     this._calculateScore(comp.rev(aMid, aLen, 0, bLen));
     final int bMid = this._findPivot(bLen);
 
-    yield* this._breakupPath(comp.sub(0, aMid, 0, bMid), indent+"|  ");
-    yield* this._breakupPath(comp.sub(aMid, aLen, bMid, bLen), indent+"|  ");
+    yield* this._breakupPath(comp.sub(0, aMid, 0, bMid));
+    yield* this._breakupPath(comp.sub(aMid, aLen, bMid, bLen));
   }
 
   /// Iterates through the diff path for the comparer this path was setup for.
   Iterable<Step> iteratePath() sync* {
-    _Container cont = new _Container.Full(this._baseComp);
-    yield* this._breakupPath(cont);
-
-    /*
     int removedCount = 0;
     int addedCount = 0;
     int equalCount = 0;
@@ -218,6 +212,5 @@ class _Path {
       yield new Step(StepType.Equal, equalCount);
       equalCount = 0;
     }
-    */
   }
 }

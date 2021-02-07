@@ -3,7 +3,6 @@ part of PetiteParserDart.test;
 void diff00(TestArgs args) {
   args.log('diff00');
 
-  /*
   args.checkDiff(
 		['cat'],
 		['cat'],
@@ -28,14 +27,12 @@ void diff00(TestArgs args) {
 		['cat', 'dog'],
 		['cat', 'horse', 'dog'],
 		[' cat', '+horse', ' dog']);
-  */
 
   args.checkDiff(
 		['cat', 'dog', 'pig'],
 		['cat', 'horse', 'dog'],
 		[' cat', '+horse', ' dog', '-pig']);
 
-  /*
 	args.checkDiff(
 		['mike', 'ted', 'mark', 'jim'],
 		['ted', 'mark', 'bob', 'bill'],
@@ -86,5 +83,4 @@ void diff00(TestArgs args) {
      ' func C() int {',
      '   return 12',
      ' }']);
-  */
 }

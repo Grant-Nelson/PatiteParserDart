@@ -13,14 +13,14 @@ abstract class Comparable {
   bool equals(int aIndex, int bIndex);
 
   /// Gives the cost to remove A at the given index.
-  int removeCost(int aIndex) => -2;
+  int removeCost(int aIndex) => -1;
 
   /// Gives the cost to add B at the given index.
-  int addCost(int bIndex) => -2;
+  int addCost(int bIndex) => -1;
 
   /// Gives the substition cost for replacing A with B at the given indices.
   int substitionCost(int aIndex, int bIndex) =>
-    this.equals(aIndex, bIndex)? 2: -1;
+    this.equals(aIndex, bIndex)? 0: -2;
 
   /// Gets a generic debug string for this comparable.
   @override

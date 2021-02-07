@@ -6,9 +6,9 @@ class TestArgs {
   StringBuffer _buf;
 
   /// Creates a new test argument.
-  TestArgs(bool buffer) {
+  TestArgs() {
     this._failed = false;
-    this._buf = buffer? new StringBuffer(): null;
+    this._buf = new StringBuffer();
   }
 
   /// Indicates if the test has failed or not.
@@ -18,14 +18,12 @@ class TestArgs {
   String toString() => this._buf.toString();
 
   /// Writes an output to the test log.
-  void log(String msg) {
-    if (this._buf == null) print(msg);
-    else this._buf.writeln(msg);
-  }
+  void log(String msg) =>
+    this._buf.writeln(msg);
 
   /// Indicates an error occurred.
   void error(String msg) {
-    this.log('Error: '+msg);
+    this._buf.writeln('Error: '+msg);
     this._failed = true;
   }
 
@@ -50,11 +48,6 @@ class TestArgs {
         '\n  B Input:  [${b.join("|")}]'+
         '\n  Expected: [$expStr]'+
         '\n  Result:   [$result]');
-    } else {
-      this.log('Passed:'+
-        '\n  A Input: [${a.join("|")}]'+
-        '\n  B Input: [${b.join("|")}]'+
-        '\n  Result:  [$result]');
     }
   }
 
