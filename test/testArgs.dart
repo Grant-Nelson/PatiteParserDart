@@ -6,9 +6,9 @@ class TestArgs {
   StringBuffer _buf;
 
   /// Creates a new test argument.
-  TestArgs() {
+  TestArgs(bool buffer) {
     this._failed = false;
-    this._buf = new StringBuffer();
+    this._buf = buffer? new StringBuffer(): null;
   }
 
   /// Indicates if the test has failed or not.
@@ -18,12 +18,14 @@ class TestArgs {
   String toString() => this._buf.toString();
 
   /// Writes an output to the test log.
-  void log(String msg) =>
-    this._buf.writeln(msg);
+  void log(String msg) {
+    if (this._buf == null) print(msg);
+    else this._buf.writeln(msg);
+  }
 
   /// Indicates an error occurred.
   void error(String msg) {
-    this._buf.writeln('Error: '+msg);
+    this.log('Error: '+msg);
     this._failed = true;
   }
 
@@ -44,10 +46,15 @@ class TestArgs {
     String expStr = exp.join('|');
     if (expStr != result) {
       this.error('The diff did not return the expected result:'+
-        '\n  A Input:  ${a.join("|")}'+
-        '\n  B Input:  ${b.join("|")}'+
-        '\n  Expected: $expStr'+
-        '\n  Result:   $result');
+        '\n  A Input:  [${a.join("|")}]'+
+        '\n  B Input:  [${b.join("|")}]'+
+        '\n  Expected: [$expStr]'+
+        '\n  Result:   [$result]');
+    } else {
+      this.log('Passed:'+
+        '\n  A Input: [${a.join("|")}]'+
+        '\n  B Input: [${b.join("|")}]'+
+        '\n  Result:  [$result]');
     }
   }
 
