@@ -141,7 +141,7 @@ class _Path {
     }
   }
 
-  /// This performs the Hirschberg divide and concore and returns the path.
+  /// This performs the Hirschberg divide and conquer and returns the path.
   Iterable<Step> _breakupPath(_Container comp) sync* {
     final int aLen = comp.aLength;
     final int bLen = comp.bLength;
