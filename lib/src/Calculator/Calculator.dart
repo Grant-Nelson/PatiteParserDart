@@ -110,6 +110,7 @@ class Calculator {
     try {
       tree.process(this._handles);
     } catch (err) {
+      this._stack.clear();
       this.push('Errors in calculator input:\n' + err.toString());
     }
   }
@@ -120,7 +121,8 @@ class Calculator {
     Parser.Result result = this.parse(input);
     if (result != null) {
       if (result.errors?.isNotEmpty ?? false) {
-        this.push('Errors in calculator input:\n' + result.errors.join('\n'));
+        this._stack.clear();
+        this.push('Errors in calculator input:\n  ' + result.errors.join('\n  '));
         return;
       }
       this.calculateNode(result.tree);

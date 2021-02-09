@@ -87,9 +87,9 @@ void calc04(TestArgs args) {
   args.checkCalc(calc, '"cat" + "9"', ['cat9']);
   args.checkCalc(calc, '"cat" + string(9)', ['cat9']);
   args.checkCalc(calc, '"cat" + string(6 + int("3"))', ['cat9']);
-  args.checkCalc(calc, 'bin(42)', ['101010']);
-  args.checkCalc(calc, 'oct(42)', ['52']);
-  args.checkCalc(calc, 'hex(42)', ['2a']);
+  args.checkCalc(calc, 'bin(42)', ['101010b']);
+  args.checkCalc(calc, 'oct(42)', ['52o']);
+  args.checkCalc(calc, 'hex(42)', ['0x2A']);
   args.checkCalc(calc, 'upper("CAT-cat")', ['CAT-CAT']);
   args.checkCalc(calc, 'lower("CAT-cat")', ['cat-cat']);
 
@@ -110,10 +110,10 @@ void calc05(TestArgs args) {
   args.log('calc05');
   
   Calculator.Calculator calc = new Calculator.Calculator();
-  args.checkCalc(calc, 'hex(0xFF00 & 0xF0F0)', ['f000']);
-  args.checkCalc(calc, 'hex(0xFF00 | 0xF0F0)', ['fff0']);
-  args.checkCalc(calc, 'hex(0xFF00 ^ 0xF0F0)', ['ff0']);
-  args.checkCalc(calc, 'hex(~0xFF00 & 0x0FF0)', ['f0']);
+  args.checkCalc(calc, 'hex(0xFF00 & 0xF0F0)', ['0xF000']);
+  args.checkCalc(calc, 'hex(0xFF00 | 0xF0F0)', ['0xFFF0']);
+  args.checkCalc(calc, 'hex(0xFF00 ^ 0xF0F0)', ['0xFF0']);
+  args.checkCalc(calc, 'hex(~0xFF00 & 0x0FF0)', ['0xF0']);
 
   args.checkCalc(calc, '!true', ['false']);
   args.checkCalc(calc, '!false', ['true']);  
@@ -174,4 +174,20 @@ void calc07(TestArgs args) {
   args.checkCalc(calc, 'e', ['2.718281828459045']);
   args.checkCalc(calc, 'pi', ['3.141592653589793']);
   args.checkCalc(calc, 'cos(pi)', ['-1.0']);
+}
+
+void calc08(TestArgs args) {
+  args.log('calc08');
+
+  Calculator.Calculator calc = new Calculator.Calculator();
+  args.checkCalc(calc, 'padLeft("Hello", 12)', ['       Hello']);
+  args.checkCalc(calc, 'padRight("Hello", 12)', ['Hello       ']);
+  args.checkCalc(calc, 'padLeft("Hello", 12, "-")', ['-------Hello']);
+  args.checkCalc(calc, 'padRight("Hello", 12, "-")', ['Hello-------']);
+  args.checkCalc(calc, 'trim("   Hello   ")', ['Hello']);
+  args.checkCalc(calc, 'trimLeft("   Hello   ")', ['Hello   ']);
+  args.checkCalc(calc, 'trimRight("   Hello   ")', ['   Hello']);
+  args.checkCalc(calc, 'trim(str(1))',
+    ['Errors in calculator input:',
+     'Exception: No function called str found.']);
 }

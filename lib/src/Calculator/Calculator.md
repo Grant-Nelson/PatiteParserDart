@@ -27,9 +27,11 @@ The calculator uses the petite parser to create a simple mathematical language.
 | `cos(1.5*pi)`                  | `-1.8369701987210297e-16` |
 | `min(4, 8, 15, 16, 23, 42)`    | `4`                       |
 | `0x00FF & 0xAAAA`              | `170`                     |
+| `hex(0x00FF & 0xAAAA)`         | `0xAA`                    |
 | `int(string(12) + string(34))` | `1234`                    |
 | `x := 4; y := x + 2; x*y`      | `24`                      |
 | `1 + 1; 2 + 2; 3 + 3;`         | `2, 4, 6`                 |
+| `upper(sub("Hello", 1, 3))`    | `EL`                      |
 
 ## Literals
 
@@ -77,6 +79,17 @@ These are the built-in functions. Additional functions may be added as needed.
 - `upper`: Gets the upper case of a string.
 - `lower`: Gets the lower case of a string.
 - `len`: Returns the length of a string.
+- `padLeft`: Pads the string on the left side with an optional string
+          until the string's length is equal to a specified length,
+          e.g. `padLeft("hello", 3)` and `padLeft("hello", 3, "-")`.
+          If not specified, the string will be padded with spaces.
+- `padRight`: Pads the string on the right side with an optional string
+          until the string's length is equal to a specified length,
+          e.g. `padRight("hello", 3)` and `padRight("hello", 3, "-")`.
+          If not specified, the string will be padded with spaces.
+- `trim`: Trims all whitespace from the left and right of a string.
+- `trimLeft`: Trims all whitespace from the left of a string.
+- `trimRight`: Trims all whitespace from the right of a string.
 
 ### Trigonometry
 

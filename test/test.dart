@@ -56,6 +56,7 @@ void main() async {
   test.run(calc05);
   test.run(calc06);
   test.run(calc07);
+  test.run(calc08);
 
   test.printResult();
 }

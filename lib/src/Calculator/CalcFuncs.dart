@@ -8,38 +8,43 @@ class _CalcFuncs {
   /// Creates a new collection of calculator function.
   _CalcFuncs() {
     this._funcs = {
-      'abs':    this._funcAbs,
-      'acos':   this._funcAcos,
-      'asin':   this._funcAsin,
-      'atan':   this._funcAtan,
-      'atan2':  this._funcAtan2,
-      'avg':    this._funcAvg,
-      'bin':    this._funcBin,
-      'bool':   this._funcBool,
-      'ceil':   this._funcCeil,
-      'cos':    this._funcCos,
-      'floor':  this._funcFloor,
-      'hex':    this._funcHex,
-      'int':    this._funcInt,
-      'len':    this._funcLen,
-      'log':    this._funcLog,
-      'log2':   this._funcLog2,
-      'log10':  this._funcLog10,
-      'lower':  this._funcLower,
-      'ln':     this._funcLn,
-      'max':    this._funcMax,
-      'min':    this._funcMin,
-      'oct':    this._funcOct,
-      'rand':   this._funcRand,
-      'real':   this._funcReal,
-      'round':  this._funcRound,
-      'sin':    this._funcSin,
-      'sqrt':   this._funcSqrt,
-      'string': this._funcString,
-      'sub':    this._funcSub,
-      'sum':    this._funcSum,
-      'tan':    this._funcTan,
-      'upper':  this._funcUpper};
+      'abs':       this._funcAbs,
+      'acos':      this._funcAcos,
+      'asin':      this._funcAsin,
+      'atan':      this._funcAtan,
+      'atan2':     this._funcAtan2,
+      'avg':       this._funcAvg,
+      'bin':       this._funcBin,
+      'bool':      this._funcBool,
+      'ceil':      this._funcCeil,
+      'cos':       this._funcCos,
+      'floor':     this._funcFloor,
+      'hex':       this._funcHex,
+      'int':       this._funcInt,
+      'len':       this._funcLen,
+      'log':       this._funcLog,
+      'log2':      this._funcLog2,
+      'log10':     this._funcLog10,
+      'lower':     this._funcLower,
+      'ln':        this._funcLn,
+      'max':       this._funcMax,
+      'min':       this._funcMin,
+      'oct':       this._funcOct,
+      'padleft':   this._funcPadLeft,
+      'padright':  this._funcPadRight,
+      'rand':      this._funcRand,
+      'real':      this._funcReal,
+      'round':     this._funcRound,
+      'sin':       this._funcSin,
+      'sqrt':      this._funcSqrt,
+      'string':    this._funcString,
+      'sub':       this._funcSub,
+      'sum':       this._funcSum,
+      'tan':       this._funcTan,
+      'trim':      this._funcTrim,
+      'trimleft':  this._funcTrimLeft,
+      'trimright': this._funcTrimRight,
+      'upper':     this._funcUpper};
     this._rand = new math.Random(0);
   }
 
@@ -118,7 +123,7 @@ class _CalcFuncs {
   Object _funcBin(List<Object> args) {
     this._argCount('bin', args, 1);
     Variant arg = new Variant(args[0]);
-    if (arg.implicitInt) return arg.asInt.toRadixString(2);
+    if (arg.implicitInt) return arg.asInt.toRadixString(2)+"b";
     throw new Exception('Can not use $arg to bin(int).');
   }
 
@@ -157,7 +162,7 @@ class _CalcFuncs {
   Object _funcHex(List<Object> args) {
     this._argCount('hex', args, 1);
     Variant arg = new Variant(args[0]);
-    if (arg.implicitInt) return arg.asInt.toRadixString(16);
+    if (arg.implicitInt) return "0x"+arg.asInt.toRadixString(16).toUpperCase();
     throw new Exception('Can not use $arg to hex(int).');
   }
 
@@ -269,8 +274,34 @@ class _CalcFuncs {
   Object _funcOct(List<Object> args) {
     this._argCount('oct', args, 1);
     Variant arg = new Variant(args[0]);
-    if (arg.implicitInt) return arg.asInt.toRadixString(8);
+    if (arg.implicitInt) return arg.asInt.toRadixString(8)+"o";
     throw new Exception('Can not use $arg to oct(int).');
+  }
+
+  /// This function pads the string on the left side with an optional character
+  /// until the string's length is equal to a specified length.
+  Object _funcPadLeft(List<Object> args) {
+    if (args.length < 2 || args.length > 3)
+      throw new Exception('The function padLeft requires 2 or 3 arguments but got ${args.length}.');
+    Variant arg0 = new Variant(args[0]);
+    Variant arg1 = new Variant(args[1]);
+    Variant arg2 = new Variant((args.length == 3) ? args[2] : " ");
+    if (arg0.implicitStr && arg1.implicitInt && arg2.implicitStr)
+      return arg0.asStr.padLeft(arg1.asInt, arg2.asStr);
+    throw new Exception('Can not use $arg0, $arg1, and $arg2 in padLeft(string, int, [string]).');
+  }
+
+  /// This function pads the string on the right side with an optional character
+  /// until the string's length is equal to a specified length.
+  Object _funcPadRight(List<Object> args) {
+    if (args.length < 2 || args.length > 3)
+      throw new Exception('The function padRight requires 2 or 3 arguments but got ${args.length}.');
+    Variant arg0 = new Variant(args[0]);
+    Variant arg1 = new Variant(args[1]);
+    Variant arg2 = new Variant((args.length == 3) ? args[2] : " ");
+    if (arg0.implicitStr && arg1.implicitInt && arg2.implicitStr)
+      return arg0.asStr.padRight(arg1.asInt, arg2.asStr);
+    throw new Exception('Can not use $arg0, $arg1, and $arg2 in padRight(string, int, [string]).');
   }
 
   /// This function puts a random number onto the stack.
@@ -356,6 +387,30 @@ class _CalcFuncs {
     Variant arg = new Variant(args[0]);
     if (arg.implicitReal) return math.tan(arg.asReal);
     throw new Exception('Can not use $arg in tan(real).');
+  }
+
+  /// This function trims the left and right of a string.
+  Object _funcTrim(List<Object> args) {
+    this._argCount('trim', args, 1);
+    Variant arg = new Variant(args[0]);
+    if (arg.implicitStr) return arg.asStr.trim();
+    throw new Exception('Can not use $arg in trim(string).');
+  }
+
+  /// This function trims the left of a string.
+  Object _funcTrimLeft(List<Object> args) {
+    this._argCount('trimLeft', args, 1);
+    Variant arg = new Variant(args[0]);
+    if (arg.implicitStr) return arg.asStr.trimLeft();
+    throw new Exception('Can not use $arg in trimLeft(string).');
+  }
+
+  /// This function trims the right of a string.
+  Object _funcTrimRight(List<Object> args) {
+    this._argCount('trimRight', args, 1);
+    Variant arg = new Variant(args[0]);
+    if (arg.implicitStr) return arg.asStr.trimRight();
+    throw new Exception('Can not use $arg in trimRight(string).');
   }
 
   /// This function gets the upper case of the given string.
