@@ -5,12 +5,10 @@ part of PetiteParserDart.Tokenizer;
 class TokenState {
   Tokenizer _tokenizer;
   String _name;
-  Map<String, String> _replace;
+  Map<String, String> _replace = {};
 
   /// Creates a new token state for the given tokenizer.
-  TokenState._(Tokenizer this._tokenizer, String this._name) {
-    this._replace = new Map<String, String>();
-  }
+  TokenState._(Tokenizer this._tokenizer, String this._name);
 
   /// Gets the name of this token.
   String get name => this._name;

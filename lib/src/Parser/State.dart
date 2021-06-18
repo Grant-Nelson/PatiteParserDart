@@ -4,23 +4,17 @@ part of PetiteParserDart.Parser;
 /// The state is a collection of rules with offset indices.
 /// These states are used for generating the parser table.
 class _State {
-  List<int> _indices;
-  List<Grammar.Rule> _rules;
-  List<Grammar.Item> _onItems;
-  List<_State> _gotos;
-  bool _accept;
+  List<int> _indices = [];
+  List<Grammar.Rule> _rules = [];
+  List<Grammar.Item> _onItems = [];
+  List<_State> _gotos = [];
+  bool _accept = false;
 
   /// This is the index of the state in the builder.
   final int number;
 
   /// Creates a new state for the parser builder.
-  _State(this.number) {
-    this._indices = new List<int>();
-    this._rules   = new List<Grammar.Rule>();
-    this._onItems = new List<Grammar.Item>();
-    this._gotos   = new List<_State>();
-    this._accept  = false;
-  }
+  _State(this.number);
 
   /// The indices which indicated the offset into the matching rule.
   List<int> get indices => this._indices;
@@ -71,7 +65,7 @@ class _State {
 
   /// Finds the go to state from the given item,
   /// null is returned if none is found.
-  _State findGoto(Grammar.Item item) {
+  _State? findGoto(Grammar.Item item) {
     for (int i = this._onItems.length - 1; i >= 0; i--) {
       if (this._onItems[i] == item) return this._gotos[i];
     }
@@ -87,7 +81,8 @@ class _State {
   }
 
   /// Determines if this state is equal to the given state.
-  bool equals(_State other) {
+  bool equals(_State? other) {
+    if (other == null) return false;
     if (other.number != this.number) return false;
     if (other._indices.length != this._indices.length) return false;
     if (other._onItems.length != this._onItems.length) return false;
@@ -103,11 +98,11 @@ class _State {
   /// Gets a string for this state for debugging the builder.
   String toString([String indent = ""]) {
     StringBuffer buf = new StringBuffer();
-    buf.writeln("state ${this.number}:");
+    buf.writeln('state ${this.number}:');
     for (int i = 0; i < this._rules.length; i++)
-      buf.writeln(indent+"  "+this._rules[i].toString(this._indices[i]));
+      buf.writeln(indent+'  '+this._rules[i].toString(this._indices[i]));
     for (int i = 0; i < this._onItems.length; i++)
-      buf.writeln(indent+"  ${this._onItems[i]}: goto state ${this._gotos[i].number}");
+      buf.writeln(indent+'  ${this._onItems[i]}: goto state ${this._gotos[i].number}');
     return buf.toString();
   }
 }

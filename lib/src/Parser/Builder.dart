@@ -3,21 +3,16 @@ part of PetiteParserDart.Parser;
 /// This is a builder used to generate a parser giving a grammar.
 class _Builder {
   Grammar.Grammar _grammar;
-  List<_State> _states;
-  Set<Grammar.Item> _items;
-  _Table _table;
-  StringBuffer _errors;
+  List<_State> _states = [];
+  Set<Grammar.Item> _items = {};
+  _Table _table = new _Table();
+  StringBuffer _errors = new StringBuffer();
 
   /// Constructs of a new parser builder.
-  _Builder(Grammar.Grammar this._grammar) {
+  _Builder(this._grammar) {
     Grammar.Term oldStart = this._grammar.startTerm;
     this._grammar.start(_startTerm);
     this._grammar.newRule(_startTerm).addTerm(oldStart.name).addToken(_eofTokenName);
-
-    this._states = new List<_State>();
-    this._items = new Set<Grammar.Item>();
-    this._table = new _Table();
-    this._errors = new StringBuffer();
 
     for (Grammar.Term term in this._grammar.terms) {
       this._items.add(term);
@@ -30,7 +25,7 @@ class _Builder {
   }
 
   /// Finds a state with the given offset index for the given rule.
-  _State find(int index, Grammar.Rule rule) {
+  _State? find(int index, Grammar.Rule rule) {
     for (_State state in this._states) {
       for (int i = 0; i < state.indices.length; i++) {
         if ((state.indices[i] == index) &&
@@ -46,8 +41,7 @@ class _Builder {
     for (Grammar.Rule rule in this._grammar.startTerm.rules)
       startState.addRule(0, rule);
     this._states.add(startState);
-    List<_State> changed = List<_State>()
-      ..add(startState);
+    List<_State> changed = [startState];
 
     while (changed.isNotEmpty) {
       _State state = changed.removeLast();
@@ -57,7 +51,7 @@ class _Builder {
 
   /// Determines the next states following the given state.
   List<_State> nextStates(_State state) {
-    List<_State> changed = new List<_State>();
+    List<_State> changed = [];
     for (int i = 0; i < state.indices.length; i++) {
       int index = state.indices[i];
       Grammar.Rule rule = state.rules[i];
@@ -69,7 +63,7 @@ class _Builder {
           state.setAccept();
 
         } else {
-          _State next = state.findGoto(item);
+          _State? next = state.findGoto(item);
           if (next == null) {
             next = this.find(index+1, rule);
             if (next == null) {
@@ -121,17 +115,17 @@ class _Builder {
 
     // Check for goto loops.
     for (Grammar.Term term in this._grammar.terms) {
-      List<int> checked = new List<int>();
+      List<int> checked = [];
       for (int i = 0; i < this._states.length; i++) {
         if (checked.contains(i)) continue;
         checked.add(i);
 
-        _Action action = this._table.readGoto(i, term.name);
-        List<int> reached = new List<int>();
+        _Action? action = this._table.readGoto(i, term.name);
+        List<int> reached = [];
         while (action is _Goto) {
           reached.add(i);
           checked.add(i);
-          i = (action as _Goto).state;
+          i = action.state;
           if (reached.contains(i)) {
             List<int> loop = reached.sublist(reached.indexOf(i));
             this._errors.writeln('Infinite goto loop found in term ${term.name} between the state(s) $loop.');

@@ -5,14 +5,11 @@ part of PetiteParserDart.Tokenizer;
 class State {
   Tokenizer _tokenizer;
   String _name;
-  List<Transition> _trans;
-  TokenState _token;
+  List<Transition> _trans = [];
+  TokenState? _token = null;
 
   /// Creates a new state for this given tokenizer.
-  State._(Tokenizer this._tokenizer, String this._name) {
-    this._trans = new List<Transition>();
-    this._token = null;
-  }
+  State._(this._tokenizer, this._name);
 
   /// Loads a matcher group from the given deserializer.
   void _deserializeGroup(Matcher.Group group, Simple.Deserializer data) {
@@ -45,7 +42,7 @@ class State {
     int transCount = data.readInt();
     for (int i = 0; i < transCount; i++) {
       String key = data.readStr();
-      State target = this._tokenizer._states[key];
+      State? target = this._tokenizer._states[key];
       Transition trans = new Transition._(target);
       trans._consume = data.readBool();
       this._deserializeGroup(trans, data);
@@ -75,7 +72,7 @@ class State {
       } else if (matcher is Matcher.Set) {
         data.writeInt(4);
         data.writeStr(matcher.toString());
-      } else throw new Exception("Unknown matcher: $matcher");
+      } else throw new Exception('Unknown matcher: $matcher');
     }
   }
 
@@ -85,7 +82,7 @@ class State {
 
     data.writeInt(this._trans.length);
     for (Transition trans in this._trans) {
-      data.writeStr(trans._target._name);
+      data.writeStr(trans._target?._name ?? '');
       data.writeBool(trans._consume);
       this._serializeGroup(data, trans);
     }
@@ -93,7 +90,7 @@ class State {
     bool hasTokenState = this._token != null;
     data.writeBool(hasTokenState);
     if (hasTokenState)
-      data.writeStr(this._token._name);
+      data.writeStr(this._token?._name ?? '');
     return data;
   }
 
@@ -103,12 +100,12 @@ class State {
   /// Gets the acceptance token for this state if this state
   /// accepts the input at this point.
   /// If this isn't an accepting state this will return null.
-  TokenState get token => this._token;
+  TokenState? get token => this._token;
 
   /// Sets the acceptance token for this state to the token with
   /// the given [tokenName]. If no token by that name exists it
   /// will be created. The new token is returned.
-  TokenState setToken(String tokenName) {
+  TokenState? setToken(String tokenName) {
     this._token = this._tokenizer.token(tokenName);
     return this._token;
   }
@@ -119,7 +116,7 @@ class State {
   /// otherwise the new transition is returned.
   Transition join(String endStateName) {
     for (Transition trans in this._trans) {
-      if (trans.target.name == endStateName) return trans;
+      if (trans.target?.name == endStateName) return trans;
     }
     State target = this._tokenizer.state(endStateName);
     Transition trans = new Transition._(target);
@@ -129,7 +126,7 @@ class State {
 
   /// Finds the matching transition given a character.
   /// If no transition matches null is returned.
-  Transition findTansition(int c) {
+  Transition? findTansition(int c) {
     for (Transition trans in this._trans) {
       if (trans.match(c)) return trans;
     }
@@ -142,22 +139,22 @@ class State {
   /// Gets the human readable debug string.
   String _toDebugString() {
     StringBuffer buf = new StringBuffer();
-    buf.write("(${this._name})");
+    buf.write('(${this._name})');
     if (this._token != null) {
-      buf.write(" => [${this._token._name}]");
-      if (this._tokenizer._consume.contains(this._token._name))
-        buf.write(" (consume)");
-      for (String text in this._token._replace.keys) {
+      buf.write(' => [${this._token?._name}]');
+      if (this._tokenizer._consume.contains(this._token?._name))
+        buf.write(' (consume)');
+      for (String text in this._token?._replace.keys ?? []) {
         buf.writeln();
-        String target = this._token._replace[text];
-        buf.write("  -- ${text} => [$target]");
+        String target = this._token?._replace[text] ?? '';
+        buf.write('  -- ${text} => [$target]');
         if (this._tokenizer._consume.contains(target))
-          buf.write(" (consume)");
+          buf.write(' (consume)');
       }
     }
     for (Transition trans in this._trans) {
         buf.writeln();
-        buf.write("  -- ${trans.toString()}");
+        buf.write('  -- ${trans.toString()}');
     }
     return buf.toString();
   }

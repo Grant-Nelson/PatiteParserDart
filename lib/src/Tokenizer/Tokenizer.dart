@@ -10,18 +10,13 @@ part 'Transition.dart';
 
 /// A tokenizer for breaking a string into tokens.
 class Tokenizer {
-  Map<String, State> _states;
-  Map<String, TokenState> _token;
-  Set<String> _consume;
-  State _start;
+  Map<String, State?> _states = {};
+  Map<String, TokenState?> _token = {};
+  Set<String> _consume = Set();
+  State? _start = null;
 
   /// Creates a new tokenizer.
-  Tokenizer() {
-    this._states  = new Map<String, State>();
-    this._token   = new Map<String, TokenState>();
-    this._consume = new Set<String>();
-    this._start   = null;
-  }
+  Tokenizer();
 
   /// Loads a whole tokenizer from the given deserializer.
   factory Tokenizer.deserialize(Simple.Deserializer data) {
@@ -40,14 +35,14 @@ class Tokenizer {
     }
 
     int stateCount = data.readInt();
-    List<String> keys = new List<String>();
+    List<String> keys = [];
     for (int i = 0; i < stateCount; i++) {
       String key = data.readStr();
       tokenizer._states[key] = new State._(tokenizer, key);
       keys.add(key);
     }
     for (String key in keys)
-      tokenizer._states[key]._deserialize(data.readSer());
+      tokenizer._states[key]?._deserialize(data.readSer());
 
     tokenizer._consume = new Set.from(data.readStrList());
     if (data.readBool())
@@ -63,35 +58,36 @@ class Tokenizer {
     data.writeInt(this._token.length);
     for (String key in this._token.keys) {
       data.writeStr(key);
-      data.writeStringStringMap(this._token[key]._replace);
+      data.writeStringStringMap(this._token[key]?._replace ?? {});
     }
 
     data.writeInt(this._states.length);
     for (String key in this._states.keys)
       data.writeStr(key);
     for (String key in this._states.keys)
-      data.writeSer(this._states[key]._serialize());
+      data.writeSer(this._states[key]?._serialize());
 
     data.writeStrList(this._consume.toList());
 
     bool hasStart = this._start != null;
     data.writeBool(hasStart);
-    if (hasStart) data.writeStr(this._start._name);
+    if (hasStart) data.writeStr(this._start?._name ?? '');
     return data;
   }
 
   /// Sets the start state for the tokenizer to a state with the name [stateName].
   /// If that state doesn't exist it will be created.
   State start(String stateName) {
-    this._start = this.state(stateName);
-    return this._start;
+    State start = this.state(stateName);
+    this._start = start;
+    return start;
   }
 
   /// Creates and adds a state by the given name [stateName].
   /// If a state already exists it is returned,
   /// otherwise the new state is returned.
   State state(String stateName) {
-    State state = this._states[stateName];
+    State? state = this._states[stateName];
     if (state == null) {
       state = new State._(this, stateName);
       this._states[stateName] = state;
@@ -104,7 +100,7 @@ class Tokenizer {
   /// If a token by that name already exists it will be returned,
   /// otherwise the new token is returned.
   TokenState token(String tokenName) {
-    TokenState token = this._token[tokenName];
+    TokenState? token = this._token[tokenName];
     if (token == null) {
       token = new TokenState._(this, tokenName);
       this._token[tokenName] = token;
@@ -114,18 +110,18 @@ class Tokenizer {
 
   /// Joins the two given states and returns the new or
   /// already existing transition.
-  Transition join(String startStateName, String endStateName) =>
+  Transition? join(String startStateName, String endStateName) =>
     this.state(startStateName).join(endStateName);
 
   /// This is short hand for a join and setToken
   /// where the state name and token name are the same.
-  Transition joinToToken(String startStateName, String endStateName) {
+  Transition? joinToToken(String startStateName, String endStateName) {
     this.state(endStateName).setToken(endStateName);
     return this.state(startStateName).join(endStateName);
   }
 
   /// Sets the token for the given state and returns the acceptance token.
-  TokenState setToken(String stateName, String tokenName) =>
+  TokenState? setToken(String stateName, String tokenName) =>
     this.state(stateName).setToken(tokenName);
 
   /// Sets which tokens should be consumed and not emitted.
@@ -140,8 +136,8 @@ class Tokenizer {
   /// tokenizer and returns the iterator of tokens for the input.
   /// This will throw an exception if the input is not tokenizable.
   Iterable<Token> tokenizeChars(Iterator<int> iterator) sync* {
-    Token lastToken = null;
-    State state = this._start;
+    Token? lastToken = null;
+    State? state = this._start;
     int index = 0;
     int lastIndex = 0;
     int lastLength = 0;
@@ -161,14 +157,14 @@ class Tokenizer {
       index++;
 
       // Transition to the next state with the current character.
-      Transition trans = state.findTansition(c);
+      Transition? trans = state?.findTansition(c);
       if (trans == null) {
         // No transition found.
         if (lastToken == null) {
           // No previous found token state, therefore this part
           // of the input isn't tokenizable with this tokenizer.
           String text = new String.fromCharCodes(allInput);
-          throw new Exception("Untokenizable string [state: ${state.name}, index $index]: \"$text\"");
+          throw new Exception('Untokenizable string [state: ${state?.name}, index $index]: "$text"');
         }
 
         // Reset to previous found token's state.
@@ -190,9 +186,9 @@ class Tokenizer {
         // Store acceptance state to return to if needed.
         if (!trans.consume) outText.add(c);
         state = trans.target;
-        if (state.token != null) {
+        if (state?.token != null) {
           String text = new String.fromCharCodes(outText);
-          lastToken = state.token.getToken(text, index);
+          lastToken = state?.token?.getToken(text, index);
           lastLength = allInput.length;
           lastIndex = index;
         }
@@ -206,9 +202,9 @@ class Tokenizer {
   /// Gets the human readable debug string.
   String toString() {
     StringBuffer buf = new StringBuffer();
-    if (this._start != null) buf.writeln(this._start._toDebugString());
-    for (State state in this._states.values) {
-      if (state != this._start) buf.writeln(state._toDebugString());
+    if (this._start != null) buf.writeln(this._start?._toDebugString());
+    for (State? state in this._states.values) {
+      if (state != this._start) buf.writeln(state?._toDebugString());
     }
     return buf.toString();
   }

@@ -23,7 +23,7 @@ typedef Object CalcFunc(List<Object> args);
 /// This is also an example of how to use petite parser to construct
 /// a simple interpreted language.
 class Calculator {
-  static Parser.Parser _parser;
+  static Parser.Parser? _parser = null;
 
   /// Loads the parser used by the calculator.
   ///
@@ -39,15 +39,15 @@ class Calculator {
     return null;
   }
 
-  Map<String, ParseTree.TriggerHandle> _handles;
-  List<Object> _stack;
-  Map<String, Object> _consts;
-  Map<String, Object> _vars;
-  _CalcFuncs _funcs;
-
+  Map<String, ParseTree.TriggerHandle> _handles = {};
+  List<Object> _stack = [];
+  Map<String, Object> _consts = {};
+  Map<String, Object> _vars = {};
+  _CalcFuncs _funcs = new _CalcFuncs();
+  
   // Creates a new calculator instance.
   Calculator() {
-    this._handles = {
+    this._handles.addAll({
       'Add':          this._handleAdd,
       'And':          this._handleAnd,
       'Assign':       this._handleAssign,
@@ -75,27 +75,24 @@ class Calculator {
       'StartCall':    this._handleStartCall,
       'String':       this._handleString,
       'Subtract':     this._handleSubtract,
-      'Xor':          this._handleXor};
-    this._stack = new List<Object>();
-    this._consts = {
+      'Xor':          this._handleXor});
+    this._consts.addAll({
       "pi":    math.pi,
       "e":     math.e,
       "true":  true,
-      "false": false};
-    this._vars = new Map<String, Object>();
-    this._funcs = new _CalcFuncs();
+      "false": false});
   }
 
   /// This parses the given calculation input and
   /// returns the results so that the input can be run multiple
   /// times without having to reparse the program.
-  Parser.Result parse(String input) {
+  Parser.Result? parse(String input) {
     if (input.isEmpty) return null;
     if (_parser == null)
       throw new Exception('Error: The parser must have finished loading prior to calculating any input.');
 
     try {
-      return _parser.parse(input);
+      return _parser?.parse(input);
     } catch (err) {
       return new Parser.Result([
         'Errors in calculator input:\n' + err.toString()

@@ -2,12 +2,12 @@ part of PetiteParserDart.Calculator;
 
 /// This is a collection of functions for the calculator.
 class _CalcFuncs {
-  Map<String, CalcFunc> _funcs;
-  math.Random _rand;
-
+  Map<String, CalcFunc> _funcs = {};
+  math.Random _rand = new math.Random(0);
+  
   /// Creates a new collection of calculator function.
   _CalcFuncs() {
-    this._funcs = {
+    this._funcs.addAll({
       'abs':       this._funcAbs,
       'acos':      this._funcAcos,
       'asin':      this._funcAsin,
@@ -44,19 +44,18 @@ class _CalcFuncs {
       'trim':      this._funcTrim,
       'trimleft':  this._funcTrimLeft,
       'trimright': this._funcTrimRight,
-      'upper':     this._funcUpper};
-    this._rand = new math.Random(0);
+      'upper':     this._funcUpper});
   }
 
   /// Adds a new function that can be called by the language.
   /// Set to null to remove a function.
-  void addFunc(String name, CalcFunc hndl) {
+  void addFunc(String name, CalcFunc? hndl) {
     if (hndl == null) this._funcs.remove(name);
     else this._funcs[name] = hndl;
   }
 
   /// Finds the function with the given name.
-  CalcFunc findFunc(String name) => this._funcs[name];
+  CalcFunc? findFunc(String name) => this._funcs[name];
 
   /// This checks that the specified number of arguments has been given.
   void _argCount(String name, List<Object> args, int count) {
