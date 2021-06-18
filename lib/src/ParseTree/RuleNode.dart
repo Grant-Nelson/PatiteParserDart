@@ -37,7 +37,7 @@ class RuleNode extends TreeNode {
 
   /// Processes this tree node with the given handles for the triggers to call.
   void process(Map<String, TriggerHandle> handles) {
-    List<TreeNode> stack = new List<TreeNode>();
+    List<TreeNode> stack = [];
     stack.add(this);
     TriggerArgs args = new TriggerArgs();
     while (stack.isNotEmpty) {
@@ -47,7 +47,7 @@ class RuleNode extends TreeNode {
       else if (node is TriggerNode) {
         if (!handles.containsKey(node.trigger))
           throw new Exception('Failed to find the handle for the trigger, ${node.trigger}');
-        handles[node.trigger](args);
+        handles[node.trigger]?.call(args);
       }
     }
   }

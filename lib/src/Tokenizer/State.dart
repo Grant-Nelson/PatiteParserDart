@@ -105,9 +105,10 @@ class State {
   /// Sets the acceptance token for this state to the token with
   /// the given [tokenName]. If no token by that name exists it
   /// will be created. The new token is returned.
-  TokenState? setToken(String tokenName) {
-    this._token = this._tokenizer.token(tokenName);
-    return this._token;
+  TokenState setToken(String tokenName) {
+    TokenState token = this._tokenizer.token(tokenName);
+    this._token = token;
+    return token;
   }
 
   /// Joins this state to another state by the given [endStateName]

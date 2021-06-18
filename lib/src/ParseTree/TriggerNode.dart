@@ -14,7 +14,7 @@ class TriggerNode extends TreeNode {
   void process(Map<String, TriggerHandle> handles) {
     if (!handles.containsKey(this.trigger))
       throw new Exception('Failed to find the handle for the trigger, ${this.trigger}');
-    handles[this.trigger](new TriggerArgs());
+    handles[this.trigger]?.call(new TriggerArgs());
   }
 
   /// Gets a string for this tree node.

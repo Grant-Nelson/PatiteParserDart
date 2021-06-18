@@ -2,12 +2,10 @@ part of PetiteParserDart.Matcher;
 
 /// A group of matchers for matching complicated sets of characters.
 class Group implements Matcher {
-  List<Matcher> _matchers;
+  List<Matcher> _matchers = [];
 
   /// Creates a new matcher group.
-  Group() {
-    this._matchers = new List<Matcher>();
-  }
+  Group();
 
   /// Gets the list of matchers in this group.
   List<Matcher> get matchers => this._matchers;
@@ -29,17 +27,17 @@ class Group implements Matcher {
 
   /// Adds a character set matcher to this group.
   Set addSet(String charSet) =>
-    this.add(new Set(charSet));
+    this.add(new Set(charSet)) as Set;
 
   /// Adds a range of characters to match to this group.
   Range addRange(String lowChar, String highChar) =>
-    this.add(new Range(lowChar, highChar));
+    this.add(new Range(lowChar, highChar)) as Range;
 
   /// Adds a matcher to match all characters.
-  All addAll() => this.add(new All());
+  All addAll() => this.add(new All()) as All;
 
   /// Adds a not matcher group.
-  Not addNot() => this.add(new Not());
+  Not addNot() => this.add(new Not()) as Not;
 
   /// Returns the string for this matcher.
   String toString() {
