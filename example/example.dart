@@ -4,8 +4,7 @@ import 'package:PetiteParserDart/Calculator.dart' as Calc;
 
 import 'dart:io' as io;
 
-void main() async {
-  await Calc.Calculator.loadParser();
+void main() {
   Calc.Calculator calc = new Calc.Calculator();
 
   print('Enter in an equation and press enter to calculate the result.');
@@ -13,7 +12,7 @@ void main() async {
 
   while (true) {
     io.stdout.write("> ");
-    String input = io.stdin.readLineSync();
+    String input = io.stdin.readLineSync() ?? '';
     if (input.toLowerCase() == 'exit') break;
 
     calc.clear();

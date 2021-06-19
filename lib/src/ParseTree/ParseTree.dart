@@ -25,14 +25,12 @@ abstract class TreeNode {
 class TriggerArgs {
 
   /// The list of recent tokens while processing a tree node.
-  List<Tokenizer.Token> tokens;
+  List<Tokenizer.Token> tokens = [];
 
   /// Creates a new trigger argument.
-  TriggerArgs() {
-    this.tokens = new List<Tokenizer.Token>();
-  }
+  TriggerArgs();
 
   /// Gets the recent token offset from most recent by the given index.
-  Tokenizer.Token recent(int index) =>
+  Tokenizer.Token? recent(int index) =>
     ((index > 0) && (index <= tokens.length))? this.tokens[this.tokens.length-index]: null;
 }

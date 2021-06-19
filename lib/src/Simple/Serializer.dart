@@ -2,31 +2,29 @@ part of PetiteParserDart.Simple;
 
 /// This is a simple serializer designed for fast serialization and deserialization.
 class Serializer {
-  StringBuffer _data;
+  StringBuffer _data = new StringBuffer();
 
   /// Creates a new serializer.
-  Serializer() {
-    this._data = new StringBuffer();
-  }
+  Serializer();
 
   /// Gets the serialized string of data.
   String toString() => this._data.toString();
 
   /// Writes a Boolean to the data.
   void writeBool(bool value) =>
-    this._data.write(value? "T": "F");
+    this._data.write(value? 'T': 'F');
 
   /// Writes an integer to the data.
   void writeInt(int value) =>
-    this._data.write("$value ");
+    this._data.write('$value ');
 
   /// Writes a string to the data.
   void writeStr(String value) =>
-    this._data.write("${value.length} $value");
+    this._data.write('${value.length} $value');
 
   /// Writes another serializer to the data.
-  void writeSer(Serializer value) =>
-    this.writeStr(value._data.toString());
+  void writeSer(Serializer? value) =>
+    this.writeStr(value?._data.toString() ?? '');
 
   /// Writes a list of integers to the data.
   void writeIntList(List<int> value) {
@@ -47,7 +45,7 @@ class Serializer {
     this.writeInt(value.length);
     for (String key in value.keys) {
       this.writeStr(key);
-      this.writeStr(value[key]);
+      this.writeStr(value[key] ?? '');
     }
   }
 }

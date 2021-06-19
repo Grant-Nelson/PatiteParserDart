@@ -2,19 +2,16 @@ part of PetiteParserDart.Simple;
 
 /// Deserializes a previous serialized string of data.
 class Deserializer {
-  int _index;
+  int _index = 0;
   String _data;
 
   /// Creates a new deserializer with the given data.
-  Deserializer(String data) {
-    this._index = 0;
-    this._data = data;
-  }
+  Deserializer(this._data);
 
   /// Gets the serialized string of data.
   String toString() =>
     this._data.substring(0, this._index) +
-      "•" + this._data.substring(this._index);
+      '•' + this._data.substring(this._index);
 
   /// Indicates if the deserializer has reached the end.
   bool get hasMore => this._index < this._data.length;
@@ -22,7 +19,7 @@ class Deserializer {
   /// Checks if the end of the data has been reached.
   void _eofException() {
     if (!this.hasMore)
-      throw new Exception("Unexpected end of serialized data");
+      throw new Exception('Unexpected end of serialized data');
   }
 
   /// Reads a Boolean from the data.
@@ -30,9 +27,9 @@ class Deserializer {
     this._eofException();
     String c = this._data[this._index];
     this._index++;
-    if (c == "T") return true;
-    if (c == "F") return false;
-    throw new Exception("Expected T or F but got $c");
+    if (c == 'T') return true;
+    if (c == 'F') return false;
+    throw new Exception('Expected T or F but got $c');
   }
 
   /// Reads an integer from the data.
@@ -40,7 +37,7 @@ class Deserializer {
     this._eofException();
     int start = this._index;
     for (; this._index < this._data.length; this._index++) {
-      if (this._data[this._index] == " ") break;
+      if (this._data[this._index] == ' ') break;
     }
     this._index++;
     String value = this._data.substring(start, this._index-1);
@@ -64,7 +61,7 @@ class Deserializer {
   /// Reads a list of integers from the data.
   List<int> readIntList() {
     int count = this.readInt();
-    List<int> list = new List<int>();
+    List<int> list = [];
     for (int i = 0; i < count; i++)
       list.add(this.readInt());
     return list;
@@ -73,7 +70,7 @@ class Deserializer {
   /// Reads a list of strings from the data.
   List<String> readStrList() {
     int count = this.readInt();
-    List<String> list = new List<String>();
+    List<String> list = [];
     for (int i = 0; i < count; i++)
       list.add(this.readStr());
     return list;
@@ -81,7 +78,7 @@ class Deserializer {
 
   /// Reads a map of strings to strings from the data.
   Map<String, String> readStringStringMap() {
-    Map<String, String> map = new Map<String, String>();
+    Map<String, String> map = {};
     int count = this.readInt();
     for (int i = 0; i < count; i++) {
       String key = this.readStr();

@@ -4,20 +4,14 @@ part of PetiteParserDart.Parser;
 class _Runner {
   final _Table _table;
   final int _errorCap;
-  List<String> _errors;
-  List<ParseTree.TreeNode> _itemStack;
-  List<int> _stateStack;
-  bool _accepted;
-  bool _verbose;
+  List<String> _errors = [];
+  List<ParseTree.TreeNode> _itemStack = [];
+  List<int> _stateStack = [0];
+  bool _accepted = false;
+  bool _verbose = false;
 
   /// Creates a new runner, only the parser may create a runner.
-  _Runner(this._table, this._errorCap) {
-    this._errors = new List<String>();
-    this._itemStack = new List<ParseTree.TreeNode>();
-    this._stateStack = [0];
-    this._accepted = false;
-    this._verbose = false;
-  }
+  _Runner(this._table, this._errorCap);
 
   /// Gets the results from the runner.
   Result get result {
@@ -27,7 +21,7 @@ class _Runner {
       this._errors.add('Unexpected end of input.');
       return new Result(List.unmodifiable(this._errors), null);
     }
-    return new Result(null, this._itemStack[0]);
+    return new Result([], this._itemStack[0]);
   }
 
   /// Determines if the error limit has been reached.
@@ -66,7 +60,7 @@ class _Runner {
     // Pop the items off the stack for this action.
     // Also check that the items match the expected rule.
     int count = action.rule.items.length;
-    List<ParseTree.TreeNode> items = new List<ParseTree.TreeNode>();
+    List<ParseTree.TreeNode> items = [];
     for (int i = count - 1; i >= 0; i--) {
       Grammar.Item ruleItem = action.rule.items[i];
       if (ruleItem is Grammar.Trigger) {
@@ -79,7 +73,7 @@ class _Runner {
 
         if (ruleItem is Grammar.Term) {
           if (item is ParseTree.RuleNode) {
-            if (ruleItem.name != item.rule.term.name)
+            if (ruleItem.name != item.rule.term?.name)
               throw new Exception('The action, $action, could not reduce item $i, $item: the term names did not match.');
           } else throw new Exception('The action, $action, could not reduce item $i, $item: the item is not a rule node.');
         } else { // if (ruleItem is Grammar.TokenItem) {
@@ -101,7 +95,7 @@ class _Runner {
     // via the goto table, the next state to continue from.
     int curState = this._stateStack.last;
     while (true) {
-      _Action action = this._table.readGoto(curState, node.rule.term.name);
+      _Action? action = this._table.readGoto(curState, node.rule.term?.name ?? '');
       if (action == null) break;
       else if (action is _Goto) {
         curState = action.state;
@@ -137,7 +131,7 @@ class _Runner {
     if (this._verbose) print('$indent$token =>');
 
     int curState = this._stateStack.last;
-    _Action action = this._table.readShift(curState, token.name);
+    _Action? action = this._table.readShift(curState, token.name);
 
     bool result;
     if (action == null)         result = this._nullAction(curState, token, indent);
@@ -165,7 +159,7 @@ class _Runner {
       if (i < this._itemStack.length) {
         if (hasState) buf.write(':');
         ParseTree.TreeNode item = this._itemStack[i];
-        if (item is ParseTree.RuleNode)         buf.write('<${item.rule.term.name}>');
+        if (item is ParseTree.RuleNode)         buf.write('<${item.rule.term?.name ?? ''}>');
         else if (item is ParseTree.TokenNode)   buf.write('[${item.token.name}]');
         else if (item is ParseTree.TriggerNode) buf.write('{${item.trigger}}');
       }

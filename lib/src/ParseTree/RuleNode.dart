@@ -22,7 +22,7 @@ class RuleNode extends TreeNode {
 
   /// Helps construct the debugging output of the tree.
   void _toTree(StringBuffer buf, String indent, String first) {
-    buf.write(first+'<'+this.rule.term.name+'>');
+    buf.write(first+'<'+(this.rule.term?.name ?? '')+'>');
     if (items.length > 0) {
       for (int i = 0; i < items.length-1; i++) {
         TreeNode item = items[i];
@@ -37,7 +37,7 @@ class RuleNode extends TreeNode {
 
   /// Processes this tree node with the given handles for the triggers to call.
   void process(Map<String, TriggerHandle> handles) {
-    List<TreeNode> stack = new List<TreeNode>();
+    List<TreeNode> stack = [];
     stack.add(this);
     TriggerArgs args = new TriggerArgs();
     while (stack.isNotEmpty) {
@@ -47,7 +47,7 @@ class RuleNode extends TreeNode {
       else if (node is TriggerNode) {
         if (!handles.containsKey(node.trigger))
           throw new Exception('Failed to find the handle for the trigger, ${node.trigger}');
-        handles[node.trigger](args);
+        handles[node.trigger]?.call(args);
       }
     }
   }

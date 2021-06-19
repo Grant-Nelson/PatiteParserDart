@@ -63,12 +63,12 @@ class _Container {
     if (this._comp is _StringsComparable) {
       _StringsComparable cmp = this._comp as _StringsComparable;
 
-      List<String> aParts = new List<String>();
+      List<String> aParts = [];
       for (int i = 0; i < this._aLength; ++i)
         aParts.add(cmp._aSource[this._aAdjust(i)]);
       aValues = ' [${aParts.join("|")}]';
 
-      List<String> bParts = new List<String>();
+      List<String> bParts = [];
       for (int j = 0; j < this._bLength; ++j) 
         bParts.add(cmp._bSource[this._bAdjust(j)]);
       bValues = ' [${bParts.join("|")}]';

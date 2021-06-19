@@ -7,12 +7,10 @@ part of PetiteParserDart.Grammar;
 /// `<T> => <E> * <E>`, and `<T> => <E> + <E>`.
 class Term extends Item {
   final Grammar _grammar;
-  List<Rule> _rules;
+  List<Rule> _rules = [];
 
   /// Creates a new term with the given name for the given grammar.
-  Term._(Grammar this._grammar, String name): super._(name) {
-    this._rules = new List<Rule>();
-  }
+  Term._(Grammar this._grammar, String name): super._(name);
 
   /// Gets the list of rules starting with this term.
   List<Rule> get rules => this._rules;
@@ -84,7 +82,7 @@ class Term extends Item {
             Item item = items[i+1];
             if (item is Term)
               item._determineFirsts(tokens, new Set<Term>());
-            else tokens.add(item);
+            else tokens.add(item as TokenItem);
           }
         }
 

@@ -2,7 +2,7 @@ part of PetiteParserDart.Matcher;
 
 /// A matcher which matches a set of characters.
 class Set implements Matcher {
-  List<int> _set;
+  List<int> _set = [];
 
   /// Creates a set matcher for all the characters in the given string.
   /// The set must contain at least one character.
@@ -14,7 +14,7 @@ class Set implements Matcher {
   /// The set must contain at least one character.
   Set.fromCodeUnits(Iterable<int> charSet) {
     if (charSet.length <= 0)
-      throw new Exception("May not create a Set with zero characters.");
+      throw new Exception('May not create a Set with zero characters.');
     Map<int, bool> map = new Map<int, bool>();
     for (int char in charSet) map[char] = true;
     List<int> reducedSet = new List<int>.from(map.keys);

@@ -2,12 +2,12 @@ part of PetiteParserDart.Calculator;
 
 /// This is a collection of functions for the calculator.
 class _CalcFuncs {
-  Map<String, CalcFunc> _funcs;
-  math.Random _rand;
-
+  Map<String, CalcFunc> _funcs = {};
+  math.Random _rand = new math.Random(0);
+  
   /// Creates a new collection of calculator function.
   _CalcFuncs() {
-    this._funcs = {
+    this._funcs.addAll({
       'abs':       this._funcAbs,
       'acos':      this._funcAcos,
       'asin':      this._funcAsin,
@@ -44,28 +44,27 @@ class _CalcFuncs {
       'trim':      this._funcTrim,
       'trimleft':  this._funcTrimLeft,
       'trimright': this._funcTrimRight,
-      'upper':     this._funcUpper};
-    this._rand = new math.Random(0);
+      'upper':     this._funcUpper});
   }
 
   /// Adds a new function that can be called by the language.
   /// Set to null to remove a function.
-  void addFunc(String name, CalcFunc hndl) {
+  void addFunc(String name, CalcFunc? hndl) {
     if (hndl == null) this._funcs.remove(name);
     else this._funcs[name] = hndl;
   }
 
   /// Finds the function with the given name.
-  CalcFunc findFunc(String name) => this._funcs[name];
+  CalcFunc? findFunc(String name) => this._funcs[name];
 
   /// This checks that the specified number of arguments has been given.
-  void _argCount(String name, List<Object> args, int count) {
+  void _argCount(String name, List<Object?> args, int count) {
     if (args.length != count)
       throw new Exception('The function $name requires $count arguments but got ${args.length}.');
   }
 
   /// This function gets the absolute value of the given integer or real.
-  Object _funcAbs(List<Object> args) {
+  Object _funcAbs(List<Object?> args) {
     this._argCount('abs', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitInt) return arg.asInt.abs();
@@ -74,7 +73,7 @@ class _CalcFuncs {
   }
 
   /// This function gets the arccosine of the given real.
-  Object _funcAcos(List<Object> args) {
+  Object _funcAcos(List<Object?> args) {
     this._argCount('acos', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitReal) return math.acos(arg.asReal);
@@ -82,7 +81,7 @@ class _CalcFuncs {
   }
 
   /// This function gets the arcsine of the given real.
-  Object _funcAsin(List<Object> args) {
+  Object _funcAsin(List<Object?> args) {
     this._argCount('asin', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitReal) return math.asin(arg.asReal);
@@ -90,7 +89,7 @@ class _CalcFuncs {
   }
 
   /// This function gets the arctangent of the given real.
-  Object _funcAtan(List<Object> args) {
+  Object _funcAtan(List<Object?> args) {
     this._argCount('atan', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitReal) return math.atan(arg.asReal);
@@ -98,7 +97,7 @@ class _CalcFuncs {
   }
 
   /// This function gets the arctangent of the two given reals.
-  Object _funcAtan2(List<Object> args) {
+  Object _funcAtan2(List<Object?> args) {
     this._argCount('atan2', args, 2);
     Variant left  = new Variant(args[0]);
     Variant right = new Variant(args[1]);
@@ -107,11 +106,11 @@ class _CalcFuncs {
   }
 
   /// This function gets the average of one or more reals.
-  Object _funcAvg(List<Object> args) {
+  Object _funcAvg(List<Object?> args) {
     if (args.length <= 0)
       throw new Exception('The function avg requires at least one argument.');
     double sum = 0.0;
-    for (Object arg in args) {
+    for (Object? arg in args) {
       Variant value = new Variant(arg);
       if (value.implicitReal) sum += value.asReal;
       else throw new Exception('Can not use $arg in avg(real, real, ...).');
@@ -120,7 +119,7 @@ class _CalcFuncs {
   }
 
   /// This function gets the binary formatted integer as a string.
-  Object _funcBin(List<Object> args) {
+  Object _funcBin(List<Object?> args) {
     this._argCount('bin', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitInt) return arg.asInt.toRadixString(2)+"b";
@@ -128,14 +127,14 @@ class _CalcFuncs {
   }
 
   /// This function casts the given value into a Boolean value.
-  Object _funcBool(List<Object> args) {
+  Object _funcBool(List<Object?> args) {
     this._argCount('bool', args, 1);
     Variant arg = new Variant(args[0]);
     return arg.asBool;
   }
 
   /// This function gets the ceiling of the given real.
-  Object _funcCeil(List<Object> args) {
+  Object _funcCeil(List<Object?> args) {
     this._argCount('ceil', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitReal) return arg.asReal.ceil();
@@ -143,7 +142,7 @@ class _CalcFuncs {
   }
 
   /// This function gets the cosine of the given real.
-  Object _funcCos(List<Object> args) {
+  Object _funcCos(List<Object?> args) {
     this._argCount('cos', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitReal) return math.cos(arg.asReal);
@@ -151,7 +150,7 @@ class _CalcFuncs {
   }
 
   /// This function gets the floor of the given real.
-  Object _funcFloor(List<Object> args) {
+  Object _funcFloor(List<Object?> args) {
     this._argCount('floor', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitReal) return arg.asReal.floor();
@@ -159,7 +158,7 @@ class _CalcFuncs {
   }
 
   /// This function gets the hexadecimal formatted integer as a string.
-  Object _funcHex(List<Object> args) {
+  Object _funcHex(List<Object?> args) {
     this._argCount('hex', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitInt) return "0x"+arg.asInt.toRadixString(16).toUpperCase();
@@ -167,14 +166,14 @@ class _CalcFuncs {
   }
 
   /// This function casts the given value into an integer value.
-  Object _funcInt(List<Object> args) {
+  Object _funcInt(List<Object?> args) {
     this._argCount('int', args, 1);
     Variant arg = new Variant(args[0]);
     return arg.asInt;
   }
 
   /// This function gets the length of a string.
-  Object _funcLen(List<Object> args) {
+  Object _funcLen(List<Object?> args) {
     this._argCount('len', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitStr) return arg.asStr.length;
@@ -182,7 +181,7 @@ class _CalcFuncs {
   }
 
   /// This function gets the log of the given real with the base of another real.
-  Object _funcLog(List<Object> args) {
+  Object _funcLog(List<Object?> args) {
     this._argCount('log', args, 2);
     Variant left  = new Variant(args[0]);
     Variant right = new Variant(args[1]);
@@ -191,7 +190,7 @@ class _CalcFuncs {
   }
 
   /// This function gets the log base 2 of the given real.
-  Object _funcLog2(List<Object> args) {
+  Object _funcLog2(List<Object?> args) {
     this._argCount('log2', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitReal) return math.log(arg.asReal)/math.ln2;
@@ -199,7 +198,7 @@ class _CalcFuncs {
   }
 
   /// This function gets the log base 10 of the given real.
-  Object _funcLog10(List<Object> args) {
+  Object _funcLog10(List<Object?> args) {
     this._argCount('log10', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitReal) return math.log(arg.asReal)/math.ln10;
@@ -207,7 +206,7 @@ class _CalcFuncs {
   }
 
   /// This function gets the lower case of the given string.
-  Object _funcLower(List<Object> args) {
+  Object _funcLower(List<Object?> args) {
     this._argCount('lower', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitStr) return arg.asStr.toLowerCase();
@@ -215,7 +214,7 @@ class _CalcFuncs {
   }
 
   /// This function gets the natural log of the given real.
-  Object _funcLn(List<Object> args) {
+  Object _funcLn(List<Object?> args) {
     this._argCount('ln', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitReal) return math.log(arg.asReal);
@@ -223,11 +222,11 @@ class _CalcFuncs {
   }
 
   /// This function gets the maximum value of one or more integers or reals.
-  Object _funcMax(List<Object> args) {
+  Object _funcMax(List<Object?> args) {
     if (args.length <= 0)
       throw new Exception('The function max requires at least one argument.');
     bool allInt = true;
-    for (Object arg in args) {
+    for (Object? arg in args) {
       Variant value = new Variant(arg);
       if (value.implicitInt) continue;
       allInt = false;
@@ -237,21 +236,21 @@ class _CalcFuncs {
 
     if (allInt) {
       int value = new Variant(args[0]).asInt;
-      for (Object arg in args) value = math.max(value, new Variant(arg).asInt);
+      for (Object? arg in args) value = math.max(value, new Variant(arg).asInt);
       return value;
     } else {
       double value = new Variant(args[0]).asReal;
-      for (Object arg in args) value = math.max(value, new Variant(arg).asReal);
+      for (Object? arg in args) value = math.max(value, new Variant(arg).asReal);
       return value;
     }
   }
 
   /// This function gets the minimum value of one or more integers or reals.
-  Object _funcMin(List<Object> args) {
+  Object _funcMin(List<Object?> args) {
     if (args.length <= 0)
       throw new Exception('The function min requires at least one argument.');
     bool allInt = true;
-    for (Object arg in args) {
+    for (Object? arg in args) {
       Variant value = new Variant(arg);
       if (value.implicitInt) continue;
       allInt = false;
@@ -261,17 +260,17 @@ class _CalcFuncs {
 
     if (allInt) {
       int value = new Variant(args[0]).asInt;
-      for (Object arg in args) value = math.min(value, new Variant(arg).asInt);
+      for (Object? arg in args) value = math.min(value, new Variant(arg).asInt);
       return value;
     } else {
       double value = new Variant(args[0]).asReal;
-      for (Object arg in args) value = math.min(value, new Variant(arg).asReal);
+      for (Object? arg in args) value = math.min(value, new Variant(arg).asReal);
       return value;
     }
   }
 
   /// This function gets the octal formatted integer as a string.
-  Object _funcOct(List<Object> args) {
+  Object _funcOct(List<Object?> args) {
     this._argCount('oct', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitInt) return arg.asInt.toRadixString(8)+"o";
@@ -280,7 +279,7 @@ class _CalcFuncs {
 
   /// This function pads the string on the left side with an optional character
   /// until the string's length is equal to a specified length.
-  Object _funcPadLeft(List<Object> args) {
+  Object _funcPadLeft(List<Object?> args) {
     if (args.length < 2 || args.length > 3)
       throw new Exception('The function padLeft requires 2 or 3 arguments but got ${args.length}.');
     Variant arg0 = new Variant(args[0]);
@@ -293,7 +292,7 @@ class _CalcFuncs {
 
   /// This function pads the string on the right side with an optional character
   /// until the string's length is equal to a specified length.
-  Object _funcPadRight(List<Object> args) {
+  Object _funcPadRight(List<Object?> args) {
     if (args.length < 2 || args.length > 3)
       throw new Exception('The function padRight requires 2 or 3 arguments but got ${args.length}.');
     Variant arg0 = new Variant(args[0]);
@@ -305,20 +304,20 @@ class _CalcFuncs {
   }
 
   /// This function puts a random number onto the stack.
-  Object _funcRand(List<Object> args) {
+  Object _funcRand(List<Object?> args) {
     this._argCount('rand', args, 0);
     return this._rand.nextDouble();
   }
 
   /// This function casts the given value into a real value.
-  Object _funcReal(List<Object> args) {
+  Object _funcReal(List<Object?> args) {
     this._argCount('real', args, 1);
     Variant arg = new Variant(args[0]);
     return arg.asReal;
   }
 
   /// This function gets the round of the given real.
-  Object _funcRound(List<Object> args) {
+  Object _funcRound(List<Object?> args) {
     this._argCount('round', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitReal) return arg.asReal.round();
@@ -326,7 +325,7 @@ class _CalcFuncs {
   }
 
   /// This function gets the sine of the given real.
-  Object _funcSin(List<Object> args) {
+  Object _funcSin(List<Object?> args) {
     this._argCount('sin', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitReal) return math.sin(arg.asReal);
@@ -334,7 +333,7 @@ class _CalcFuncs {
   }
 
   /// This function gets the square root of the given real.
-  Object _funcSqrt(List<Object> args) {
+  Object _funcSqrt(List<Object?> args) {
     this._argCount('sqrt', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitReal) return math.sqrt(arg.asReal);
@@ -342,14 +341,14 @@ class _CalcFuncs {
   }
 
   /// This function casts the given value into a string value.
-  Object _funcString(List<Object> args) {
+  Object _funcString(List<Object?> args) {
     this._argCount('string', args, 1);
     Variant arg = new Variant(args[0]);
     return arg.asStr;
   }
 
   /// This function gets a substring for a given string with a start and stop integer.
-  Object _funcSub(List<Object> args) {
+  Object _funcSub(List<Object?> args) {
     this._argCount('sub', args, 3);
     Variant arg0 = new Variant(args[0]);
     Variant arg1 = new Variant(args[1]);
@@ -360,9 +359,9 @@ class _CalcFuncs {
   }
 
   /// This function gets the sum of zero or more integers or reals.
-  Object _funcSum(List<Object> args) {
+  Object _funcSum(List<Object?> args) {
     bool allInt = true;
-    for (Object arg in args) {
+    for (Object? arg in args) {
       Variant value = new Variant(arg);
       if (value.implicitInt) continue;
       allInt = false;
@@ -372,17 +371,17 @@ class _CalcFuncs {
 
     if (allInt) {
       int value = 0;
-      for (Object arg in args) value += new Variant(arg).asInt;
+      for (Object? arg in args) value += new Variant(arg).asInt;
       return value;
     } else {
       double value = 0.0;
-      for (Object arg in args) value += new Variant(arg).asReal;
+      for (Object? arg in args) value += new Variant(arg).asReal;
       return value;
     }
   }
 
   /// This function gets the tangent of the given real.
-  Object _funcTan(List<Object> args) {
+  Object _funcTan(List<Object?> args) {
     this._argCount('tan', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitReal) return math.tan(arg.asReal);
@@ -390,7 +389,7 @@ class _CalcFuncs {
   }
 
   /// This function trims the left and right of a string.
-  Object _funcTrim(List<Object> args) {
+  Object _funcTrim(List<Object?> args) {
     this._argCount('trim', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitStr) return arg.asStr.trim();
@@ -398,7 +397,7 @@ class _CalcFuncs {
   }
 
   /// This function trims the left of a string.
-  Object _funcTrimLeft(List<Object> args) {
+  Object _funcTrimLeft(List<Object?> args) {
     this._argCount('trimLeft', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitStr) return arg.asStr.trimLeft();
@@ -406,7 +405,7 @@ class _CalcFuncs {
   }
 
   /// This function trims the right of a string.
-  Object _funcTrimRight(List<Object> args) {
+  Object _funcTrimRight(List<Object?> args) {
     this._argCount('trimRight', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitStr) return arg.asStr.trimRight();
@@ -414,7 +413,7 @@ class _CalcFuncs {
   }
 
   /// This function gets the upper case of the given string.
-  Object _funcUpper(List<Object> args) {
+  Object _funcUpper(List<Object?> args) {
     this._argCount('upper', args, 1);
     Variant arg = new Variant(args[0]);
     if (arg.implicitStr) return arg.asStr.toUpperCase();

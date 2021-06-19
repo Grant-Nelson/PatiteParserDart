@@ -8,7 +8,7 @@ class Result {
 
   /// The tree of the parsed tokens into grammar rules.
   /// This will be null if there are any errors.
-  final ParseTree.TreeNode tree;
+  final ParseTree.TreeNode? tree;
 
   /// Creates a new parser result.
   Result(this.errors, this.tree);
@@ -16,11 +16,9 @@ class Result {
   /// Gets the human-readable debug string for these results.
   String toString() {
     StringBuffer buf = new StringBuffer();
-    if (this.errors != null) {
-      for (String error in this.errors) {
-        if (buf.isNotEmpty) buf.writeln();
-        buf.write(error);
-      }
+    for (String error in this.errors) {
+      if (buf.isNotEmpty) buf.writeln();
+      buf.write(error);
     }
     if (tree != null) buf.write(tree.toString());
     return buf.toString();

@@ -65,7 +65,7 @@ void calc03(TestArgs args) {
     ['Errors in calculator input:',
      'Exception: No function called square found.']);
 
-  calc.addFunc("square", (List<Object> list) {
+  calc.addFunc("square", (List<Object?> list) {
     if (list.length != 1) throw new Exception('Square may one and only one input.');
     Calculator.Variant v = new Calculator.Variant(list[0]);
     if (v.implicitInt) return v.asInt*v.asInt;

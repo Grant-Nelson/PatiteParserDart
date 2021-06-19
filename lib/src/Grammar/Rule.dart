@@ -8,13 +8,11 @@ part of PetiteParserDart.Grammar;
 /// The order of the items defines how this rule in the grammar is to be used.
 class Rule {
   Grammar _grammar;
-  Term _term;
-  List<Item> _items;
+  Term? _term;
+  List<Item> _items = [];
 
   /// Creates a new rule for the the given grammar and term.
-  Rule._(Grammar this._grammar, Term this._term) {
-    this._items = List<Item>();
-  }
+  Rule._(Grammar this._grammar, Term this._term);
 
   /// Adds a term to this rule.
   /// This will get or create a new term to the grammar.
@@ -42,7 +40,7 @@ class Rule {
   }
 
   /// Gets the left hand side term to the rule.
-  Term get term => this._term;
+  Term? get term => this._term;
 
   /// Gets all the terms, tokens, and triggers for this rule.
   /// The items are in the order defined by this rule.
@@ -50,7 +48,7 @@ class Rule {
 
   /// Gets the set of terms and tokens without the triggers.
   List<Item> get basicItems {
-    List<Item> items = new List<Item>();
+    List<Item> items = [];
     for (Item item in this._items) {
       if (item is! Trigger) items.add(item);
     }
@@ -59,7 +57,7 @@ class Rule {
 
   /// Determines if the given rule is equal to this rule.
   /// This uses pointer comparison for item equivalency.
-  bool equals(Rule other) {
+  bool equals(Rule? other) {
     if (other == null) return false;
     if (this._term != other._term) return false;
     if (this._items.length != other._items.length) return false;
@@ -73,17 +71,17 @@ class Rule {
   /// Has an optional step index for showing the different
   /// states of the parser generator.
   String toString([int stepIndex = -1]) {
-    List<String> parts = new List<String>();
+    List<String> parts = [];
     int index = 0;
     for (Item item in this._items) {
       if (index == stepIndex) {
-        parts.add("•");
+        parts.add('•');
         stepIndex = -1;
       }
       parts.add(item.toString());
       if (item is! Trigger) index++;
     }
-    if (index == stepIndex) parts.add("•");
-    return this._term.toString() + " → " + parts.join(" ");
+    if (index == stepIndex) parts.add('•');
+    return this._term.toString() + ' → ' + parts.join(' ');
   }
 }

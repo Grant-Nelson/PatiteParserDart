@@ -1,3 +1,7 @@
+part of PetiteParserDart.Calculator;
+
+const String language = '''
+
 # Petite Parser Example
 # Calculator Language Definition
 
@@ -85,8 +89,8 @@
 
 (Start): ^'"' => (Str.Body);
 (Str.Body): ^'"' => [String];
-(Str.Body): '\\' => (Str.Escape);
-(Str.Escape): '\\"nrt' => (Str.Body);
+(Str.Body): '\\\\' => (Str.Escape);
+(Str.Escape): '\\\\"nrt' => (Str.Body);
 (Str.Escape): 'x' => (Str.Hex1): '0'..'9', 'a'..'z', 'A'..'Z' => (Str.Hex2): '0'..'9', 'a'..'z', 'A'..'Z' => (Str.Body);
 (Str.Escape): 'u' => (Str.Uni1): '0'..'9', 'a'..'z', 'A'..'Z' => (Str.Uni2): '0'..'9', 'a'..'z', 'A'..'Z' => (Str.Uni3);
 (Str.Uni3): '0'..'9', 'a'..'z', 'A'..'Z' => (Str.Uni4): '0'..'9', 'a'..'z', 'A'..'Z' => (Str.Body);
@@ -146,3 +150,5 @@
 <Args> := _
     | <Expression.Or>
     | <Args> [Comma] <Expression.Or>;
+
+''';

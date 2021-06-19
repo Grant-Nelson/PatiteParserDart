@@ -205,23 +205,23 @@ class Loader {
     return buf.toString();
   }
 
-  Map<String, ParseTree.TriggerHandle> _handles;
-  Grammar.Grammar _grammar;
-  Tokenizer.Tokenizer _tokenizer;
+  Map<String, ParseTree.TriggerHandle> _handles = {};
+  Grammar.Grammar _grammar = new Grammar.Grammar();
+  Tokenizer.Tokenizer _tokenizer = new Tokenizer.Tokenizer();
 
-  List<Tokenizer.State> _states;
-  List<Tokenizer.TokenState> _tokenStates;
-  List<Grammar.Term> _terms;
-  List<Grammar.TokenItem> _tokenItems;
-  List<Grammar.Trigger> _triggers;
-  List<Matcher.Group> _curTransGroups;
-  bool _curTransConsume;
-  List<String> _replaceText;
-  Grammar.Rule _curRule;
+  List<Tokenizer.State> _states = [];
+  List<Tokenizer.TokenState> _tokenStates = [];
+  List<Grammar.Term> _terms = [];
+  List<Grammar.TokenItem> _tokenItems = [];
+  List<Grammar.Trigger> _triggers = [];
+  List<Matcher.Group> _curTransGroups = [];
+  bool _curTransConsume = false;
+  List<String> _replaceText = [];
+  Grammar.Rule? _curRule = null;
 
   /// Creates a new loader.
   Loader() {
-    this._handles = {
+    this._handles.addAll({
       'new.def':           this._newDef,
       'start.state':       this._startState,
       'join.state':        this._joinState,
@@ -247,18 +247,7 @@ class Loader {
       'start.rule':        this._startRule,
       'item.token':        this._itemToken,
       'item.term':         this._itemTerm,
-      'item.trigger':      this._itemTrigger};
-    this._grammar     = new Grammar.Grammar();
-    this._tokenizer   = new Tokenizer.Tokenizer();
-    this._states      = new List<Tokenizer.State>();
-    this._tokenStates = new List<Tokenizer.TokenState>();
-    this._terms       = new List<Grammar.Term>();
-    this._tokenItems  = new List<Grammar.TokenItem>();
-    this._triggers    = new List<Grammar.Trigger>();
-    this._curTransGroups  = new List<Matcher.Group>();
-    this._curTransConsume = false;
-    this._replaceText     = new List<String>();
-    this._curRule         = null;
+      'item.trigger':      this._itemTrigger});
   }
 
   /// Adds several blocks of definitions to the grammar and tokenizer
@@ -269,9 +258,9 @@ class Loader {
   /// which are being loaded via a list of characters containing the definition.
   void loadChars(Iterator<int> iterator) {
     Result result = getParser().parseChars(iterator);
-    if (result.errors?.isNotEmpty ?? false)
+    if (result.errors.isNotEmpty)
       throw new Exception('Error in provided language definition:\n${result.errors}');
-    result.tree.process(this._handles);
+    result.tree?.process(this._handles);
   }
 
   /// Gets the grammar which is being loaded.
@@ -333,14 +322,14 @@ class Loader {
 
   /// A trigger handle for adding a new state to the tokenizer.
   void _newState(ParseTree.TriggerArgs args) {
-    String name = args.recent(2).text;
+    String name = args.recent(2)?.text ?? '';
     Tokenizer.State state = this._tokenizer.state(name);
     this._states.add(state);
   }
 
   /// A trigger handle for adding a new token to the tokenizer.
   void _newTokenState(ParseTree.TriggerArgs args) {
-    String name = args.recent(2).text;
+    String name = args.recent(2)?.text ?? '';
     Tokenizer.TokenState token = this._tokenizer.token(name);
     this._tokenStates.add(token);
   }
@@ -348,7 +337,7 @@ class Loader {
   /// A trigger handle for adding a new token to the tokenizer
   /// and setting it to consume that token.
   void _newTokenConsume(ParseTree.TriggerArgs args) {
-    String name = args.recent(2).text;
+    String name = args.recent(2)?.text ?? '';
     Tokenizer.TokenState token = this._tokenizer.token(name);
     token.consume();
     this._tokenStates.add(token);
@@ -356,21 +345,21 @@ class Loader {
 
   /// A trigger handle for adding a new term to the grammar.
   void _newTerm(ParseTree.TriggerArgs args) {
-    String name = args.recent(2).text;
+    String name = args.recent(2)?.text ?? '';
     Grammar.Term term = this._grammar.term(name);
     this._terms.add(term);
   }
 
   /// A trigger handle for adding a new token to the grammar.
   void _newTokenItem(ParseTree.TriggerArgs args) {
-    String name = args.recent(2).text;
+    String name = args.recent(2)?.text ?? '';
     Grammar.TokenItem token = this._grammar.token(name);
     this._tokenItems.add(token);
   }
 
   /// A trigger handle for adding a new trigger to the grammar.
   void _newTrigger(ParseTree.TriggerArgs args) {
-    String name = args.recent(2).text;
+    String name = args.recent(2)?.text ?? '';
     Grammar.Trigger trigger = this._grammar.trigger(name);
     this._triggers.add(trigger);
   }
@@ -387,9 +376,9 @@ class Loader {
 
   /// A trigger handle for setting the currently building matcher to match to a character set.
   void _matchSet(ParseTree.TriggerArgs args) {
-    Tokenizer.Token token = args.recent(1);
+    Tokenizer.Token? token = args.recent(1);
     if (this._curTransGroups.isEmpty) this._curTransGroups.add(new Matcher.Group());
-    this._curTransGroups.last.addSet(unescapeString(token.text));
+    this._curTransGroups.last.addSet(unescapeString(token?.text ?? ''));
   }
 
   /// A trigger handle for setting the currently building matcher to not match to a character set.
@@ -401,10 +390,10 @@ class Loader {
 
   /// A trigger handle for setting the currently building matcher to match to a character range.
   void _matchRange(ParseTree.TriggerArgs args) {
-    Tokenizer.Token lowChar  = args.recent(3);
-    Tokenizer.Token highChar = args.recent(1);
-    String lowText = unescapeString(lowChar.text);
-    String highText = unescapeString(highChar.text);
+    Tokenizer.Token? lowChar  = args.recent(3);
+    Tokenizer.Token? highChar = args.recent(1);
+    String lowText = unescapeString(lowChar?.text ?? '');
+    String highText = unescapeString(highChar?.text ?? '');
     if (lowText.length != 1)
       throw new Exception('May only have one character for the low char of a range. $lowChar does not.');
     if (highText.length != 1)
@@ -432,7 +421,7 @@ class Loader {
 
   /// A trigger handle for adding a new replacement string to the loader.
   void _addReplaceText(ParseTree.TriggerArgs args) =>
-    this._replaceText.add(unescapeString(args.recent(1).text));
+    this._replaceText.add(unescapeString(args.recent(1)?.text ?? ''));
 
   /// A trigger handle for setting a set of replacements between two
   /// tokens with a previously set replacement string set.
@@ -453,13 +442,13 @@ class Loader {
 
   /// A trigger handle for adding a token to the current rule being built.
   void _itemToken(ParseTree.TriggerArgs args) =>
-    this._curRule.addToken(this._tokenItems.removeLast().name);
+    this._curRule?.addToken(this._tokenItems.removeLast().name);
 
   /// A trigger handle for adding a term to the current rule being built.
   void _itemTerm(ParseTree.TriggerArgs args) =>
-    this._curRule.addTerm(this._terms.removeLast().name);
+    this._curRule?.addTerm(this._terms.removeLast().name);
 
   /// A trigger handle for adding a trigger to the current rule being built.
   void _itemTrigger(ParseTree.TriggerArgs args) =>
-    this._curRule.addTrigger(this._triggers.removeLast().name);
+    this._curRule?.addTrigger(this._triggers.removeLast().name);
 }

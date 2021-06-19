@@ -1,19 +1,18 @@
 library PetiteParserDart.Calculator;
 
-import 'package:resource/resource.dart' show Resource;
 import 'package:PetiteParserDart/src/Parser/Parser.dart' as Parser;
 import 'package:PetiteParserDart/src/ParseTree/ParseTree.dart' as ParseTree;
 
 import 'dart:math' as math;
-import 'dart:async';
 
 part 'CalcFuncs.dart';
+part 'Language.dart';
 part 'Variant.dart';
 
 /// This is the signature for functions which can be called by the calculator.
 ///
 /// DO NOT implement functions which my give access to gain control over a website or application.
-typedef Object CalcFunc(List<Object> args);
+typedef Object? CalcFunc(List<Object?> args);
 
 /// An implementation of a simple calculator language.
 ///
@@ -23,31 +22,24 @@ typedef Object CalcFunc(List<Object> args);
 /// This is also an example of how to use petite parser to construct
 /// a simple interpreted language.
 class Calculator {
-  static Parser.Parser _parser;
+  static Parser.Parser? _parser = null;
 
   /// Loads the parser used by the calculator.
   ///
   /// This is done in a static method since to load the language
   /// from a file it has to be done asynchronously.
-  static Future loadParser() async {
-    if (_parser == null) {
-      Resource resource = const Resource('package:PetiteParserDart/src/Calculator/Calculator.txt');
-      return resource.readAsString().then((String language) {
-        _parser = new Parser.Parser.fromDefinition(language);
-      });
-    }
-    return null;
-  }
+  static void loadParser() =>
+    _parser ??= new Parser.Parser.fromDefinition(language);
 
-  Map<String, ParseTree.TriggerHandle> _handles;
-  List<Object> _stack;
-  Map<String, Object> _consts;
-  Map<String, Object> _vars;
-  _CalcFuncs _funcs;
-
+  Map<String, ParseTree.TriggerHandle> _handles = {};
+  List<Object?> _stack = [];
+  Map<String, Object?> _consts = {};
+  Map<String, Object?> _vars = {};
+  _CalcFuncs _funcs = new _CalcFuncs();
+  
   // Creates a new calculator instance.
   Calculator() {
-    this._handles = {
+    this._handles.addAll({
       'Add':          this._handleAdd,
       'And':          this._handleAnd,
       'Assign':       this._handleAssign,
@@ -75,27 +67,23 @@ class Calculator {
       'StartCall':    this._handleStartCall,
       'String':       this._handleString,
       'Subtract':     this._handleSubtract,
-      'Xor':          this._handleXor};
-    this._stack = new List<Object>();
-    this._consts = {
+      'Xor':          this._handleXor});
+    this._consts.addAll({
       "pi":    math.pi,
       "e":     math.e,
       "true":  true,
-      "false": false};
-    this._vars = new Map<String, Object>();
-    this._funcs = new _CalcFuncs();
+      "false": false});
   }
 
   /// This parses the given calculation input and
   /// returns the results so that the input can be run multiple
   /// times without having to reparse the program.
-  Parser.Result parse(String input) {
+  Parser.Result? parse(String input) {
     if (input.isEmpty) return null;
-    if (_parser == null)
-      throw new Exception('Error: The parser must have finished loading prior to calculating any input.');
+    loadParser();
 
     try {
-      return _parser.parse(input);
+      return _parser?.parse(input);
     } catch (err) {
       return new Parser.Result([
         'Errors in calculator input:\n' + err.toString()
@@ -106,9 +94,9 @@ class Calculator {
   /// This uses the pre-parsed input to calculate the result.
   /// This is useful when wanting to rerun the same code multiple
   /// times without having to reparse the program.
-  void calculateNode(ParseTree.TreeNode tree) {
+  void calculateNode(ParseTree.TreeNode? tree) {
     try {
-      tree.process(this._handles);
+      if (tree != null) tree.process(this._handles);
     } catch (err) {
       this._stack.clear();
       this.push('Errors in calculator input:\n' + err.toString());
@@ -118,9 +106,9 @@ class Calculator {
   /// This parses the given calculation input and
   /// puts the result on the top of the stack.
   void calculate(String input) {
-    Parser.Result result = this.parse(input);
+    Parser.Result? result = this.parse(input);
     if (result != null) {
-      if (result.errors?.isNotEmpty ?? false) {
+      if (result.errors.isNotEmpty) {
         this._stack.clear();
         this.push('Errors in calculator input:\n  ' + result.errors.join('\n  '));
         return;
@@ -132,8 +120,8 @@ class Calculator {
   /// Get a string showing all the values in the stack.
   String get stackToString {
     if (this._stack.length <= 0) return 'no result';
-    List<String> parts = new List<String>();
-    for (Object val in this._stack) parts.add('${val}');
+    List<String> parts = [];
+    for (Object? val in this._stack) parts.add('${val}');
     return parts.join(', ');
   }
 
@@ -143,14 +131,14 @@ class Calculator {
 
   /// Adds a new constant value into the language.
   /// Set to null to remove the constant.
-  void addConstant(String name, Object value) {
+  void addConstant(String name, Object? value) {
     if (value == null) this._consts.remove(name);
     else this._consts[name] = value;
   }
 
   /// Sets the value of a variable.
   /// Set to null to remove the variable.
-  void setVar(String name, Object value) {
+  void setVar(String name, Object? value) {
     if (value == null) this._vars.remove(name);
     else this._vars[name] = value;
   }
@@ -162,10 +150,10 @@ class Calculator {
   void clear() => this._stack.clear();
 
   /// Removes the top value from the stack.
-  Object pop() => this._stack.removeLast();
+  Object? pop() => this._stack.removeLast();
 
   /// Pushes a value onto the stack.
-  void push(Object value) => this._stack.add(value);
+  void push(Object? value) => this._stack.add(value);
 
   /// Handles calculating the sum of the top two items off of the stack.
   void _handleAdd(ParseTree.TriggerArgs args) {
@@ -188,7 +176,7 @@ class Calculator {
 
   /// Handles assigning an variable to the top value off of the stack.
   void _handleAssign(ParseTree.TriggerArgs args) {
-    Object right = this.pop();
+    Object? right = this.pop();
     Variant left = new Variant(this.pop());
     if (!left.isStr) throw new Exception('Can not Assign $right to $left.');
     String text = left.asStr;
@@ -199,7 +187,7 @@ class Calculator {
 
   /// Handles adding a binary integer value from the input tokens.
   void _handleBinary(ParseTree.TriggerArgs args) {
-    String text = args.recent(1).text;
+    String text = args.recent(1)?.text ?? '';
     args.tokens.clear();
     text = text.substring(0, text.length-1); // remove 'b'
     this.push(int.parse(text, radix: 2));
@@ -207,18 +195,18 @@ class Calculator {
 
   /// Handles calling a function, taking it's parameters off the stack.
   void _handleCall(ParseTree.TriggerArgs args) {
-    List<Object> methodArgs = new List<Object>();
-    Object val = this.pop();
+    List<Object?> methodArgs = [];
+    Object? val = this.pop();
     while (val is! CalcFunc) {
       methodArgs.insert(0, val);
       val = this.pop();
     }
-    this.push((val as CalcFunc)(methodArgs));
+    this.push(val.call(methodArgs));
   }
 
   /// Handles adding a decimal integer value from the input tokens.
   void _handleDecimal(ParseTree.TriggerArgs args) {
-    String text = args.recent(1).text;
+    String text = args.recent(1)?.text ?? '';
     args.tokens.clear();
     if (text.endsWith('d')) text = text.substring(0, text.length-1);
     this.push(int.parse(text, radix: 10));
@@ -264,7 +252,7 @@ class Calculator {
 
   /// Handles looking up a constant or variable value.
   void _handleId(ParseTree.TriggerArgs args) {
-    String text = args.recent(1).text;
+    String text = args.recent(1)?.text ?? '';
     args.tokens.clear();
     if (this._consts.containsKey(text)) {
       this._stack.add(this._consts[text]);
@@ -304,7 +292,7 @@ class Calculator {
 
   /// Handles adding a hexadecimal integer value from the input tokens.
   void _handleHexadecimal(ParseTree.TriggerArgs args) {
-    String text = args.recent(1).text;
+    String text = args.recent(1)?.text ?? '';
     args.tokens.clear();
     text = text.substring(2); // remove '0x'
     this.push(int.parse(text, radix: 16));
@@ -347,7 +335,7 @@ class Calculator {
 
   /// Handles adding a octal integer value from the input tokens.
   void _handleOctal(ParseTree.TriggerArgs args) {
-    String text = args.recent(1).text;
+    String text = args.recent(1)?.text ?? '';
     args.tokens.clear();
     text = text.substring(0, text.length-1); // remove 'o'
     this.push(int.parse(text, radix: 8));
@@ -374,30 +362,30 @@ class Calculator {
   /// Handles push an ID value from the input tokens
   /// which will be used later as a variable name.
   void _handlePushVar(ParseTree.TriggerArgs args) {
-    String text = args.recent(1).text;
+    String text = args.recent(1)?.text ?? '';
     args.tokens.clear();
     this.push(text);
   }
 
   /// Handles adding a real value from the input tokens.
   void _handleReal(ParseTree.TriggerArgs args) {
-    String text = args.recent(1).text;
+    String text = args.recent(1)?.text ?? '';
     args.tokens.clear();
     this.push(double.parse(text));
   }
 
   /// Handles starting a function call.
   void _handleStartCall(ParseTree.TriggerArgs args) {
-    String text = args.recent(1).text.toLowerCase();
+    String text = args.recent(1)?.text.toLowerCase() ?? '';
     args.tokens.clear();
-    CalcFunc func = this._funcs.findFunc(text);
+    CalcFunc? func = this._funcs.findFunc(text);
     if (func == null) throw new Exception('No function called $text found.');
     this.push(func);
   }
 
   /// Handles adding a string value from the input tokens.
   void _handleString(ParseTree.TriggerArgs args) {
-    String text = args.recent(1).text;
+    String text = args.recent(1)?.text ?? '';
     args.tokens.clear();
     this.push(Parser.Loader.unescapeString(text));
   }

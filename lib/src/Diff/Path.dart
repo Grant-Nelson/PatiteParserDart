@@ -9,16 +9,16 @@ class _Path {
   Comparable _baseComp;
 
   /// The score vector at the front of the score calculation.
-  List<int> _scoreFront;
+  List<int> _scoreFront = [];
 
   /// The score vector at the back of the score calculation.
-  List<int> _scoreBack;
+  List<int> _scoreBack = [];
 
   /// The score vector to store off a result vector to.
-  List<int> _scoreOther;
+  List<int> _scoreOther = [];
 
   /// Creates a new path builder.
-  _Path(Comparable this._baseComp) {
+  _Path(this._baseComp) {
     final int len = this._baseComp.bLength + 1;
     this._scoreFront = new List<int>.filled(len, 0, growable: false);
     this._scoreBack = new List<int>.filled(len, 0, growable: false);
