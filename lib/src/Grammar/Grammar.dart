@@ -1,5 +1,6 @@
 library PetiteParserDart.Grammar;
 
+import 'package:PetiteParserDart/Grammar.dart';
 import 'package:PetiteParserDart/src/Simple/Simple.dart' as Simple;
 
 part 'Item.dart';
@@ -37,18 +38,13 @@ part 'Trigger.dart';
 ///
 /// For more information see https://en.wikipedia.org/wiki/Context-free_grammar
 class Grammar {
-  Set<Term> _terms;
-  Set<TokenItem> _tokens;
-  Set<Trigger> _triggers;
-  Term _start;
+  Set<Term> _terms = Set();
+  Set<TokenItem> _tokens = Set();
+  Set<Trigger> _triggers = Set();
+  Term? _start = null;
 
   /// Creates a new empty grammar.
-  Grammar() {
-    this._terms    = new Set<Term>();
-    this._tokens   = new Set<TokenItem>();
-    this._triggers = new Set<Trigger>();
-    this._start    = null;
-  }
+  Grammar();
 
   /// Deserializes the given serialized data into a grammar.
   factory Grammar.deserialize(Simple.Deserializer data) {
@@ -85,21 +81,23 @@ class Grammar {
       grammar._add(term.name);
 
     if (this._start != null)
-      grammar._start = grammar._findTerm(this._start.name);
+      grammar._start = grammar._findTerm(this._start?.name ?? '');
 
     for (Term term in this._terms) {
-      Term termCopy = grammar._findTerm(term.name);
-      for (Rule rule in term.rules) {
-        Rule ruleCopy = new Rule._(grammar, termCopy);
-        for (Item item in rule.items) {
-          Item itemCopy;
-          if (item is Term)           itemCopy = grammar.term(item.name);
-          else if (item is TokenItem) itemCopy = grammar.token(item.name);
-          else if (item is Trigger)   itemCopy = grammar.trigger(item.name);
-          else throw new Exception('Unknown item type: $item');
-          ruleCopy._items.add(itemCopy);
+      Term? termCopy = grammar._findTerm(term.name);
+      if (termCopy != null) {
+        for (Rule rule in term.rules) {
+          Rule ruleCopy = new Rule._(grammar, termCopy);
+          for (Item item in rule.items) {
+            Item itemCopy;
+            if (item is Term)           itemCopy = grammar.term(item.name);
+            else if (item is TokenItem) itemCopy = grammar.token(item.name);
+            else if (item is Trigger)   itemCopy = grammar.trigger(item.name);
+            else throw new Exception('Unknown item type: $item');
+            ruleCopy._items.add(itemCopy);
+          }
+          termCopy.rules.add(ruleCopy);
         }
-        termCopy.rules.add(ruleCopy);
       }
     }
     return grammar;
@@ -109,7 +107,7 @@ class Grammar {
   Simple.Serializer serialize() {
     Simple.Serializer data = new Simple.Serializer();
     data.writeInt(1); // Version 1
-    data.writeStr(this._start.name);
+    data.writeStr(this._start?.name ?? '');
     data.writeInt(this._terms.length);
     for (Term term in this._terms) {
       data.writeStr(term.name);
@@ -137,13 +135,11 @@ class Grammar {
 
   /// Creates or adds a term for a set of rules
   /// and sets it as the starting term for the grammar.
-  Term start(String termName) {
+  Term start(String termName) =>
     this._start = this.term(termName);
-    return this._start;
-  }
 
   /// Gets the start term for this grammar.
-  Term get startTerm => this._start;
+  Term? get startTerm => this._start;
 
   /// Gets the terms for this grammar.
   List<Term> get terms => this._terms.toList();
@@ -156,7 +152,7 @@ class Grammar {
 
   /// Finds a term in this grammar by the given name.
   /// Returns null if no term by that name if found.
-  Term _findTerm(String termName) {
+  Term? _findTerm(String termName) {
     for (Term term in this._terms) {
       if (term.name == termName) return term;
     }
@@ -204,7 +200,7 @@ class Grammar {
   /// If the start term isn't set, it will be set to this term.
   Term term(String termName) {
     termName = this._sanitizedTermName(termName);
-    Term nt = this._findTerm(termName);
+    Term? nt = this._findTerm(termName);
     nt ??= this._add(termName);
     return nt;
   }
@@ -264,10 +260,10 @@ class Grammar {
       }
 
       for (Rule rule in term._rules) {
-        if (rule._term == null)
+        if (rule.term == null)
           buf.writeln('The rule for ${term.name} is rule.');
-        else if (rule._term != term)
-          buf.writeln('The rule for ${term.name} says it is for ${rule._term.name}.');
+        else if (rule.term != term)
+          buf.writeln('The rule for ${term.name} says it is for ${rule.term?.name ?? 'null'}.');
 
         for (Item item in rule._items) {
           if (item.name.trim().isEmpty)
@@ -286,31 +282,51 @@ class Grammar {
       }
     }
 
-    Set<String> termUnreached    = new Set<String>.from(termList.map<String>((Term t) => t.name));
-    Set<String> tokenUnreached   = new Set<String>.from(this._tokens.map<String>((TokenItem t) => t.name));
-    Set<String> triggerUnreached = new Set<String>.from(this._triggers.map<String>((Trigger t) => t.name));
-    Function(Item item) touch;
-    touch = (Item item) {
-      if (item is Term) {
-        if (termUnreached.contains(item.name)) {
-          termUnreached.remove(item.name);
-          for (Rule r in item._rules)
-            for (Item item in r._items)
-              touch(item);
-        }
-      } else if (item is TokenItem) tokenUnreached.remove(item.name);
-      else if (item is Trigger) triggerUnreached.remove(item.name);
-      else buf.writeln('Unknown item type: $item');
-    };
-    touch(this._start);
-
-    if (termUnreached.length > 0)
-      buf.writeln('The following terms are unreachable: ${termUnreached.join(", ")}');
-    if (tokenUnreached.length > 0)
-      buf.writeln('The following tokens are unreachable: ${tokenUnreached.join(", ")}');
-    if (triggerUnreached.length > 0)
-      buf.writeln('The following triggers are unreachable: ${triggerUnreached.join(", ")}');
+    _grammarUnreached unreached = _grammarUnreached(buf, termList, this._tokens, this._triggers);    
+    unreached.touch(this._start);
+    unreached.validate();
 
     return buf.toString();
   }
+}
+
+/// This is a tool to help gramar validate unreachable states.
+class _grammarUnreached {
+    StringBuffer _buf;
+    Set<String> _terms    = Set();
+    Set<String> _tokens   = Set();
+    Set<String> _triggers = Set();
+
+    /// Creates and populates a new unreachable validation.
+    _grammarUnreached(this._buf, List<Term> terms, Set<TokenItem> tokens, Set<Trigger> triggers) {
+      this._terms.addAll(terms.map<String>((Term t) => t.name));
+      this._tokens.addAll(tokens.map<String>((TokenItem t) => t.name));
+      this._triggers.addAll(triggers.map<String>((Trigger t) => t.name));
+    }
+
+    /// Touches the item and all the rules and items that are reachable.
+    /// Anything reached is removed to leave only the unreachables.
+    void touch(Item? item) {
+      if (item == null) return;
+      if (item is Term) {
+        if (this._terms.contains(item.name)) {
+          this._terms.remove(item.name);
+          for (Rule r in item._rules)
+            for (Item item in r._items)
+              this.touch(item);
+        }
+      } else if (item is TokenItem) this._tokens.remove(item.name);
+      else if (item is Trigger) this._triggers.remove(item.name);
+      else _buf.writeln('Unknown item type: $item');
+    }
+
+    /// Validates the unreachable and writes errors to the buffer.
+    void validate() {  
+      if (this._terms.length > 0)
+        _buf.writeln('The following terms are unreachable: ${this._terms.join(', ')}');
+      if (this._tokens.length > 0)
+        _buf.writeln('The following tokens are unreachable: ${this._tokens.join(', ')}');
+      if (this._triggers.length > 0)
+        _buf.writeln('The following triggers are unreachable: ${this._triggers.join(', ')}');
+    }
 }

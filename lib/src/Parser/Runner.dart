@@ -73,7 +73,7 @@ class _Runner {
 
         if (ruleItem is Grammar.Term) {
           if (item is ParseTree.RuleNode) {
-            if (ruleItem.name != item.rule.term.name)
+            if (ruleItem.name != item.rule.term?.name)
               throw new Exception('The action, $action, could not reduce item $i, $item: the term names did not match.');
           } else throw new Exception('The action, $action, could not reduce item $i, $item: the item is not a rule node.');
         } else { // if (ruleItem is Grammar.TokenItem) {
@@ -95,7 +95,7 @@ class _Runner {
     // via the goto table, the next state to continue from.
     int curState = this._stateStack.last;
     while (true) {
-      _Action? action = this._table.readGoto(curState, node.rule.term.name);
+      _Action? action = this._table.readGoto(curState, node.rule.term?.name ?? '');
       if (action == null) break;
       else if (action is _Goto) {
         curState = action.state;
@@ -159,7 +159,7 @@ class _Runner {
       if (i < this._itemStack.length) {
         if (hasState) buf.write(':');
         ParseTree.TreeNode item = this._itemStack[i];
-        if (item is ParseTree.RuleNode)         buf.write('<${item.rule.term.name}>');
+        if (item is ParseTree.RuleNode)         buf.write('<${item.rule.term?.name ?? ''}>');
         else if (item is ParseTree.TokenNode)   buf.write('[${item.token.name}]');
         else if (item is ParseTree.TriggerNode) buf.write('{${item.trigger}}');
       }

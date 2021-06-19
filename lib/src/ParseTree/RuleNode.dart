@@ -22,7 +22,7 @@ class RuleNode extends TreeNode {
 
   /// Helps construct the debugging output of the tree.
   void _toTree(StringBuffer buf, String indent, String first) {
-    buf.write(first+'<'+this.rule.term.name+'>');
+    buf.write(first+'<'+(this.rule.term?.name ?? '')+'>');
     if (items.length > 0) {
       for (int i = 0; i < items.length-1; i++) {
         TreeNode item = items[i];

@@ -10,9 +10,9 @@ class _Builder {
 
   /// Constructs of a new parser builder.
   _Builder(this._grammar) {
-    Grammar.Term oldStart = this._grammar.startTerm;
+    Grammar.Term? oldStart = this._grammar.startTerm;
     this._grammar.start(_startTerm);
-    this._grammar.newRule(_startTerm).addTerm(oldStart.name).addToken(_eofTokenName);
+    this._grammar.newRule(_startTerm).addTerm(oldStart?.name ?? '').addToken(_eofTokenName);
 
     for (Grammar.Term term in this._grammar.terms) {
       this._items.add(term);
@@ -38,7 +38,7 @@ class _Builder {
   /// Determines all the parser states for the grammar.
   void determineStates() {
     _State startState = new _State(0);
-    for (Grammar.Rule rule in this._grammar.startTerm.rules)
+    for (Grammar.Rule rule in this._grammar.startTerm?.rules ?? [])
       startState.addRule(0, rule);
     this._states.add(startState);
     List<_State> changed = [startState];
@@ -94,7 +94,7 @@ class _Builder {
         List<Grammar.Item> items = rule.basicItems;
         if (items.length <= index) {
 
-          List<Grammar.TokenItem> follows = rule.term.determineFollows();
+          List<Grammar.TokenItem> follows = rule.term?.determineFollows() ?? [];
           if (follows.length > 0) {
             // Add the reduce action to all the follow items.
             _Reduce reduce = new _Reduce(rule);

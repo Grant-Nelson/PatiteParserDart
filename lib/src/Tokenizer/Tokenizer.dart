@@ -77,11 +77,8 @@ class Tokenizer {
 
   /// Sets the start state for the tokenizer to a state with the name [stateName].
   /// If that state doesn't exist it will be created.
-  State start(String stateName) {
-    State start = this.state(stateName);
-    this._start = start;
-    return start;
-  }
+  State start(String stateName) =>
+    this._start = this.state(stateName);
 
   /// Creates and adds a state by the given name [stateName].
   /// If a state already exists it is returned,

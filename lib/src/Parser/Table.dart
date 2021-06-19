@@ -101,9 +101,9 @@ class _Table {
       data.writeInt(action.state);
     } else if (action is _Reduce) {
       data.writeInt(3);
-      Grammar.Term term = action.rule.term;
-      int ruleNum = term.rules.indexOf(action.rule);
-      data.writeStr(term.name);
+      Grammar.Term? term = action.rule.term;
+      int ruleNum = term?.rules.indexOf(action.rule) ?? -1;
+      data.writeStr(term?.name ?? '');
       data.writeInt(ruleNum);
     } else if (action is _Accept) {
       data.writeInt(4);

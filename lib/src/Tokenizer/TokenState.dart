@@ -27,7 +27,7 @@ class TokenState {
   /// If the text matches a replacement's text the
   /// replacement token is used instead.
   Token getToken(String text, int index) =>
-    new Token(this._replace[text]??this._name, text, index);
+    new Token(this._replace[text] ?? this._name, text, index);
 
   /// Gets the name for this token.
   String toString() => this._name;
