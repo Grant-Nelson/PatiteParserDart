@@ -17,7 +17,7 @@ class Token {
 
   /// Gets the string for this token.
   String toString() {
-    String txt = this.text.replaceAll("\n", "\\n").replaceAll("\t", "\\t");
-    return "$name:$index:\"$txt\"";
+    String txt = this.text.replaceAll('\n', '\\n').replaceAll('\t', '\\t');
+    return '$name:$index:"$txt"';
   }
 }

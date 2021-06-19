@@ -19,5 +19,5 @@ class Transition extends Matcher.Group {
   void set consume(bool consume) { this._consume = consume; }
 
   /// Gets the string for this transition.
-  String toString() => "${this._target?.name}: ${super.toString()}";
+  String toString() => '${this._target?.name}: ${super.toString()}';
 }
