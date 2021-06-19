@@ -5,10 +5,10 @@ part of PetiteParserDart.Calculator;
 class Variant {
 
   /// This is the wrapped value.
-  final Object value;
+  final Object? value;
 
   /// Wraps the given value into a new Variant.
-  Variant(Object this.value);
+  Variant(this.value);
 
   /// Gets the string for this value.
   String toString() => '${value.runtimeType}($value)';

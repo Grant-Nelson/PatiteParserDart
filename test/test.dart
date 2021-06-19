@@ -17,7 +17,7 @@ part 'testTool.dart';
 part 'tokenizer.dart';
 
 /// Tests for Petite Parser Dart.
-void main() async {
+void main() {
   TestTool test = new TestTool();
 
   test.run(diff00);
@@ -47,7 +47,6 @@ void main() async {
   test.run(loader08);
   test.run(loader09);
 
-  await Calculator.Calculator.loadParser();
   test.run(calc00);
   test.run(calc01);
   test.run(calc02);

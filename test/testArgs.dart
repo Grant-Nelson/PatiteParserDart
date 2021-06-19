@@ -2,14 +2,11 @@ part of PetiteParserDart.test;
 
 /// The arguments passed into a test.
 class TestArgs {
-  bool _failed;
-  StringBuffer _buf;
+  bool _failed = false;
+  StringBuffer _buf = new StringBuffer();
 
   /// Creates a new test argument.
-  TestArgs() {
-    this._failed = false;
-    this._buf = new StringBuffer();
-  }
+  TestArgs();
 
   /// Indicates if the test has failed or not.
   bool get failed => this._failed;

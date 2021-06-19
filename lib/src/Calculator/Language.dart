@@ -1,3 +1,7 @@
+part of PetiteParserDart.Calculator;
+
+const String language = '''
+
 # Petite Parser Example
 # Calculator Language Definition
 
@@ -146,3 +150,5 @@
 <Args> := _
     | <Expression.Or>
     | <Args> [Comma] <Expression.Or>;
+
+''';

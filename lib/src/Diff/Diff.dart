@@ -57,7 +57,7 @@ String plusMinusLines(String aSource, String bSource) =>
 /// It formats the results by prepending a "+" to new lines in `bSource`,
 /// a "-" for any to removed strings from `aSource`, and space if the strings are the same.
 List<String> plusMinusParts(List<String> aSource, List<String> bSource) {
-  List<String> result = new List<String>();
+  List<String> result = [];
   int aIndex = 0, bIndex = 0;
   for (Step step in stringListPath(aSource, bSource)) {
     switch (step.type) {

@@ -2,12 +2,10 @@ part of PetiteParserDart.test;
 
 /// The main tool for testing.
 class TestTool {
-  bool _failed;
+  bool _failed = false;
 
   /// Creates a new testing tool.
-  TestTool() {
-    this._failed = false;
-  }
+  TestTool();
 
   /// prints the results of all the tests.
   void printResult() =>
