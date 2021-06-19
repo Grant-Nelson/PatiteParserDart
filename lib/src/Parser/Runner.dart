@@ -6,7 +6,7 @@ class _Runner {
   final int _errorCap;
   List<String> _errors = [];
   List<ParseTree.TreeNode> _itemStack = [];
-  List<int> _stateStack = [];
+  List<int> _stateStack = [0];
   bool _accepted = false;
   bool _verbose = false;
 
