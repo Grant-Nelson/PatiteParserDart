@@ -1,6 +1,5 @@
 library PetiteParserDart.Grammar;
 
-import 'package:PetiteParserDart/Grammar.dart';
 import 'package:PetiteParserDart/src/Simple/Simple.dart' as Simple;
 
 part 'Item.dart';
